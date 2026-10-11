@@ -78,8 +78,9 @@ a.btn{text-decoration:none;color:inherit;display:inline-flex;align-items:center;
 .spark{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:1}
 .spark i{position:absolute;top:-20px;width:var(--s);height:var(--s);background:radial-gradient(circle,#fff6c9 0%,#f2c94c 45%,rgba(242,201,76,0) 70%);border-radius:50%;animation:fall linear infinite}
 @keyframes fall{0%{transform:translateY(-10px) rotate(0);opacity:0}10%{opacity:1}100%{transform:translateY(105vh) rotate(260deg);opacity:.2}}
-.birth.done{justify-content:flex-start}
-.cert{position:relative;z-index:2;width:100%;max-width:900px;background:var(--card);border:1px solid var(--rule);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;animation:rise .45s ease-out;margin:auto 0}
+.birth.done{justify-content:flex-start;padding-bottom:40px}
+.birth>*{flex-shrink:0}
+.cert{position:relative;z-index:2;width:100%;max-width:900px;flex-shrink:0;background:var(--card);border:1px solid var(--rule);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;animation:rise .45s ease-out;margin:auto 0}
 @keyframes rise{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
 .ch{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--red);color:#fff;padding:12px 20px}
 .ch span{font-weight:900;font-size:16px;letter-spacing:.08em}.ch small{font-family:var(--f-num);font-size:12px;opacity:.9}
