@@ -104,8 +104,14 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 
 .me{position:sticky}.quit{position:absolute;top:8px;right:10px;border:0;background:none;color:var(--ink3);font-size:12px;padding:2px 4px;text-decoration:underline;text-underline-offset:3px}
 @media (max-width:600px){.mm{padding-right:0}}
+
+.stars{color:var(--gold);letter-spacing:1px;font-size:.92em;white-space:nowrap}
+.birth .stars{color:#D9A93A}
+.topr{display:flex;gap:6px;align-items:center}
+.pill.link{text-decoration:none;color:var(--red);border-color:var(--red);font-weight:700}
+@media (max-width:600px){.top{flex-wrap:wrap;gap:8px}.eyebrow{flex-basis:100%}}
 </style></head><body><section id="home" class="wrap">
- <div class="top"><span class="eyebrow">인생 시뮬레이션 · 북한편 · 1년이 한 턴</span><button class="pill" id="themeBtn" type="button" aria-label="밝은 화면과 어두운 화면 바꾸기">◐</button></div>
+ <div class="top"><span class="eyebrow">인생 시뮬레이션 · 북한편 · 1년이 한 턴</span><span class="topr"><a class="pill link" href="https://alohang1985.github.io/debut-gak/">데뷔각 하러 가기 →</a><button class="pill" id="themeBtn" type="button" aria-label="밝은 화면과 어두운 화면 바꾸기">◐</button></span></div>
  <div id="resumeBox" hidden></div>
  <h1 class="title"><span>2600만</span><small>분의 1</small></h1>
  <p class="lede">북한에서 태어납니다. 고를 수 있는 건 아무것도 없습니다. 성분, 사는 곳, 부모님, 운은 주사위가 정합니다. 해마다 무엇에 마음을 쏟을지만 정하세요. 장마당에서 돈을 벌 수도, 당원이 되어 평양으로 갈 수도, 강을 건널 수도 있습니다. 어쩌면 백두혈통으로 태어날 수도 있죠.</p>
@@ -322,6 +328,14 @@ function endingOf(s){for(const[id,f,t,tone,d]of ENDINGS)if(f(s))return{id,t,tone
 // 떠날 수 있을 때: 어른이거나 국경경비대 병사이고, 마음과 준비가 어느 정도 됐을 때
 function canEscape(s){const st=stageOf(s);return!s.end&&!s.royal&&(st==='adult'||(st==='army'&&s.flags.borderPost))&&(s.prep>=35||s.outside>=55)}
 
+// 실질 계급(별 1~5): 성분에 당 직위 · 돈 · 사는 곳 · 수감 이력을 더하고 뺍니다
+function realStars(s){if(s.royal)return 5;const st=stageOf(s);if(s.camp||st==='jail')return 1;
+ let v={core:3,waver:2,hostile:1}[s.songbun]||2;if(s.party)v+=.5;if(s.rank>=3)v+=1;if(s.rank>=5)v+=.5;if(s.art>=3)v+=1;
+ if(s.money>=3000)v+=.5;if(s.money>=15000)v+=1;if(s.place.type==='capital')v+=.5;if(s.place.ko==='아오지 탄광 마을')v-=.5;if(s.flags.record)v-=.5;if(s.china)v=1.5;
+ return clamp(Math.round(v),1,5)}
+const STAR_KO=['','바닥','아래쪽','중간','위쪽','꼭대기'];
+const starsTxt=n=>'★'.repeat(n)+'☆'.repeat(5-n);
+
 /* ================================================================
    2600만 분의 1 — 선택 사건 (숨은 진실 + 결과는 주사위)
    ================================================================ */
@@ -511,7 +525,7 @@ function enterGame(){show('game');FLOW.busy=false;renderAll();startFlow()}
 /* ---------- game screen ---------- */
 const barRow=(k,v,col)=>`<em>${k}</em><i><u style="width:${clamp(v,0,100)}%;background:${col}"></u></i><b>${Math.round(v)}</b>`;
 function renderMe(){const s=S;drawAv($('meAv'),s);$('meName').textContent=s.name;$('meAge').textContent=`${s.age}살 · ${s.year}년`;
- $('meJob').textContent=`${s.royal?'백두혈통':SONGBUN[s.songbun].ko} · ${s.place.ko} · ${jobLabel(s)}${s.married?' · 기혼':''}${s.kids?` · 아이 ${s.kids}`:''}`;
+ const rs=realStars(s);$('meJob').innerHTML=`${s.royal?'백두혈통':SONGBUN[s.songbun].ko} <span class="stars" title="실질 계급 · ${STAR_KO[rs]}">${starsTxt(rs)}</span> · ${esc(s.place.ko)} · ${esc(jobLabel(s))}${s.married?' · 기혼':''}${s.kids?` · 아이 ${s.kids}`:''}`;
  $('meBars').innerHTML=barRow('건강',s.hp,'var(--good)')+barRow('위험',s.risk,'var(--bad)')+(!s.royal&&(s.prep>0||s.china)?barRow('탈북 준비',s.china?100:s.prep,'var(--blue)'):'');
  $('meMoney').textContent=usd(s.money)}
 const DIR_HEAD={baby:['아직은 자라는 중','일곱 살부터 마음 쏟을 곳을 고릅니다'],school:['올해 마음 쏟을 곳','학교 밖에서의 시간'],army:['군 생활','제대까지 버티기'],adult:['올해 마음 쏟을 곳','고른 쪽으로 한 해가 흘러갑니다'],royal:['무엇을 해 볼까','무엇이든 됩니다. 대신 위에서 봅니다'],jail:['버티는 수밖에','나갈 날을 셉니다'],camp:['버티는 수밖에',''],china:['중국에서','숨어 살거나, 더 멀리 가거나']};
@@ -546,7 +560,7 @@ function finish(){FLOW.busy=false;closeModal();const s=S,E=endingOf(s);const dx=
  const mom=s.big.slice().sort((a,b)=>Math.abs(b.g)-Math.abs(a.g)).slice(0,6).sort((a,b)=>a.age-b.age);
  $('endCard').innerHTML=`<div class="endtop"><canvas id="endAv" width="32" height="40"></canvas><div><span class="tone ${E.tone}">${{good:'이번 생',neutral:'이번 생',bad:'이번 생'}[E.tone]}</span><h2>${esc(E.t)}</h2><div class="why">${esc(s.name)} · ${s.age}살 · ${esc(why)}</div></div></div>
   <p class="desc">${esc(E.d)}</p>
-  <div class="eg"><div><small>성분</small><b>${s.royal?'백두혈통':SONGBUN[s.songbun].ko}</b></div><div><small>태어난 곳</small><b>${esc(s.birthPlace||s.place.ko)}</b></div><div><small>마지막 모습</small><b>${esc(s.end==='south'?'남쪽 시민':jobLabel(s))}</b></div><div><small>남긴 돈</small><b>${usd(s.money)}</b></div><div><small>가족</small><b>${s.married?`배우자${s.kids?` · 아이 ${s.kids}`:''}`:'혼자'}</b></div><div><small>살아온 해</small><b>${s.age}년</b></div></div>
+  <div class="eg"><div><small>성분 · 마지막 계급</small><b>${s.royal?'백두혈통':SONGBUN[s.songbun].ko} <span class="stars">${starsTxt(realStars(s))}</span></b></div><div><small>태어난 곳</small><b>${esc(s.birthPlace||s.place.ko)}</b></div><div><small>마지막 모습</small><b>${esc(s.end==='south'?'남쪽 시민':jobLabel(s))}</b></div><div><small>남긴 돈</small><b>${usd(s.money)}</b></div><div><small>가족</small><b>${s.married?`배우자${s.kids?` · 아이 ${s.kids}`:''}`:'혼자'}</b></div><div><small>살아온 해</small><b>${s.age}년</b></div></div>
   <h3 style="margin:0 0 6px;font-size:15px">기억에 남는 순간</h3><ol class="moments">${(mom.length?mom:[{age:s.age,t:'조용한 나날이었습니다.',g:0}]).map(m=>`<li><span style="font-family:var(--f-num);color:var(--ink3)">${m.age}살</span> · <span style="color:${m.g>0?'var(--good)':m.g<0?'var(--bad)':'inherit'}">${esc(m.t)}</span></li>`).join('')}</ol>`;
  show('end');drawAv($('endAv'),s)}
 
@@ -556,7 +570,7 @@ function birthShow(s,done){const old=$('birth');if(old)old.remove();s.birthPlace
  el.innerHTML=`<button class="bskip" type="button">건너뛰기</button><div class="bstage"><div class="bhead"><small>${s.year}년, 북한에서 태어난</small><div class="bnum">약 <b id="bN">0</b>명 중 한 명</div></div>
   <div class="bcard" id="bCard"><canvas width="32" height="40"></canvas><b>${esc(s.name)}</b><small>오늘 태어남 · ${esc(s.place.ko)}</small></div>
   <div class="brows"><div class="brow"><span>사는 곳</span><div><b>${esc(s.place.ko)}</b><small>${esc(PLACES[s.place.type].ko)}</small></div></div>
-   <div class="brow${s.royal?' royalrow':''}"><span>성분</span><div><b>${SONGBUN[s.songbun].ko}</b><small>${esc(SONGBUN[s.songbun].d)}</small></div></div>
+   <div class="brow${s.royal?' royalrow':''}"><span>성분</span><div><b>${SONGBUN[s.songbun].ko} <span class="stars">${starsTxt(realStars(s))}</span></b><small>${esc(SONGBUN[s.songbun].d)}</small></div></div>
    <div class="brow"><span>부모</span><div><b>${s.royal?'혁명 가문':`아버지 ${esc(s.dad)}`}</b><small>${s.royal?'관저에서 태어났습니다':`어머니 ${esc(s.mom)}`}</small></div></div>
    <div class="brow"><span>숨은 운</span><div><b>???</b><small>살아 봐야 압니다</small></div></div></div>
   <p class="bline">${esc(s.log[s.log.length-1].t)}</p><button class="btn pri big bgo" type="button" id="bGo">${s.royal?'…그런데 백두혈통입니다':'살아 보기'}</button></div>`;
