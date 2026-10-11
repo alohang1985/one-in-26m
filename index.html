@@ -352,6 +352,8 @@ body::before{content:"";position:fixed;top:0;left:0;right:0;height:5px;backgroun
 #home{overflow-x:clip}
 .topr{margin-left:auto}
 @media (max-width:600px){.hero::before{inset:-20px 0}}
+
+.mk2{font-family:var(--f-num);font-size:11px;font-weight:500;padding:1px 5px;border-radius:4px;vertical-align:1px}.mk2.up{color:var(--bad);background:var(--red-soft)}.mk2.dn{color:var(--good);background:color-mix(in srgb,var(--good) 14%,transparent)}
 </style></head><body><section id="home" class="wrap">
  <div class="top"><span class="eyebrow">무료 인생 시뮬레이션 · 북한편 · 1년이 흘러갑니다</span><span class="topr"><button class="pill" type="button" id="installBtn" hidden>앱 설치</button><a class="pill link" href="https://alohang1985.github.io/debut-gak/">데뷔각 하러 가기 →</a><button class="pill" id="themeBtn" type="button" aria-label="밝은 화면과 어두운 화면 바꾸기">◐</button><span class="rating" title="15세 이상 · 수용소 · 죽음 같은 무거운 주제를 다룹니다" aria-label="15세 이상 이용가">15</span></span></div>
  <div class="slogan" aria-hidden="true"><div class="sl-in"><span>★ 고를 수 있는 건 아무것도 없다</span><span>★ 1년이 한 턴, 인생은 단 한 번</span><span>★ 성분은 태어나는 순간 정해진다</span><span>★ 배급표보다 장마당</span><span>★ 2600만 분의 1</span><span>★ 끝까지 살아 낸 사람이 이긴다</span><span>★ 고를 수 있는 건 아무것도 없다</span><span>★ 1년이 한 턴, 인생은 단 한 번</span><span>★ 성분은 태어나는 순간 정해진다</span><span>★ 배급표보다 장마당</span><span>★ 2600만 분의 1</span><span>★ 끝까지 살아 낸 사람이 이긴다</span></div></div>
@@ -2456,7 +2458,7 @@ const DEALS=[
 function shopTier(s){return tierOf(s)}
 const shopList=s=>s.royal?SHOP.filter(it=>it.tier.includes(T_R)):SHOP.filter(it=>it.tier.includes(shopTier(s))&&(!it.when||it.when(s)));
 function refreshDeals(s){if(s.royal)return[];if(!s.deals||s.deals.y!==s.year){const L=DEALS.filter(d=>d.tier.includes(shopTier(s)));const keys=[];while(keys.length<3&&keys.length<L.length){const k=pick(L).k;if(!keys.includes(k))keys.push(k)}s.deals={y:s.year,keys,sold:[]}}return s.deals.keys.map(k=>DEALS.find(d=>d.k===k)).filter(Boolean)}
-const priceOf=(s,it)=>Math.round(it.p*(it.cat==='먹고살기'?eraMul(s,'cost'):1));
+const priceOf=(s,it)=>Math.round(it.p*(it.cat==='먹고살기'?eraMul(s,'cost'):1)*mktMul(s,it));
 const canShop=s=>['adult','royal'].includes(stageOf(s))&&!s.end;
 function shopState(s,it){const deal=it.k.startsWith('d_');
  if(deal){if((s.deals&&s.deals.sold||[]).includes(it.k))return'done';if(it.own&&s.own[it.own])return'have'}
@@ -2548,6 +2550,48 @@ function coinBuy(s,k,frac){coinInit(s);const c=COINS.find(x=>x.k===k);const amt=
 function coinSell(s,k){const c=COINS.find(x=>x.k===k);const u=(s.coins||{})[k]||0;if(!u)return{err:'가진 코인이 없습니다.'};const v=Math.round(u*s.cpx[k]);const base=(s.cbase||{})[k]||v;s.money+=v;s.coins[k]=0;s.cbase[k]=0;const g=v-base;
  addLog(s,`${c.ko}를 모두 팔아 ${usd(v)}를 받았습니다. (${g>=0?'+':''}${usd(g)})`,g>=0?'good':'bad');return{ok:1,t:g>=0?`${c.ko}를 모두 팔았습니다. 넣은 돈보다 ${usd(g)} 더 돌아왔습니다.`:`${c.ko}를 모두 팔았습니다. 넣은 돈에서 ${usd(-g)}가 사라졌습니다.`,ch:[{v:`+${usd(v)}`,good:true},{v:`손익 ${g>=0?'+':''}${usd(g)}`,good:g>=0}]}}
 const fmtCoin=u=>u>=100?Math.round(u).toLocaleString():u>=1?u.toFixed(2):u.toFixed(4);
+
+/* ================================================================
+   2600만 분의 1 — 장마당이 살아 있게
+   · 값은 해마다 출렁입니다 (▲▼)
+   · 같은 물건도 살 때마다 일이 다릅니다: 덤 · 흥정 · 가짜 · 고장 · 소문 · 끄나풀
+   · 가진 물건은 되팔 수 있습니다. 사는 사람도 값도 그때그때
+   ================================================================ */
+function hsh(t){let h=2166136261;for(const c of String(t))h=Math.imul(h^c.charCodeAt(0),16777619);return h>>>0}
+function mktMul(s,it){if(!it||String(it.k).startsWith('d_'))return 1;const u=(hsh(s.id+'|'+s.year+'|'+it.k)%1000)/1000;return Math.round((.72+u*.66)*20)/20}
+const SHOP_KIND=it=>it.cat==='먹고살기'?'food':it.cat==='살림살이'?'goods':it.cat==='돈 굴리기'?'invest':it.cat==='사람 관리'?'people':it.cat==='위험한 물건'?'risky':it.cat==='백두혈통 전용'?'royal':'goods';
+const BUY_UP={
+ food:[['장사꾼 아주머니가 "단골이니까" 하며 한 줌을 더 얹어 줬습니다.',{hp:2}],['같은 값에 더 좋은 물건이 걸렸습니다. 오늘은 운이 좋았습니다.',{joy:2}],['흥정 끝에 값을 깎았습니다.',null,.2]],
+ goods:[['흥정 끝에 값을 깎았습니다. 장사꾼이 혀를 찼습니다.',null,.2],['덤으로 중국산 건전지 한 묶음을 받았습니다.',{joy:2}],['배달꾼이 집까지 날라다 주고 설치까지 해 줬습니다. 그 배달꾼과 친해졌습니다.',{joy:2,net:1}]],
+ invest:[['파는 사람이 급전이 필요했습니다. 값을 꽤 깎았습니다.',null,.18],['같이 일할 사람을 소개받았습니다.',{net:3}]],
+ people:[['받은 사람이 "다음엔 내가 한잔 사지" 했습니다.',{net:3}],['받은 사람이 그 자리에서 쓸 만한 소식 하나를 귀띔해 줬습니다.',{net:2,risk:-3}]],
+ risky:[['판 사람이 "다음 것도 있다"며 하나를 더 끼워 줬습니다.',{outside:3}],['단속 시간표까지 알려 줬습니다. 이 사람은 믿어도 될 것 같습니다.',{risk:-3}]],
+ royal:[['중개인이 수수료를 받지 않겠다고 했습니다. "영광입니다."',null,.12],['물건과 함께 외국 회사 사장의 친필 편지가 왔습니다.',{outside:2,joy:2}],['들여온 물건을 본 원로들이 하나같이 감탄했습니다.',{net:3}]]};
+const BUY_DOWN={
+ food:[['집에 와서 보니 자루 밑바닥에 모래가 섞여 있었습니다.',{hp:-2}],['다음 날 같은 물건 값이 뚝 떨어졌습니다. 배가 아팠습니다.',{joy:-2}]],
+ goods:[['사흘 만에 고장이 났습니다. 장마당 수리공에게 또 돈을 냈습니다.',{joy:-3},-.15],['알고 보니 상표만 그럴듯한 가짜였습니다.',{joy:-3}],['집에 오는 길에 손잡이가 떨어져 나갔습니다.',{joy:-2}]],
+ invest:[['산 다음 날, 같은 걸 반값에 판다는 사람이 나타났습니다.',{joy:-3}]],
+ people:[['받은 사람이 봉투를 챙기고도 모른 척했습니다. 헛돈이었습니다.',{joy:-2}],['그 자리를 다른 사람이 봤습니다. 소문이 돌았습니다.',{risk:4}]],
+ risky:[['판 사람이 보안서 끄나풀이었다는 소문이 돌았습니다.',{risk:8}],['물건이 반쯤 망가져 있었습니다. 따질 곳이 없습니다.',{joy:-3}]],
+ royal:[['물건이 세 나라를 거치는 동안 제재 감시망에 사진이 찍혔습니다. 외국 신문에 기사가 났습니다.',{risk:3,outside:2}],['배송 중에 물건 하나가 사라졌습니다. 중개인이 연락을 끊었습니다.',{joy:-3},-.1]]};
+const BUY_ENVY=[['인민반장이 부러운 눈으로 한참 쳐다봤습니다. 다음 주에 "지원 물자"를 내라고 찾아왔습니다.',{},-.08],['동네에 소문이 났습니다. 구경 오는 사람이 생겼습니다.',{net:2}],['옆집이 따라서 같은 걸 샀습니다. 우리 것보다 조금 더 좋은 걸로.',{joy:-2}]];
+{const buy0=buy;buy=function(s,k){const r=buy0(s,k);if(!r.ok)return r;const it=SHOP.find(x=>x.k===k)||DEALS.find(x=>x.k===k);if(!it||k.startsWith('d_'))return r;
+ const kind=SHOP_KIND(it),p=Math.round(it.p*mktMul(s,it));const tb=(s.traits||[]).some(t=>['talk','shrewd','craft'].includes(t))?.06:0,cf=(s.traits||[]).includes('careful')?.04:0;
+ const x=rnd();let pick_=null,label='',g=0;
+ if(s.flags.absolute||x<.16+tb+s.luck*.03){pick_=pick(BUY_UP[kind]);label=pick_[2]?'흥정 성공':'덤';g=1}
+ else if(x<.16+tb+s.luck*.03+Math.max(.03,.12-s.luck*.03-cf)){pick_=pick(BUY_DOWN[kind]);label=kind==='goods'?'불량품':'뜻밖의 손해';g=-1}
+ else if(kind==='goods'&&!s.royal&&it.p>=150&&chance(.2)){pick_=pick(BUY_ENVY);label='이웃의 눈';g=0}
+ if(!pick_)return r;const[t,e,m]=pick_;const ee=Object.assign({},e||{});if(m){const v=Math.round(p*Math.abs(m));ee.money=m>0?v:-Math.min(s.money,v)}
+ const ch=applyE(s,ee);addLog(s,t,g>0?'good':g<0?'bad':'');return Object.assign(r,{ch:r.ch.concat(ch),tw:{label,t,g}})}}
+
+/* 되팔기: 가진 물건 */
+const SELL_LINES=['국경 도시에서 온 장사꾼이 값을 후하게 쳐줬습니다.','이웃이 몇 달을 벼르다 샀습니다.','장마당 중고 매대 주인이 값을 한참 깎았습니다.','결혼을 앞둔 집에서 사 갔습니다. 혼수로 쓴답니다.','간부 집 운전수가 와서 현금으로 사 갔습니다.'];
+const SELL_ROYAL=['대리인을 통해 외국 수집가에게 넘겼습니다.','원로 하나가 그 물건을 탐내더니 값을 두 배로 불렀습니다.','물건은 조용히 관저를 떠났습니다. 대금은 가명 계좌로 들어왔습니다.'];
+const sellable=s=>Object.keys(s.own||{}).filter(k=>s.own[k]).map(k=>SHOP.find(x=>x.k===k)).filter(it=>it&&!it.yearly&&!it.inv&&it.k!=='maid');
+const sellRange=(s,it)=>{const p=Math.round(it.p*mktMul(s,it));return[Math.round(p*.3),Math.round(p*.85)]};
+function sellItem(s,k){const it=SHOP.find(x=>x.k===k);if(!it||!(s.own||{})[k])return{err:'가진 물건이 아닙니다.'};const[lo,hi]=sellRange(s,it);
+ const v=s.flags.absolute?hi:Math.round(lo+(hi-lo)*Math.pow(rnd(),.8));s.money+=v;delete s.own[k];const t=pick(s.royal?SELL_ROYAL:SELL_LINES);
+ addLog(s,`${it.ko}${P(it.ko,'을/를')} ${usd(v)}에 팔았습니다.`,'dec');return{ok:1,t:`${it.ko}${P(it.ko,'을/를')} 팔았습니다. ${t}`,ch:[{v:`+${usd(v)} (${krw(v).replace('약 ','')})`,good:true}],title:'되팔기'}}
 
 /* ================================================================
    2600만 분의 1 — 귀찮은 건 알아서
@@ -3696,7 +3740,7 @@ function tabActs(){const s=S,A=actsFor(s);if(!A.length)return`<p class="sub">${s
  return cats.map(cat=>`<div class="acat"><h4>${cat}</h4>${A.filter(a=>a.cat===cat).map(a=>{const st=actState(s,a);const c=a.cost?Math.round(a.cost(s)):0;const p=a.open?null:pct(a.p(s));
   return`<div class="act${st.ok?'':' no'}"><div class="at"><b>${esc(a.ko)}</b><small>${esc(a.d)}${a.sub?` · ${esc(a.sub(s))}`:''}</small>${(st.rq||[]).length?`<div class="rq">${st.rq.map(r=>`<span class="${r[1]?'ok':'x'}">${r[1]?'✓':'✗'} ${esc(r[0])}</span>`).join('')}</div>`:''}</div>
   <div class="ab"><button class="btn${st.ok?' pri':''}" type="button" data-act="${a.k}"${st.ok?'':' disabled'}>${a.cat==='최고지도자 명령'?'명령':a.open?'해 보기':'도전'}</button><small>${c?`${usd(c)} · ${krw(c)}`:'비용 없음'}${p!=null?` · 성공 ${p}%`:''}${st.ok?'':` · ${esc(st.why)}`}</small>${autoable(a)?`<button class="auto${(s.autoCmd||{})[a.k]?' on':''}" type="button" data-autocmd="${a.k}" aria-pressed="${!!(s.autoCmd||{})[a.k]}">${(s.autoCmd||{})[a.k]?'✓ 매년 자동':'매년 자동'}</button>`:''}</div></div>`}).join('')}</div>`).join('')}
-function shopItemH(s,it,deal){const st=shopState(s,it);const p=priceOf(s,it);return`<div class="item ${st}${deal?' deal':''}"><div><b>${esc(it.ko)}</b><small>${esc(it.d)}${it.yearly?' · 한 해에 한 번':''}${it.inv?` · ${it.inv.y}년 뒤 결과`:''}</small></div><button class="btn${st==='ok'?' pri':''}" type="button" data-buy="${it.k}"${st==='ok'?'':' disabled'}>${st==='have'?'있음':st==='done'?(deal?'팔림':'올해 삼'):usd(p)}</button><em>${krw(p)}</em>${it.yearly&&!deal?`<button class="auto${(s.autoBuy||{})[it.k]?' on':''}" type="button" data-autobuy="${it.k}" aria-pressed="${!!(s.autoBuy||{})[it.k]}">${(s.autoBuy||{})[it.k]?'✓ 매년 자동':'매년 자동'}</button>`:''}</div>`}
+function shopItemH(s,it,deal){const st=shopState(s,it);const p=priceOf(s,it);const mm=mktMul(s,it),mv=Math.round((mm-1)*100);return`<div class="item ${st}${deal?' deal':''}"><div><b>${esc(it.ko)}${!deal&&Math.abs(mv)>=8?` <span class="mk2 ${mv>0?'up':'dn'}">${mv>0?'▲':'▼'}${Math.abs(mv)}%</span>`:''}</b><small>${esc(it.d)}${it.yearly?' · 한 해에 한 번':''}${it.inv?` · ${it.inv.y}년 뒤 결과`:''}</small></div><button class="btn${st==='ok'?' pri':''}" type="button" data-buy="${it.k}"${st==='ok'?'':' disabled'}>${st==='have'?'있음':st==='done'?(deal?'팔림':'올해 삼'):usd(p)}</button><em>${krw(p)}</em>${it.yearly&&!deal?`<button class="auto${(s.autoBuy||{})[it.k]?' on':''}" type="button" data-autobuy="${it.k}" aria-pressed="${!!(s.autoBuy||{})[it.k]}">${(s.autoBuy||{})[it.k]?'✓ 매년 자동':'매년 자동'}</button>`:''}</div>`}
 function tabShop(){const s=S;if(!canShop(s))return`<p class="sub">${s.age<17?'살림은 아직 부모님 몫입니다. 어른이 되면 장마당에서 살 수 있어요.':'지금은 장마당에 갈 수 없습니다.'}</p>`;
  const L=shopList(s),D=refreshDeals(s);const inv=(s.inv||[]).map(v=>{const it=SHOP.find(x=>x.k===v.k);return`${it?it.ko:v.k} (${v.y}년에 결과)`});
  let h=`<p class="sub" style="margin:0 0 10px">가진 돈 ${usd(s.money)} · ${krw(s.money)} · ${s.royal?'관저 전용 목록':TIER_KO[tierOf(s)].split(' · ')[0]+' 장마당'}</p>`;
@@ -3705,6 +3749,7 @@ function tabShop(){const s=S;if(!canShop(s))return`<p class="sub">${s.age<17?'�
   return`<div class="item coin"><div><b>${esc(c.ko)}</b><small>1개 ${px>=1?usd(Math.round(px)):'$'+px.toFixed(4)} · 보유 ${fmtCoin(u)}개${u?` · ${usd(v)} <span class="${g>=0?'g':'b'}">(${g>=0?'+':''}${usd(g)})</span>`:''}</small></div><span class="cb"><button class="btn pri" type="button" data-cbuy="${c.k}">10% 사기</button><button class="btn" type="button" data-csell="${c.k}"${u?'':' disabled'}>전부 팔기</button></span><em>해마다 값이 오르내립니다</em></div>`}).join('')}</div></div>`}
  if(D.length)h+=`<div class="acat"><h4>오늘의 장마당 <small class="dl">${s.year}년에만</small></h4><div class="shop">${D.map(it=>shopItemH(s,it,1)).join('')}</div></div>`;
  for(const c of SHOP_CATS){const C=L.filter(it=>it.cat===c);if(C.length)h+=`<div class="acat"><h4>${c}</h4><div class="shop">${C.map(it=>shopItemH(s,it)).join('')}</div></div>`}
+ const SL=sellable(s);if(SL.length)h+=`<div class="acat"><h4>가진 물건 · 되팔기 <small class="dl">값은 사는 사람 마음</small></h4><div class="shop">${SL.map(it=>{const[lo,hi]=sellRange(s,it);return`<div class="item"><div><b>${esc(it.ko)}</b><small>${s.own[it.k]}년에 산 것 · ${usd(lo)}~${usd(hi)}쯤</small></div><button class="btn" type="button" data-sell="${it.k}">팔기</button><em>${krw(hi)}까지</em></div>`}).join('')}</div></div>`;
  return h}
 function tabLed(){const s=S,L=s.led,E=eraOf(s);const era=E?`<div class="eraBox"><b>시대의 바람 · ${esc(E.ko)}</b><span>${esc(E.d)} (${s.era.until}년까지)</span></div>`:'';
  if(!L)return era+'<p class="sub">해가 지나면 무엇으로 벌고 무엇에 썼는지 여기에 적힙니다.</p>';
@@ -3830,7 +3875,8 @@ function boot(){applyTheme(LS.get('nk.theme',null));initPWA();refreshHome();mapS
   if(ab){const k=ab.dataset.autobuy;S.autoBuy=S.autoBuy||{};S.autoBuy[k]=!S.autoBuy[k];save();renderTabs();toast(S.autoBuy[k]?'해마다 알아서 삽니다. 돈이 모자란 해엔 건너뜁니다.':'매년 자동을 껐습니다.');return}
   if(ac){const k=ac.dataset.autocmd;S.autoCmd=S.autoCmd||{};S.autoCmd[k]=!S.autoCmd[k];save();renderTabs();toast(S.autoCmd[k]?'해마다 이 명령이 알아서 내려갑니다.':'매년 자동을 껐습니다.');return}
   if(cbu||cse){if(FLOW.busy||!$('modal').hidden)return;const r=cbu?coinBuy(S,cbu.dataset.cbuy,.1):coinSell(S,cse.dataset.csell);if(r.err){toast(r.err);return}FLOW.busy=true;modal('코인','odd',cbu?'코인 사기':'코인 팔기','');$('mBody').innerHTML='';showResult(r.t,r.ch,0,afterEvent);return}
-  if(bu){if(FLOW.busy||!$('modal').hidden)return;const r=buy(S,bu.dataset.buy);if(r.err){toast(r.err);return}FLOW.busy=true;modal('장마당','odd',r.title,'');$('mBody').innerHTML='';showResult(r.t||'샀습니다.',r.ch,0,afterEvent)}};
+  if(bu){if(FLOW.busy||!$('modal').hidden)return;const r=buy(S,bu.dataset.buy);if(r.err){toast(r.err);return}FLOW.busy=true;modal('장마당','odd',r.title,'');$('mBody').innerHTML='';showResult(r.t||'샀습니다.',r.ch,0,afterEvent,r.tw)}
+  const se=e.target.closest('[data-sell]');if(se){if(FLOW.busy||!$('modal').hidden)return;const r=sellItem(S,se.dataset.sell);if(r.err){toast(r.err);return}FLOW.busy=true;modal('장마당','odd','되팔기','');$('mBody').innerHTML='';showResult(r.t,r.ch,1,afterEvent)}};
  $('moreBtn').onclick=()=>{TL_ALL=true;renderTL()};
  addEventListener('keydown',e=>{if($('modal').hidden)return;if(/^[1-4]$/.test(e.key)){const b=$('mBody').querySelectorAll('.opt')[+e.key-1];if(b&&!b.disabled){e.preventDefault();b.click()}}})}
 boot();
