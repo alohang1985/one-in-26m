@@ -408,6 +408,20 @@ const SECRET_P=[['pow',.06],['japan',.05],['partisan',.04],['informer',.06],['so
 /* ---------- 북한 자료 (근삿값) ---------- */
 const NK_FACTS={pop:'약 2,600만 명',births:'약 35만 명',le:'70세 안팎 (여성이 6~7년 더 김)',u5:'1,000명당 약 15명',gni:'1인당 약 159만 원 (남한의 약 1/30)',power:'발전량이 남한의 약 1/24',defect:'한 해 2,000명대(2009~2011년) → 수십~200명대(2020년대)',src:'UN 세계인구전망 · UN IGME · 한국은행 · 통일부 자료를 바탕으로 한 근삿값'};
 
+/* ---------- 사는 세상(실질 계급)에 따라 다른 해마다 한 줄 ---------- */
+const LINES_T={
+ elite:{
+  baby:['평양산원에서 태어나 일주일 만에 아파트로 돌아왔습니다.','할머니가 수입 분유를 상자째 사 오셨습니다.','정전이 돼도 우리 아파트 승강기는 가끔 움직였습니다.','아버지 차 운전수가 기저귀 보따리를 들고 계단을 올라왔습니다.','돌 사진을 평양 사진관에서 찍었습니다.'],
+  kid:['학생소년궁전에서 피아노를 배우기 시작했습니다.','아버지 차를 타고 학교에 갔습니다. 친구들이 창문을 쳐다봤습니다.','외국 과자를 반 친구들에게 나눠 줬습니다. 그날 인기가 많았습니다.','여름방학에 송도원 국제소년단야영소에 다녀왔습니다.','집에 영어 가정교사가 왔습니다.','생일에 일본 게임기를 선물받았습니다. 밖에 들고 나가지는 말라고 했습니다.'],
+  teen:['제1중학교 입시 과외를 받았습니다. "과외"라는 말은 쓰면 안 됐습니다.','친구 생일 파티에서 처음으로 외국 맥주를 마셔 봤습니다.','아버지가 중국 출장에서 운동화를 사 오셨습니다.','여름에 원산 해변 휴양소에 갔습니다.','휴대폰을 선물받았습니다. 바깥 인터넷은 안 됩니다.'],
+  adult:['공급소에서 수입 고기가 나왔습니다.','아파트 엘리베이터가 또 멈췄습니다. 18층까지 걸어 올라갔습니다.','중앙당 간부 집 결혼식에 초대받았습니다.','외국 영화 시사회에 다녀왔습니다.','옥류관 냉면집 줄이 길었습니다. 우리는 줄을 서지 않았습니다.','휴대폰을 새것으로 바꿨습니다.','주말에 문수물놀이장에 다녀왔습니다.','집에 시골에서 올라온 가정부가 들어왔습니다.','회의에서 한마디도 틀리지 않으려고 밤새 원고를 외웠습니다.','이웃 간부 집에 밤늦게 검은 차가 섰습니다. 다음 날 그 집 문패가 사라졌습니다.']},
+ bottom:{
+  baby:['어머니 젖이 나오지 않아 옥수수 미음을 먹었습니다.','겨울에 방이 너무 추워 온 식구가 한 이불 속에서 잤습니다.','아기 옷은 이웃집에서 물려받은 것뿐이었습니다.','아버지가 일터에서 돌아오면 석탄 냄새가 났습니다.','진료소에는 약이 없어 할머니가 쑥을 달였습니다.'],
+  kid:['학교 대신 산에 가서 나물을 캤습니다.','신발이 해져서 맨발로 등교했습니다.','배가 고파 수업 시간에 엎드려 잤습니다.','갱도 입구에서 석탄 부스러기를 주웠습니다.','꽃제비가 된 친구를 역전에서 봤습니다.','선생님이 "너희 집은 성분이 나빠서"라고 말했습니다. 무슨 뜻인지 몰랐습니다.','땔감 과제를 못 내서 벌로 교실 청소를 했습니다.'],
+  teen:['학교보다 장마당 짐꾼 일을 하는 날이 더 많았습니다.','친구들은 군대 얘기를 하는데, 나는 입대 명단에 없을 거라고 들었습니다.','농촌 동원에서 돌아오니 키가 하나도 안 자라 있었습니다.','강 건너 중국 마을의 불빛을 밤새 쳐다봤습니다.','산에서 캔 약초를 장마당 중국 상인에게 팔았습니다.'],
+  adult:['배급표는 있는데 배급이 없습니다.','일터에서 동료 하나가 다쳤습니다. 병원은 멀었습니다.','보위원이 한 달에 한 번씩 집을 들여다보고 갑니다.','장마당 자릿세를 못 내 쫓겨났습니다.','옥수수 국수로 하루 한 끼를 때웠습니다.','산비탈 뙈기밭에서 감자를 캤습니다.','석탄 한 수레를 몰래 팔아 쌀 2킬로를 샀습니다.','이웃집 아이가 꽃제비가 됐다는 소식을 들었습니다.']}};
+const TIER_KO={royal:'꼭대기 · 백두혈통',elite:'위쪽 세상 · 간부와 핵심계층',mid:'중간 · 장마당으로 사는 사람들',bottom:'바닥 · 감시받고 배고픈 사람들'};
+
 /* ================================================================
    2600만 분의 1 — 직장 · 가족 · 한 해 살림 · 시대의 바람
    돈은 저절로 모이지 않습니다. 직장, 장사, 식구 수가 해마다 장부에 남습니다.
@@ -553,11 +567,15 @@ function buy(s,k){const it=SHOP.find(x=>x.k===k);if(!it)return{err:'없는 물�
    2600만 분의 1 — 엔진: 1년 = 1턴. 방향을 정해 두면 인생이 흘러갑니다.
    ================================================================ */
 const DIRS={
- school:{loyal:{ko:'소년단 활동',d:'충성↑'},errand:{ko:'장마당 심부름',d:'돈 조금 · 인맥↑'},study:{ko:'공부',d:'공부↑ · 대학 가능성'},art:{ko:'예술 소조',d:'예술단 가능성'},radio:{ko:'몰래 라디오',d:'바깥 소식↑ · 위험↑'}},
+ school:{loyal:{ko:'소년단 활동',d:'충성↑'},errand:{ko:'장마당 심부름',d:'돈 조금 · 인맥↑',when:s=>tierOf(s)!=='elite'},study:{ko:'공부',d:'공부↑ · 대학 가능성'},tutor:{ko:'과외 · 피아노',d:'공부↑ · 예술↑ · 집안 돈이 든다',when:s=>tierOf(s)==='elite'},forage:{ko:'땔감 · 나물 캐기',d:'살림 보탬 · 건강↓ · 공부 못함',when:s=>tierOf(s)==='bottom'},art:{ko:'예술 소조',d:'예술단 가능성'},radio:{ko:'몰래 라디오',d:'바깥 소식↑ · 위험↑'}},
  army:{endure:{ko:'버티기',d:'건강 지키기'},party:{ko:'입당 노리기',d:'충성↑ · 출세'},smuggle:{ko:'몰래 밀수',d:'돈↑ · 위험↑',when:s=>s.flags.borderPost}},
- adult:{work:{ko:'직장',d:'출근 · 부업 · 안전한 편'},trade:{ko:'장사',d:'밑천을 굴림 · 단속 위험'},rise:{ko:'출세',d:'입당 · 승진 · 성의가 든다'},outside:{ko:'바깥세상',d:'드라마 · 라디오 · 위험↑'},family:{ko:'가족',d:'건강 · 행복 · 결혼 · 아이'},border:{ko:'국경',d:'밀수 · 탈북 준비 · 위험↑',when:s=>s.place.type==='border'||s.net>=40}},
+ adult:{work:{ko:'직장',d:'출근 · 부업 · 안전한 편'},trade:{ko:'장사',d:'밑천을 굴림 · 단속 위험'},rise:{ko:'출세',d:'입당 · 승진 · 성의가 든다'},outside:{ko:'바깥세상',d:'드라마 · 라디오 · 위험↑'},family:{ko:'가족',d:'건강 · 행복 · 결혼 · 아이'},border:{ko:'국경',d:'밀수 · 탈북 준비 · 위험↑',when:s=>s.place.type==='border'||s.net>=40},
+  connect:{ko:'간부 접대',d:'인맥↑ · 승진 기회 · 접대비',when:s=>tierOf(s)==='elite'||s.party},foreign:{ko:'외화 사업',d:'돈↑↑ · 검열 위험',when:s=>tierOf(s)==='elite'&&(s.party||s.jobK==='trader'||s.songbun==='core')},
+  plot:{ko:'뙈기밭 일구기',d:'먹을 것 · 단속 조금',when:s=>tierOf(s)!=='elite'},herb:{ko:'산 약초 캐기',d:'돈 조금 · 국경이면 더',when:s=>tierOf(s)==='bottom'||s.place.type==='rural'},hire:{ko:'돈주 집 품팔이',d:'돈 조금 · 인맥',when:s=>tierOf(s)==='bottom'}},
  royal:{biz:{ko:'사업',d:'돈↑↑'},power:{ko:'권력',d:'후계 · 숙청 위험'},abroad:{ko:'해외',d:'바깥세상 · 망명 기회'},quiet:{ko:'조용히 살기',d:'안전'}},
  china:{hide:{ko:'숨어서 일하기',d:'돈 모으기'},move:{ko:'다음 길 찾기',d:'제3국으로'}}};
+function tierOf(s){if(s.royal)return'royal';const r=realStars(s);return r>=4?'elite':r>=2?'mid':'bottom'}
+function tierPool(s,k){const T=LINES_T[tierOf(s)];if(T&&T[k]&&chance(.7)&&T[k].some(x=>!s.used[x]))return T[k];return LINES[k]}
 function stageOf(s){if(s.end)return'end';if(s.age<7)return'baby';if(s.camp)return'camp';if(s.jail>0)return'jail';if(s.china)return'china';if(s.age<17)return'school';if(s.royal)return'royal';if(s.army>0)return'army';return'adult'}
 const STAGE_KO={baby:'아기',school:'학생',army:'군 복무 중',adult:'',jail:'수감 중',camp:'수용소',china:'중국에 숨어 지냄',royal:'',end:''};
 function dirsOf(s){const L=DIRS[stageOf(s)];if(!L)return[];return Object.entries(L).filter(([k,d])=>!d.when||d.when(s))}
@@ -625,11 +643,13 @@ function yearTurn(s){const out={events:[],lines:[]};s.age++;s.year++;const st=st
  const say=(t,c,x)=>{addLog(s,t,c,x);out.lines.push(t)};
  const d=curDir(s);s.dir=d||s.dir;s.led=null;
  eraYear(s,say);
- if(st==='baby'){s.hp=clamp(s.hp+R(-6,4)*(1-P0.food)+2,5,100);s.led={y:s.year,note:'아직은 부모님 품에서 자랍니다. 살림은 부모님 몫입니다.',items:[],net:0};say(lifeLine(s,LINES.baby));if(s.age===1)out.events.push('dol')}
+ if(st==='baby'){s.hp=clamp(s.hp+R(-6,4)*(1-P0.food)+2,5,100);s.led={y:s.year,note:'아직은 부모님 품에서 자랍니다. 살림은 부모님 몫입니다.',items:[],net:0};say(lifeLine(s,tierPool(s,'baby')));if(s.age===1)out.events.push('dol')}
  else if(st==='school'){const items=[];
   if(d==='loyal')s.loyal=clamp(s.loyal+R(3,6),0,100);if(d==='errand'){const v=R(5,30);s.money+=v;items.push({k:'장마당 심부름',v});s.net=clamp(s.net+R(1,3),0,100)}if(d==='study')s.edu=clamp(s.edu+R(5,9),0,100);if(d==='art')s.flags.artPts=(s.flags.artPts||0)+R(4,8);if(d==='radio'){s.outside=clamp(s.outside+R(4,8),0,100);s.risk=clamp(s.risk+R(3,6),0,100)}
+  if(d==='tutor'){const v=-Math.min(s.money,R(15,50));if(v){s.money+=v;items.push({k:'과외비 (집안 돈)',v})}s.edu=clamp(s.edu+R(7,11),0,100);s.flags.artPts=(s.flags.artPts||0)+R(2,5)}
+  if(d==='forage'){const v=R(5,20);s.money+=v;items.push({k:'땔감 · 나물',v});s.hp=clamp(s.hp-2,0,100)}
   s.led={y:s.year,note:'살림은 부모님 몫입니다. 내가 번 돈만 적힙니다.',items,net:items.reduce((a,b)=>a+b.v,0)};
-  s.hp=clamp(s.hp+(s.songbun==='hostile'?R(-6,3):R(-3,4)),5,100);say(lifeLine(s,s.age<14?LINES.kid:LINES.teen));
+  s.hp=clamp(s.hp+(s.songbun==='hostile'?R(-6,3):R(-3,4)),5,100);say(lifeLine(s,tierPool(s,s.age<14?'kid':'teen')));
   if(s.age===7)say('소학교에 입학했습니다.','mile');if(s.age===11)out.events.push('scarf');
   if(s.age===16)graduate(s,say)}
  else if(st==='army'){s.army--;s.hp=clamp(s.hp-R(2,8)+(d==='endure'?5:0),5,100);const items=[];
@@ -666,6 +686,7 @@ function yearTurn(s){const out={events:[],lines:[]};s.age++;s.year++;const st=st
  for(const k of['assign','marry','heir','exile','secret']){if(s.end||!s.flags['q_'+k])continue;
   if(k==='secret'){if(!s.secret||s.flags.secretOut){delete s.flags.q_secret;continue}if(!['school','adult','army'].includes(stageOf(s)))continue}
   delete s.flags['q_'+k];const id=k==='secret'?'sec_'+s.secret:k;if(!out.events.includes(id))out.events.push(id)}
+ if(!s.end&&s.age>=7){const tr=tierOf(s);if(s.tier&&tr!==s.tier&&tr!=='royal'){const up=['bottom','mid','elite'].indexOf(tr)>['bottom','mid','elite'].indexOf(s.tier);say(up?(tr==='elite'?'사는 세상이 달라졌습니다. 이제 공급소 줄이 아니라 연회 자리에 섭니다.':'바닥에서 한 계단 올라섰습니다. 장마당이 내 편이 됐습니다.'):(tr==='bottom'?'바닥으로 떨어졌습니다. 이웃들이 우리 집을 피해 다닙니다.':'위쪽 세상에서 밀려났습니다. 이제 줄을 서야 합니다.'),up?'good':'bad');big(s,up?'계층 상승':'계층 추락',up?2:-2)}s.tier=tr}
  if(!s.end&&s.age%5===0&&s.age<=60)peerNote(s,say);
  s.hist.push({a:s.age,hp:Math.round(s.hp),r:Math.round(s.risk),j:Math.round(s.joy),m:Math.round(s.money),t:stageOf(s)});if(s.hist.length>120)s.hist.shift();
  // 선택 사건
@@ -680,6 +701,7 @@ function graduate(s,say){
  const uni=s.flags.uniOK||(!s.flags.uniTried&&s.edu>=45&&chance((s.songbun==='core'?.6:s.songbun==='waver'?.2:.04)*(s.secret==='pow'?.3:1)));
  if(uni){s.edu+=10;s.uni=4;s.net+=8;say('대학에 붙었습니다.','good');big(s,'대학 합격',2);s.dir='work';return}
  if(s.sex==='M'||chance(.3)){
+  if(s.sex==='M'&&s.songbun==='hostile'&&chance(.3)){say('성분 때문에 입대 명단에서 빠졌습니다. 친구들이 군복을 입던 날, 나는 탄광 배치 통지서를 받았습니다.','bad');big(s,'입대 거부',-1);s.asg=s.place.type==='rural'?'farm':'mine';s.flags.q_assign=1;s.dir='work';return}
   if(s.sex==='M'&&chance(.1)){s.army=3;s.flags.dolgyeok=1;say('키가 입대 기준에 모자랐습니다. 대신 돌격대에 배치돼 3년 동안 공사장에서 지냅니다.','mile');s.dir='endure';return}
   s.army=s.sex==='M'?R(8,10):R(5,7);s.flags.borderPost=s.secret!=='pow'&&chance(.25);say(`군에 입대했습니다. ${s.flags.borderPost?'국경경비대에 배치됐습니다. 강 건너 불빛이 보입니다.':`${s.army}년을 복무해야 합니다.`}`,'mile');s.dir='endure';return}
  say('고급중학교를 졸업했습니다.','mile');s.asg=defaultAsg(s);s.flags.q_assign=1;s.dir='work'}
@@ -694,10 +716,10 @@ function adultYear(s,d,say){const L=[],add=(k,v)=>{v=Math.round(v);if(v)L.push({
  if(d==='work'){add(full?'퇴근 뒤 텃밭 · 부업':'품팔이 · 잔일',R(50,120));if(full)s.loyal=clamp(s.loyal+2,0,100);s.risk=clamp(s.risk-2,0,100)}
  if(d==='rise'){s.loyal=clamp(s.loyal+R(2,5),0,100);if(s.money>30)add('간부들에게 바친 "성의"',-R(15,60));
   if(s.art>=1){if(chance(.18+s.luck*.03)&&s.art<4){s.art++;say(`${jobLabel(s)}${P(jobLabel(s),'이/가')} 됐습니다.`,'good');big(s,jobLabel(s),2)}}
-  else if(!s.party){const pc=({core:.25,waver:.12,hostile:.03}[s.songbun]||.1)+s.net/400+(s.jobK==='clerk'?.08:0)+(s.flags.photo?.1:0);
+  else if(!s.party){const pc=({core:.25,waver:.12,hostile:.03}[s.songbun]||.1)+s.net/400+(s.jobK==='clerk'?.08:0)+(s.flags.photo?.1:0)+(s.flags.connected===s.year?.12:0);
    if(s.age>=20&&s.loyal>=55&&chance(pc*(s.secret==='pow'?.15:1))){s.party=true;s.rank=1;say('입당했습니다. 이제 위로 올라갈 수 있습니다.','good');big(s,'입당',2)}
    else if(s.secret==='pow'&&s.age>=20&&s.loyal>=55&&!s.flags.powHint&&chance(.35)){s.flags.powHint=1;say('입당 추천 명단에서 또 이름이 빠졌습니다. 이유는 아무도 말해 주지 않았습니다.','bad')}}
-  else if(chance(.14+s.net/500-s.rank*.02)&&s.rank<5){s.rank++;say(`승진했습니다. ${jobLabel(s)}입니다.`,'good');if(s.rank>=3)big(s,jobLabel(s),2)}
+  else if(chance(.14+s.net/500-s.rank*.02+(s.flags.connected===s.year?.08:0))&&s.rank<5){s.rank++;say(`승진했습니다. ${jobLabel(s)}입니다.`,'good');if(s.rank>=3)big(s,jobLabel(s),2)}
   if(s.rank>=3)s.risk=clamp(s.risk+R(1,4),0,100)}
  if(d==='trade'){const cap=Math.min(s.money,150+s.net*50);const mult=(J&&J.tradeX||(full?.8:1))*(s.place.type==='border'?1.3:1)*eraMul(s,'trade')*tradeBoost;
   const v=Math.round((R(60,140)+cap*(gauss()*.3+.22))*mult);add(v>=0?'장사':'장사 손해',v);s.risk=clamp(s.risk+R(3,6),0,100);s.net=clamp(s.net+1,0,100);s.outside=clamp(s.outside+R(0,2),0,100)}
@@ -705,6 +727,12 @@ function adultYear(s,d,say){const L=[],add=(k,v)=>{v=Math.round(v);if(v)L.push({
  if(d==='family'){s.hp=clamp(s.hp+R(3,6),0,100);s.risk=clamp(s.risk-4,0,100);add('집안일 · 텃밭',R(15,50));for(const m of famAlive(s))if(!m.left&&!m.crossed)bond(m,3)}
  if(d==='border'){const cap=Math.min(s.money,300+s.net*80);const v=Math.round((R(80,300)*(s.place.type==='border'?1:.6)+cap*(gauss()*.45+.35))*eraMul(s,'border')*tradeBoost);
   add(v>=0?'밀수':'밀수 손해',v);if(v>0)s.flags.smuggled=(s.flags.smuggled||0)+v;s.risk=clamp(s.risk+R(7,12),0,100);s.prep=clamp(s.prep+Math.round(R(8,15)*(s.outside>=25?1:.5)),0,100);s.net=clamp(s.net+2,0,100)}
+ if(d==='connect'){add('간부 접대비',-R(50,180));s.net=clamp(s.net+R(3,6),0,100);s.loyal=clamp(s.loyal+2,0,100);s.flags.connected=s.year}
+ if(d==='foreign'){add('외화 사업',R(300,1400)*eraMul(s,'trader'));s.risk=clamp(s.risk+R(4,8),0,100);s.net=clamp(s.net+1,0,100)}
+ if(d==='plot'){add('뙈기밭 수확',R(40,110)*eraMul(s,'farm'));s.risk=clamp(s.risk+1,0,100)}
+ if(d==='herb'){add('약초 · 나물',R(30,140)*(s.place.type==='border'?1.5:1));s.hp=clamp(s.hp-1,0,100)}
+ if(d==='hire'){add('돈주 집 품팔이',R(60,150));s.net=clamp(s.net+1,0,100)}
+ const tr=tierOf(s);if(tr==='elite'&&(s.place.type==='capital'||s.party))add('국가 공급 (배급)',R(40,120));else if(tr==='mid'&&chance(.3))add('배급 (몇 달 치만)',R(10,40));else if(tr==='bottom'&&chance(.35))add('보위원 · 반장 "인사"',-R(5,20));
  const sp=spouseOf(s);if(sp&&!sp.left)add(`${sp.rel} 벌이 · ${sp.job}`,spPay(s,sp));
  if(s.flags.japanMoney)add('일본 친척이 보낸 돈',R(80,300));else if(s.secret==='japan'&&!s.flags.secretOut&&chance(.15))add('어디서 왔는지 모를 소포',R(60,250));
  if(s.flags.southAunt&&chance(.35))add('남쪽 이모가 브로커 편에 보낸 돈',R(150,500));
@@ -713,7 +741,7 @@ function adultYear(s,d,say){const L=[],add=(k,v)=>{v=Math.round(v);if(v)L.push({
  if(s.married&&s.kids<3&&s.age<42&&chance(d==='family'?.3:.12)){const m=addKid(s);m.bond=65;say(`${m.rel} ${m.name}${P(m.name,'이/가')} 태어났습니다.`,'good');big(s,`${m.rel} ${m.name.slice(1)} 출생`,1)}
  const net=L.reduce((a,b)=>a+b.v,0);s.money+=net;s.led={y:s.year,items:L,net};
  if(s.money<0){s.money=0;s.hp=clamp(s.hp-R(4,10),0,100);s.led.starve=1;say(U.n>1?'양식이 떨어진 해였습니다. 식구 모두가 배를 곯았습니다.':'양식이 떨어진 해였습니다. 배를 곯았습니다.','bad')}
- else say(lifeLine(s,LINES.adult));
+ else say(lifeLine(s,tierPool(s,'adult')));
  if(s.power==='off'&&chance(.4))say(line(s,POWER_LINE.off))}
 function royalYear(s,d,say){const L=[],add=(k,v)=>{v=Math.round(v);if(v)L.push({k,v})};
  if(d==='biz')add('사업 수익',R(50000,400000)*Math.exp(gauss()*.4+s.luck*.15));
@@ -775,8 +803,8 @@ const EVS={};
 function EV(id,o){o.id=id;EVS[id]=o}
 const dv=(s,f)=>typeof f==='function'?f(s):f;
 function eligible(s,e){if(!e.pool)return false;if((s.seen[e.id]||0)>=(e.max||1))return false;if(e.min!=null&&s.age<e.min)return false;if(e.maxAge!=null&&s.age>e.maxAge)return false;
- if(e.stage&&!e.stage.includes(stageOf(s)))return false;if(e.when&&!e.when(s))return false;return true}
-function pickEvent(s){const L=Object.values(EVS).filter(e=>eligible(s,e));if(!L.length)return null;return wpick(L.map(e=>[e.id,dv(s,e.w)||1]))}
+ if(e.stage&&!e.stage.includes(stageOf(s)))return false;if(e.tier&&!e.tier.includes(tierOf(s)))return false;if(e.when&&!e.when(s))return false;return true}
+function pickEvent(s){const L=Object.values(EVS).filter(e=>eligible(s,e));if(!L.length)return null;return wpick(L.map(e=>[e.id,(dv(s,e.w)||1)*(e.tier?1.8:1)]))}
 function prepEvent(s,id){const e=EVS[id];if(!e)return null;if(e.pool&&((e.when&&!e.when(s))||(e.stage&&!e.stage.includes(stageOf(s)))))return null;s.seen[id]=(s.seen[id]||0)+1;if(e.pre)e.pre(s);const hd=dv(s,e.hide);const h=hd?wpick(Object.entries(hd)):'*';
  return{id,h,kind:e.kind||'갈림길',fact:dv(s,e.fact)||'',title:dv(s,e.title),desc:dv(s,e.desc),opts:e.opts.filter(o=>!o.when||o.when(s)).map(o=>({t:dv(s,o.t),sub:dv(s,o.sub)||'',cost:o.cost?Math.round(dv(s,o.cost)):0,ref:o}))}}
 function resolveEvent(s,prep,i){const e=EVS[prep.id],o=prep.opts[i];if(o.cost&&o.cost>s.money)return{err:'돈이 모자랍니다.'};if(o.cost)s.money-=o.cost;
@@ -788,7 +816,7 @@ function resolveEvent(s,prep,i){const e=EVS[prep.id],o=prep.opts[i];if(o.cost&&o
 const bribeCost=(s,n)=>Math.max(n,Math.round(s.money*.25/10)*10);
 
 /* ---------- 정해진 때 ---------- */
-EV('dol',{title:'돌잔치',desc:s=>s.royal?'관저에서 돌잔치가 열렸습니다. 상 위에 금시계, 권총 모양 장난감, 외국 책, 그리고 마이크가 놓였습니다.':'정전된 방에서 촛불을 켜고 돌잔치를 했습니다. 상 위에는 연필, 돈 몇 장, 실타래, 그리고 장난감 마이크가 놓였습니다.',
+EV('dol',{title:'돌잔치',desc:s=>s.royal?'관저에서 돌잔치가 열렸습니다. 상 위에 금시계, 권총 모양 장난감, 외국 책, 그리고 마이크가 놓였습니다.':tierOf(s)==='elite'?'평양 아파트 거실에서 돌잔치를 했습니다. 케이크와 바나나 사이에 연필, 달러 한 장, 실타래, 그리고 장난감 마이크가 놓였습니다.':tierOf(s)==='bottom'?'옥수수떡 한 접시를 놓고 돌잔치를 했습니다. 상 위에는 몽당연필, 꼬깃한 지폐 한 장, 실타래, 그리고 깡통으로 만든 마이크가 놓였습니다.':'정전된 방에서 촛불을 켜고 돌잔치를 했습니다. 상 위에는 연필, 돈 몇 장, 실타래, 그리고 장난감 마이크가 놓였습니다.',
  opts:[{t:'연필',go:{'*':{pen:1}}},{t:'돈',go:{'*':{cash:1}}},{t:'실타래',go:{'*':{thread:1}}},{t:'마이크',go:{'*':{mic:1}}}],good:{pen:1,cash:1,thread:1,mic:1},
  out:{pen:s=>({t:'연필을 잡았습니다. 할머니가 "공부 잘하겠다"고 하셨습니다.',e:{edu:5}}),cash:s=>({t:'돈을 꽉 쥐었습니다. 엄마가 "장마당 체질"이라며 웃었습니다.',e:{net:3}}),thread:s=>({t:'실타래를 잡았습니다. 오래 살 거랍니다.',e:{hp:6}}),mic:s=>(s.flags.artPts=(s.flags.artPts||0)+8,{t:'마이크를 잡고 소리를 질렀습니다. 동네가 다 웃었습니다.',e:{}})}});
 EV('scarf',{title:'붉은 넥타이',desc:'소년단 입단식 날입니다. 맨 먼저 입단하는 아이들은 성분과 성적으로 정해집니다. 내 이름은 몇 번째에 불릴까요?',hide:s=>({first:s.songbun==='core'?.6:.15,later:.85}),
@@ -803,10 +831,10 @@ EV('radio',{pool:1,min:9,maxAge:16,title:'아빠의 라디오',desc:'밤에 아�
  opts:[{t:'같이 이불 속에 들어간다',go:{safe:{listen:1},neighbor:{listen:.5,heard:.5}}},{t:'못 들은 척한다',go:{'*':{none:1}}},{t:'학교 선생님께 말한다',go:{'*':{tell:1}}}],good:{listen:1,heard:-2,none:0,tell:-2},
  out:{listen:s=>(s.flags.radioKid=1,{t:'"서울"이라는 말을 처음 들었습니다. 그 노래가 며칠 동안 귀에서 떠나지 않았습니다.',e:{outside:8}}),heard:s=>({t:'다음 날 인민반장이 우리 집 앞을 오래 서성였습니다.',e:{outside:6,risk:15}}),none:s=>({t:'잠든 척했습니다. 노랫소리가 자장가가 됐습니다.',e:{outside:2}}),
   tell:s=>(s.flags.toldDad=1,bond((s.fam||[]).find(m=>m.rel==='아버지'),-35),{t:'선생님이 칭찬했습니다. 그날 밤 아빠가 끌려갔습니다. 몇 달 뒤 돌아온 아빠는 나와 눈을 마주치지 않았습니다.',e:{loyal:10,hp:-5,joy:-8}})}});
-EV('errandbust',{pool:1,min:8,maxAge:15,title:'장마당 단속',desc:'엄마 대신 좌판을 보는데 단속반이 들이닥쳤습니다. 중국산 사탕 상자가 발밑에 있습니다.',
+EV('errandbust',{pool:1,tier:['mid','bottom'],min:8,maxAge:15,title:'장마당 단속',desc:'엄마 대신 좌판을 보는데 단속반이 들이닥쳤습니다. 중국산 사탕 상자가 발밑에 있습니다.',
  opts:[{t:'상자를 안고 뛴다',go:{'*':{run:.6,caught:.4}}},{t:'사탕 한 봉지를 단속원 주머니에 넣는다',go:{'*':{bribe:.7,caught:.3}}},{t:'울면서 엄마를 부른다',go:{'*':{cry:1}}}],good:{run:1,caught:-1,bribe:1,cry:0},
  out:{run:s=>({t:'골목을 세 번 꺾어 도망쳤습니다. 엄마가 처음으로 나를 크게 칭찬했습니다.',e:{net:3}}),caught:s=>({t:'상자를 뺏겼습니다. 그날 저녁상은 옥수수죽이었습니다.',e:{hp:-3}}),bribe:s=>({t:'단속원이 못 본 척 지나갔습니다. 장마당의 규칙을 처음 배웠습니다.',e:{net:5}}),cry:s=>({t:'옆 좌판 할머니가 대신 상자를 숨겨 줬습니다.',e:{}})}});
-EV('kotjebi',{pool:1,min:7,maxAge:15,title:'꽃제비',desc:'장마당 앞에서 맨발의 아이가 내 손의 옥수수빵을 쳐다봅니다. 나도 배가 고픕니다.',
+EV('kotjebi',{pool:1,tier:['mid','bottom'],min:7,maxAge:15,title:'꽃제비',desc:'장마당 앞에서 맨발의 아이가 내 손의 옥수수빵을 쳐다봅니다. 나도 배가 고픕니다.',
  opts:[{t:'반을 나눠 준다',go:{'*':{share:1}}},{t:'못 본 척 지나간다',go:{'*':{pass:1}}}],good:{share:1,pass:0},
  out:{share:s=>(s.flags.kotShare=s.year,{t:'아이가 고맙다는 말도 없이 빵을 삼켰습니다. 그 얼굴이 오래 기억에 남았습니다.',e:{hp:-2,net:2}}),pass:s=>({t:'집에 오는 길이 유난히 길었습니다.',e:{}})}});
 EV('choco',{pool:1,min:7,maxAge:16,title:'초코파이',desc:'친구가 장마당에서 구했다며 남쪽 과자 하나를 꺼냈습니다. 반으로 나누자고 합니다.',hide:{good:.8,spy:.2},
@@ -824,13 +852,13 @@ EV('raid109',{pool:1,stage:['adult'],when:s=>s.outside>=12,w:2,title:'109상무 
  opts:[{t:'미리 꽂아 둔 북한 영화 CD라고 우긴다',go:{greedy:{bribe:.5,taken:.5},strict:{taken:1},lucky:{pass:1}}},{t:'달러를 쥐여 준다',cost:s=>bribeCost(s,100),go:{greedy:{bribe:1},strict:{report:.6,bribe:.4},lucky:{pass:1}}},{t:'창밖으로 재생기째 던진다',go:{'*':{throw:.6,taken:.4}}}],good:{bribe:1,pass:2,taken:-2,report:-3,throw:1},
  out:{bribe:s=>({t:'단속원이 달러를 세더니 고개를 끄덕였습니다. "다음엔 소리 줄여."',e:{risk:-5}}),pass:s=>({t:'옆집을 잘못 찾아온 거였습니다. 한숨을 쉬었습니다.',e:{}}),
   taken:s=>({t:'재생기를 열자 USB가 나왔습니다. 남쪽 영상 시청으로 끌려갔습니다.',e:{jail:R(2,5),jailKind:'교화소'}}),report:s=>({t:'돈만 받고 그대로 보고서를 썼습니다. 뇌물죄까지 붙었습니다.',e:{jail:R(4,7),jailKind:'교화소'}}),throw:s=>({t:'재생기가 쓰레기 더미에 떨어졌습니다. 단속원은 빈손으로 돌아갔습니다.',e:{money:-30}})}});
-EV('review',{pool:1,max:2,stage:['adult','army'],title:'생활총화',desc:'토요일 생활총화. 이번 주 잘못을 하나 고백하고 동무 하나를 비판해야 합니다.',
+EV('review',{pool:1,max:1,stage:['adult','army'],title:'생활총화',desc:'토요일 생활총화. 이번 주 잘못을 하나 고백하고 동무 하나를 비판해야 합니다.',
  opts:[{t:'"늦잠을 잤습니다" 작은 잘못을 고백한다',go:{'*':{small:1}}},{t:'눈엣가시인 동무를 세게 비판한다',go:{'*':{enemy:.6,back:.4}}},{t:'솔직하게 다 털어놓는다',go:{'*':{honest:1}}}],good:{small:1,enemy:0,back:-1,honest:-1},
  out:{small:s=>({t:'무난히 넘어갔습니다. 다들 그렇게 합니다.',e:{loyal:2}}),enemy:s=>(s.flags.enemy=s.year,s.enemyName=`${pick(SUR)}${pick(GIVEN_M)} 동무`,{t:'그 동무가 다음 주부터 내 눈을 피합니다.',e:{loyal:4,net:-4}}),back:s=>({t:'다음 주에 그 동무가 나를 더 세게 비판했습니다.',e:{risk:8}}),honest:s=>({t:'너무 솔직했습니다. 간부가 메모를 했습니다.',e:{risk:10,loyal:-3}})}});
-EV('mobil',{pool:1,stage:['adult'],title:'건설 돌격대 동원',desc:'석 달짜리 건설 동원 명단에 이름이 올랐습니다. 빠지려면 직장에 "돈을 내야" 합니다.',
+EV('mobil',{pool:1,tier:['mid','bottom'],stage:['adult'],title:'건설 돌격대 동원',desc:'석 달짜리 건설 동원 명단에 이름이 올랐습니다. 빠지려면 직장에 "돈을 내야" 합니다.',
  opts:[{t:'간다',go:{'*':{go:1}}},{t:'돈을 내고 빠진다',cost:s=>bribeCost(s,80),go:{'*':{skip:1}}}],good:{go:0,skip:1},
  out:{go:s=>({t:'석 달 동안 맨손으로 벽돌을 날랐습니다. 다녀오니 장사 자리를 뺏겼습니다.',e:{hp:-8}}),skip:s=>({t:'돈을 내고 빠졌습니다. 그 석 달 동안 장마당에서 본전을 뽑았습니다.',e:{money:R(30,150)}})}});
-EV('currency',{pool:1,min:20,title:'화폐 교환 소문',desc:'다음 달에 돈을 바꾼다는 소문이 돕니다. 옛날 돈은 일정 금액까지만 새 돈으로 바꿔 준답니다. 모아 둔 돈이 있습니다.',hide:{real:.6,rumor:.4},
+EV('currency',{pool:1,min:20,tier:['mid','elite'],when:s=>s.money>=300,title:'화폐 교환 소문',desc:'다음 달에 돈을 바꾼다는 소문이 돕니다. 옛날 돈은 일정 금액까지만 새 돈으로 바꿔 준답니다. 모아 둔 돈이 있습니다.',hide:{real:.6,rumor:.4},
  opts:[{t:'전부 달러 · 위안으로 바꾼다',go:{real:{saved:1},rumor:{fee:1}}},{t:'쌀과 물건으로 바꿔 둔다',go:{real:{goods:1},rumor:{goods2:1}}},{t:'소문일 뿐이다',go:{real:{lost:1},rumor:{fine:1}}}],good:{saved:2,fee:0,goods:1,goods2:0,lost:-3,fine:1},
  out:{saved:s=>({t:'정말로 화폐 교환이 터졌습니다. 달러를 쥔 사람만 웃었습니다.',e:{}}),fee:s=>({t:'소문이었습니다. 환전 수수료만 날렸습니다.',e:{money:-Math.round(s.money*.08)}}),goods:s=>({t:'돈이 휴지가 된 날, 우리 집 창고에는 쌀이 있었습니다.',e:{money:-Math.round(s.money*.2)}}),
   goods2:s=>({t:'쌀값이 떨어져 조금 손해를 봤습니다.',e:{money:-Math.round(s.money*.1)}}),lost:s=>({t:'화폐 교환이 터졌습니다. 모아 둔 돈의 대부분이 하룻밤 새 휴지가 됐습니다.',e:{money:-Math.round(s.money*.75),hp:-5}}),fine:s=>({t:'소문이었습니다. 다행입니다.',e:{}})}});
@@ -843,14 +871,14 @@ EV('party',{pool:1,w:.6,stage:['adult','army'],when:s=>!s.party&&s.age>=20&&s.so
 EV('abroadwork',{pool:1,stage:['adult'],min:22,maxAge:45,when:s=>s.songbun!=='hostile',title:'해외 파견 노동',desc:s=>`${pick(['러시아 벌목장','중국 수산물 공장','중동 건설 현장'])}에 3년 파견될 기회가 생겼습니다. 번 돈 대부분은 나라가 가져가지만, 바깥 세상을 볼 수 있습니다.`,hide:{ok:.6,hard:.4},
  opts:[{t:'뇌물을 써서라도 간다',cost:s=>bribeCost(s,200),go:{ok:{went:1},hard:{hard:1}}},{t:'가지 않는다',go:{'*':{stay:1}}}],good:{went:2,hard:0,stay:0},
  out:{went:s=>({t:'3년 동안 외국에서 일했습니다. 몰래 본 바깥 세상은 듣던 것과 전혀 달랐습니다.',e:{money:R(800,2500),outside:20,prep:15,flag:'wentAbroad'}}),hard:s=>({t:'하루 18시간 일했습니다. 손에 쥔 돈은 거의 없었지만 바깥 세상은 봤습니다.',e:{money:R(100,400),outside:15,hp:-12,flag:'wentAbroad'}}),stay:s=>({t:'남았습니다.',e:{}})}});
-EV('broker',{pool:1,max:2,stage:['adult'],when:s=>s.place.type==='border'||s.outside>=35,w:s=>1+s.outside/30,title:'브로커의 전화',desc:'중국 휴대폰으로 낯선 번호가 걸려 옵니다. "강 건널 생각 있으면 연락해. 비용은 넘어가서 갚아도 돼."',hide:{real:.55,trap:.25,greedy:.2},
+EV('broker',{pool:1,max:2,stage:['adult'],when:s=>s.place.type==='border'||s.outside>=35,w:s=>.5+s.outside/40,title:'브로커의 전화',desc:'중국 휴대폰으로 낯선 번호가 걸려 옵니다. "강 건널 생각 있으면 연락해. 비용은 넘어가서 갚아도 돼."',hide:{real:.55,trap:.25,greedy:.2},
  opts:[{t:'자세히 들어 본다',go:{real:{plan:1},trap:{trap:1},greedy:{plan:.5,greedy:.5}}},{t:'끊고 번호를 지운다',go:{'*':{none:1}}},{t:'보위부에 신고한다',go:{real:{report:1},trap:{loyal:1},greedy:{report:1}}}],good:{plan:2,trap:-2,greedy:-1,none:0,report:0,loyal:1},
  out:{plan:s=>({t:'믿을 만한 사람 같습니다. 건널 날짜와 장소를 외웠습니다.',e:{prep:30,outside:5}}),trap:s=>({t:'보위부의 함정이었습니다. 통화 기록이 넘어갔습니다.',e:{risk:30}}),greedy:s=>({t:'선금을 요구했습니다. 보내자 연락이 끊겼습니다.',e:{money:-Math.min(s.money,R(100,500)),prep:5}}),
   none:s=>({t:'번호를 지웠습니다. 그 번호가 며칠 동안 꿈에 나왔습니다.',e:{outside:2}}),report:s=>({t:'신고했습니다. 상을 받았지만, 그 사람의 목소리가 오래 남았습니다.',e:{loyal:8,risk:-10}}),loyal:s=>({t:'함정이었습니다. 신고 덕분에 오히려 충성심을 인정받았습니다.',e:{loyal:10,risk:-15}})}});
-EV('remit',{pool:1,max:2,stage:['adult'],min:20,w:s=>(crossedOf(s)||s.flags.cousinHid)?3:1,title:'남쪽에서 온 돈',desc:s=>{const g=crossedOf(s);const who=g?`몇 해 전 강을 건넌 ${g.rel} ${g.name}${P(g.name,'이/가')}`:s.flags.cousinHid?'몇 해 전 다락에 숨겨 줬던 사촌이':'몇 해 전 사라진 사촌이';return`${who} 브로커를 통해 돈을 보내왔습니다. 그새 남쪽에 닿았답니다. 받으면 살림이 피지만, 남쪽 가족이 있다는 게 알려질 수 있습니다.`},hide:{safe:.7,watched:.3},
+EV('remit',{pool:1,max:2,stage:['adult'],min:20,w:s=>(crossedOf(s)||s.flags.cousinHid)?2.5:.45,title:'남쪽에서 온 돈',desc:s=>{const g=crossedOf(s);const who=g?`몇 해 전 강을 건넌 ${g.rel} ${g.name}${P(g.name,'이/가')}`:s.flags.cousinHid?'몇 해 전 다락에 숨겨 줬던 사촌이':'몇 해 전 사라진 사촌이';return`${who} 브로커를 통해 돈을 보내왔습니다. 그새 남쪽에 닿았답니다. 받으면 살림이 피지만, 남쪽 가족이 있다는 게 알려질 수 있습니다.`},hide:{safe:.7,watched:.3},
  opts:[{t:'받는다',go:{safe:{ok:1},watched:{watched:1}}},{t:'돌려보낸다',go:{'*':{no:1}}}],good:{ok:2,watched:-1,no:0},
  out:{ok:s=>({t:'돈과 함께 짧은 편지가 왔습니다. "여기는 전기가 안 나가."',e:{money:R(500,2000),outside:12}}),watched:s=>({t:'돈은 받았지만 그 뒤로 보위원이 자주 찾아옵니다.',e:{money:R(300,1000),outside:10,risk:20}}),no:s=>({t:'돌려보냈습니다. 편지는 몰래 태웠습니다.',e:{outside:4}})}});
-EV('drama',{pool:1,max:2,stage:['adult'],when:s=>s.power!=='off',title:'전기가 들어온 밤',desc:'오랜만에 전기가 들어왔습니다. 친구가 빌려준 남쪽 드라마 USB가 서랍에 있습니다.',hide:{safe:.6,watch:.4},
+EV('drama',{pool:1,max:2,w:s=>tierOf(s)==='bottom'?.4:1,stage:['adult'],when:s=>s.power!=='off',title:'전기가 들어온 밤',desc:'오랜만에 전기가 들어왔습니다. 친구가 빌려준 남쪽 드라마 USB가 서랍에 있습니다.',hide:{safe:.6,watch:.4},
  opts:[{t:'문을 걸어 잠그고 본다',go:{safe:{watched:1},watch:{close:1}}},{t:'오늘은 참는다',go:{'*':{no:1}}}],good:{watched:1,close:-1,no:0},
  out:{watched:s=>({t:'밤새 열여섯 회를 다 봤습니다. 남쪽 사람들도 라면을 먹는다는 게 이상하게 위로가 됐습니다.',e:{outside:12,risk:6}}),close:s=>({t:'보다가 골목에서 발소리가 났습니다. USB를 변기에 버렸습니다.',e:{outside:6,risk:12}}),no:s=>({t:'참았습니다. 그 드라마 주인공 얼굴이 궁금해서 잠이 안 왔습니다.',e:{}})}});
 EV('speech',{pool:1,stage:['adult'],min:17,maxAge:35,when:s=>s.outside>=20,title:'"오빠"',desc:'직장 동료에게 무심코 남쪽 말투로 "오빠"라고 불렀습니다. 주변이 조용해졌습니다.',hide:{ok:.6,report:.4},
@@ -873,8 +901,8 @@ EV('tourist',{pool:1,stage:['adult'],when:s=>s.place.ko==='평양',title:'외국
  out:{safe:s=>({t:'감시원이 고개를 끄덕였습니다.',e:{loyal:3}}),honest:s=>({t:'외국인이 슬픈 얼굴로 웃었습니다. 그날 처음 "인터넷"이라는 게 궁금해졌습니다.',e:{outside:8}}),seen:s=>({t:'감시원이 그 장면을 봤습니다.',e:{outside:6,risk:12}})}});
 
 /* ---------- 걸렸을 때: 처벌 사다리 ---------- */
-const OFFENSE={trade:'비사회주의 장사',outside:'남조선 영상 시청',border:'밀수와 불법 월경 준비',rise:'부정부패',radio:'적대 방송 청취',errand:'불법 장사',smuggle:'밀수',party:'규율 위반',family:'반동 사상',loyal:'규율 위반',study:'규율 위반',art:'규율 위반',endure:'규율 위반'};
-EV('caught',{title:s=>`${OFFENSE[s.dir]||'규율 위반'} 혐의`,desc:s=>`보위원이 찾아왔습니다. "${OFFENSE[s.dir]||'규율 위반'}" 혐의랍니다. ${s.risk>=70?'눈빛이 심상치 않습니다.':'아직은 말로 끝날 수도 있어 보입니다.'}`,
+const OFFENSE={tutor:'비사회주의 과외',forage:'규율 위반',connect:'부정부패',foreign:'외화 부정',plot:'개인 경작',herb:'불법 밀매',hire:'비사회주의 행위',work:'규율 위반',trade:'비사회주의 장사',outside:'남조선 영상 시청',border:'밀수와 불법 월경 준비',rise:'부정부패',radio:'적대 방송 청취',errand:'불법 장사',smuggle:'밀수',party:'규율 위반',family:'반동 사상',loyal:'규율 위반',study:'규율 위반',art:'규율 위반',endure:'규율 위반'};
+EV('caught',{title:s=>`${OFFENSE[s.dir]||'규율 위반'} 혐의`,desc:s=>`${tierOf(s)==='elite'?'보위부에서 조용히 사람을 보냈습니다. 사무실 문을 닫더니 서류철을 펼칩니다.':tierOf(s)==='bottom'?'보안원이 다짜고짜 분주소로 끌고 갔습니다.':'보위원이 찾아왔습니다.'} "${OFFENSE[s.dir]||'규율 위반'}" 혐의랍니다. ${s.risk>=70?'눈빛이 심상치 않습니다.':'아직은 말로 끝날 수도 있어 보입니다.'}`,
  hide:s=>({greedy:.45,strict:.35,trap:.2}),
  opts:[{t:'달러를 건넨다',cost:s=>bribeCost(s,s.risk>=70?500:150),go:{greedy:{free:1},strict:{report:.6,free:.4},trap:{report:1}}},{t:'자아비판하고 반성문을 쓴다',go:s=>s.risk>=75?'labor':s.risk>=55?(chance(.5)?'labor':'warn'):'warn'},{t:'윗선 인맥에게 연락한다',when:s=>s.net>=30,go:{'*':{connect:.6,report:.4}}}],good:{free:2,warn:0,labor:-2,report:-3,connect:2},
  out:{free:s=>({t:'보위원이 돈을 주머니에 넣었습니다. "이번만이야."',e:{risk:-30}}),warn:s=>({t:'경고로 끝났습니다. 이름이 장부에 올랐습니다.',e:{risk:-15,loyal:-4}}),
@@ -958,7 +986,7 @@ const spT=s=>{const p=spouseOf(s);return p&&!p.left&&!p.st?p:null};
 const kidPick=(s,f)=>kidsOf(s).filter(m=>!m.st&&f(ageOf(s,m),m));
 const goneCand=s=>famAlive(s).filter(m=>(m.sib||m.kid)&&ageOf(s,m)>=18&&!m.st&&!m.left&&!m.crossed&&!m.gone);
 const crossedOf=s=>(s.fam||[]).find(m=>m.crossed&&m.alive&&s.year-(m.crossedY||s.year)>=2);
-EV('momcaught',{pool:1,kind:'가족',max:1,min:7,maxAge:15,stage:['school'],when:s=>parentsOf(s).some(m=>m.rel==='어머니'),pre:s=>{s.tgt=parentsOf(s).find(m=>m.rel==='어머니').id},
+EV('momcaught',{pool:1,kind:'가족',max:1,min:7,maxAge:15,stage:['school'],tier:['mid','bottom'],when:s=>parentsOf(s).some(m=>m.rel==='어머니'&&/장마당|장사/.test(m.job)),pre:s=>{s.tgt=parentsOf(s).find(m=>m.rel==='어머니').id},
  title:'어머니의 좌판',desc:'어머니의 좌판에 규찰대가 들이닥쳐 물건을 몽땅 실어 갔습니다. 밑천이 다 날아갔습니다. 오늘 저녁거리가 없습니다.',
  opts:[{t:'모아 둔 심부름 돈을 내놓는다',cost:s=>Math.max(5,Math.round(s.money*.5)),when:s=>s.money>=5,go:{'*':{give:1}}},{t:'옆집에 옥수수를 꾸러 간다',go:{'*':{borrow:.7,refused:.3}}},{t:'배고픈 걸 참고 일찍 잔다',go:{'*':{sleep:1}}}],good:{give:2,borrow:1,refused:-1,sleep:0},
  out:{give:s=>(bond(tgtOf(s),15),{t:'어머니가 내 돈을 받아 들고 한참 말이 없었습니다. 다음 날 새벽 다시 장마당에 나가셨습니다.',e:{joy:4,net:2}}),borrow:s=>({t:'옆집 할머니가 옥수수 한 바가지를 내줬습니다. "갚을 생각 말아라."',e:{net:3}}),
@@ -1070,14 +1098,14 @@ EV('realmom',{pool:1,kind:'뜻밖의 일',max:1,w:3,stage:['adult'],when:s=>s.fl
  out:{yes:s=>({t:'그날 밤 전화 너머에서 한참 울음소리만 들렸습니다. "기다려라. 내가 길을 놓으마."',e:{prep:45,money:R(500,1500),outside:15,flag:'realMom'}}),no:s=>({t:'사진을 돌려줬습니다. 집에 오니 어머니가 저녁상을 차려 놓고 기다리고 있었습니다.',e:{joy:6}})}});
 
 /* ---------- 뜻밖의 일 ---------- */
-EV('inherit',{pool:1,kind:'뜻밖의 일',max:1,w:.6,stage:['adult'],min:20,title:'아궁이 뒤의 비닐봉지',
+EV('inherit',{pool:1,kind:'뜻밖의 일',max:1,w:.6,tier:['mid','bottom'],stage:['adult'],min:20,title:'아궁이 뒤의 비닐봉지',
  desc:'혼자 살던 옆집 할머니가 돌아가셨습니다. 유품 정리를 돕다가 아궁이 벽돌 뒤에서 비닐에 꽁꽁 싼 달러 뭉치를 발견했습니다. 아무도 못 봤습니다. 아마도요.',hide:{clean:.55,seen:.25,son:.2},
  opts:[{t:'조용히 품에 넣는다',go:{clean:{keep:1},seen:{split:1},son:{keep:.5,sonmad:.5}}},{t:'인민반장에게 알린다',go:{'*':{chief:1}}},{t:'할머니의 아들을 수소문한다',go:{clean:{nofind:1},seen:{nofind:1},son:{thanks:1}}}],
  good:{keep:2,split:0,sonmad:-1,chief:0,nofind:1,thanks:2},
  out:{keep:s=>({t:'세어 보니 생각보다 많았습니다. 할머니 산소에 술 한 병을 올렸습니다.',e:{money:R(400,1600)}}),split:s=>({t:'다음 날 아침 맞은편 집 여자가 웃으며 찾아왔습니다. "반반이지?" 반을 떼어 줬습니다.',e:{money:R(200,700),risk:5}}),
   sonmad:s=>({t:'몇 달 뒤 할머니 아들이 나타났습니다. 보안원이었습니다. 돈은 돌려주고 벌금까지 물었습니다.',e:{money:-R(50,150),risk:15}}),chief:s=>({t:'인민반장이 봉투를 받아 갔습니다. 다음 달 반장 집에 새 자전거가 생겼습니다.',e:{loyal:3}}),
   nofind:s=>({t:'아들은 몇 해 전 강을 건넜다는 소문뿐이었습니다. 1년을 기다리다 결국 그 돈을 썼습니다. 할머니가 꿈에 나와 웃었습니다.',e:{money:R(300,1000)}}),thanks:s=>({t:'아들을 찾았습니다. 그는 봉투에서 절반을 꺼내 내 손에 쥐여 줬습니다. "어머니를 마지막까지 봐 준 값입니다."',e:{money:R(250,800),net:8}})}});
-EV('photo1',{pool:1,kind:'뜻밖의 일',max:1,w:.5,stage:['adult'],min:19,title:'1호 행사',desc:'"높은 분"이 우리 직장에 현지지도를 오신답니다. 앞줄에 설 사람을 뽑는데, 사진에 찍히면 인생이 바뀐다는 말이 돕니다.',
+EV('photo1',{pool:1,kind:'뜻밖의 일',max:1,w:s=>tierOf(s)==='elite'?1.3:tierOf(s)==='bottom'?.15:.5,stage:['adult'],min:19,title:'1호 행사',desc:'"높은 분"이 우리 직장에 현지지도를 오신답니다. 앞줄에 설 사람을 뽑는데, 사진에 찍히면 인생이 바뀐다는 말이 돕니다.',
  fact:'"1호 행사"는 최고지도자가 참석하는 행사를 부르는 말입니다. 참석자는 몸수색과 사상 검토를 거친다고 알려져 있습니다.',hide:{front:.4,back:.45,cough:.15},
  opts:[{t:'앞줄에 서겠다고 손을 든다',go:{front:{star:1},back:{back:1},cough:{cough:1}}},{t:'조용히 뒷줄로 빠진다',go:{'*':{hide:1}}}],good:{star:3,back:0,cough:-2,hide:0},
  out:{star:s=>({t:'"높은 분" 바로 옆에서 박수를 쳤습니다. 다음 날 신문 1면에 내 얼굴이 실렸습니다. 동네 사람들의 인사가 달라졌습니다.',e:{loyal:15,net:15,risk:-25,joy:6,flag:'photo'}}),back:s=>({t:'세 번째 줄 끝이었습니다. 신문 사진에서는 귀만 나왔습니다.',e:{loyal:3}}),
@@ -1171,6 +1199,108 @@ EV('objection',{kind:'사랑',title:'성분이 다른 집안',desc:s=>{const d=s
   secret:s=>{const d=s.date;s.date=null;return{t:'서류부터 냈습니다. 어른들은 한 해가 지나서야 마지못해 받아들였습니다.',e:{marry:d,joy:8}}},
   caught:s=>{const d=s.date;s.date=null;return{t:'서류를 낸 사실이 들통났습니다. 결혼은 했지만 직장에서 "사상 검토"를 받았습니다.',e:{marry:d,risk:10,joy:3}}},
   give:s=>{const n=s.date.name;s.date=null;return{t:`${n}${P(n,'과/와')} 헤어졌습니다. 그 뒤로 장마당 그 골목으로는 다니지 않았습니다.`,e:{joy:-12}}}}});
+
+/* ================================================================
+   2600만 분의 1 — 사는 세상마다 다른 사건
+   위쪽(간부 · 평양) · 중간(장마당) · 바닥(감시 · 배고픔)
+   ================================================================ */
+
+/* ---------- 위쪽 세상 ---------- */
+EV('e_supply',{pool:1,kind:'갈림길',max:2,tier:['elite'],stage:['adult'],title:'명절 특별 공급',desc:'명절 특별 공급이 나왔습니다. 수입 쇠고기, 술 두 병, 귤 한 상자. 아래층 운전수 집 아이가 계단에서 귤 상자를 오래 쳐다봅니다.',
+ opts:[{t:'귤 몇 개를 아이 손에 쥐여 준다',go:{'*':{share:.8,talk:.2}}},{t:'술은 장마당에 몰래 넘긴다',go:{'*':{sell:.75,caught:.25}}},{t:'우리 식구끼리 먹는다',go:{'*':{feast:1}}}],good:{share:1,talk:0,sell:1,caught:-1,feast:1},
+ out:{share:s=>({t:'아이가 귤을 품에 안고 계단을 뛰어 내려갔습니다. 다음 날 운전수가 차 문을 먼저 열어 줬습니다.',e:{net:4,joy:3}}),talk:s=>({t:'아이 어머니가 인민반에 자랑을 했습니다. "그 집엔 귤이 상자로 들어온다더라."',e:{risk:6}}),
+  sell:s=>({t:'술 두 병이 쌀 한 가마니 값이 됐습니다.',e:{money:R(60,150)}}),caught:s=>({t:'공급품을 팔다 걸렸습니다. "특별 공급을 장마당에?" 회의에서 이름이 불렸습니다.',e:{risk:15,loyal:-5}}),feast:s=>({t:'오랜만에 고깃국을 끓였습니다. 창문은 닫아 두었습니다.',e:{hp:4,joy:6}})}});
+EV('e_audit',{pool:1,kind:'위기',max:2,tier:['elite'],stage:['adult'],when:s=>s.party||s.jobK==='trader'||s.jobK==='clerk',title:'중앙 검열단',desc:'중앙에서 검열단이 내려왔습니다. 우리 부서 장부를 처음부터 다시 맞춰 본답니다. 비는 돈이 있다는 걸 다들 압니다.',
+ fact:'북한에서는 간부들의 부정부패를 겨냥한 검열이 주기적으로 벌어지고, 본보기로 처벌받는 사람이 나온다고 알려져 있습니다.',hide:{soft:.45,hard:.55},
+ opts:[{t:'아랫사람에게 책임을 돌린다',go:{soft:{shift:1},hard:{shift:.6,exposed:.4}}},{t:'윗선 인맥에 기댄다',when:s=>s.net>=35,go:{soft:{safe:1},hard:{safe:.6,owe:.4}}},{t:'장부를 바로잡고 솔직히 보고한다',go:{soft:{praise:.6,demote:.4},hard:{demote:1}}}],good:{shift:0,exposed:-2,safe:1,owe:0,praise:1,demote:-1},
+ out:{shift:s=>({t:'작업반장이 대신 끌려갔습니다. 그 사람 아내가 다음 날부터 내게 인사를 하지 않습니다.',e:{risk:-10,joy:-5}}),exposed:s=>({t:'떠넘긴 게 들통났습니다. 둘 다 처벌받았습니다.',e:{rank:s.rank>0?-1:0,risk:20,jail:1,jailKind:'노동단련대'}}),
+  safe:s=>({t:'전화 한 통으로 정리됐습니다. 그 전화의 값은 언젠가 치러야 합니다.',e:{risk:-15,net:-5}}),owe:s=>({t:'정리는 됐지만, 그 간부의 "부탁"을 들어줘야 하는 처지가 됐습니다.',e:{risk:-5,money:-Math.round(s.money*.15)}}),
+  praise:s=>({t:'"정직한 일꾼"이라는 평가를 받았습니다. 동료들의 눈빛은 차가워졌습니다.',e:{loyal:8,net:-6}}),demote:s=>({t:'자리에서 밀려났습니다.',e:{rank:s.rank>0?-1:0,joy:-6}})}});
+EV('e_trip',{pool:1,kind:'중대 결정',max:1,tier:['elite'],stage:['adult'],min:25,maxAge:55,title:'단동 출장',desc:'중국 단동으로 출장을 가게 됐습니다. 호텔 방에서 같이 온 동료가 귓속말합니다. "나 오늘 밤 한국 영사관으로 갈 거야. 같이 갈래?"',
+ fact:'외교관 · 무역 일꾼 같은 해외 파견 엘리트의 망명은 해마다 몇 건씩 알려집니다. 남은 가족은 연좌제로 처벌받는 경우가 많다고 알려져 있습니다.',hide:{real:.6,test:.4},
+ opts:[{t:'같이 간다',go:{real:{gone:.7,caught:.3},test:{caught:1}}},{t:'못 들은 척 잠든다',go:{real:{alone:1},test:{pass:1}}},{t:'보위부 담당에게 알린다',go:{real:{report:1},test:{loyal:1}}}],good:{gone:3,caught:-3,alone:-1,pass:1,report:0,loyal:2},
+ out:{gone:s=>({t:'새벽, 택시 뒷자리에 몸을 숙인 채 영사관 문을 통과했습니다. 남겨진 가족 얼굴이 떠올랐습니다.',e:{flag:'eliteDefect',south:1}}),caught:s=>({t:'호텔 로비에 보위부 사람들이 서 있었습니다. 시험이었거나, 누가 먼저 말했거나.',e:{camp:1}}),
+  alone:s=>({t:'아침에 동료 침대가 비어 있었습니다. 귀국하자마자 조사를 받았습니다. "왜 몰랐나?"',e:{risk:30,rank:s.rank>0?-1:0}}),pass:s=>({t:'다음 날 동료는 아무 일 없다는 듯 웃었습니다. 그 웃음이 더 무서웠습니다.',e:{loyal:3}}),
+  report:s=>({t:'동료는 그날 밤 사라지지 못했습니다. 나는 표창을 받았고, 그 사람 가족은 지방으로 쫓겨났습니다.',e:{loyal:10,risk:-15,joy:-8}}),loyal:s=>({t:'"충성심 시험이었네. 합격일세." 담당이 어깨를 두드렸습니다.',e:{loyal:12,risk:-20,net:5}})}});
+EV('e_relpurge',{pool:1,kind:'위기',max:1,tier:['elite'],stage:['adult'],min:22,title:'외삼촌의 숙청',desc:'외삼촌이 하루아침에 사라졌습니다. "반당 종파" 혐의랍니다. 친척들 사이에 연좌제 소문이 돕니다. 평양에서 쫓겨날 수도 있습니다.',
+ fact:'북한에서는 정치범의 가족과 친척까지 함께 처벌하는 연좌제가 있다고 알려져 있습니다. 평양에서 지방으로 추방되는 일도 흔하다고 합니다.',hide:{safe:.5,hit:.5},
+ opts:[{t:'"관계를 끊겠다"는 서약서를 낸다',go:{safe:{cut:1},hit:{cut:.6,exiled:.4}}},{t:'외숙모와 아이들을 몰래 돕는다',go:{safe:{help:.7,seen:.3},hit:{seen:.6,help:.4}}},{t:'아무것도 하지 않고 숨죽인다',go:{safe:{quiet:1},hit:{exiled:.6,quiet:.4}}}],good:{cut:0,exiled:-3,help:1,seen:-2,quiet:0},
+ out:{cut:s=>({t:'서약서를 냈습니다. 어머니가 그날 밤 부엌에서 오래 울었습니다.',e:{loyal:6,joy:-6}}),
+  exiled:s=>{const rural=chance(.4);const to=pick(rural?PLACES.rural.list:PLACES.city.list);s.place={type:rural?'rural':'city',ko:to};s.house=rural?'농촌 단층집':'하모니카 주택';if(s.own)delete s.own.flat;if(s.rank>=2)s.rank=1;return{t:`평양 시민증을 빼앗겼습니다. 이삿짐 트럭 한 대로 ${J(to,'으로/로')} 내려왔습니다.`,e:{joy:-15,net:-15}}},
+  help:s=>({t:'밤에 쌀 한 자루를 문 앞에 두고 왔습니다. 아무도 보지 못했습니다.',e:{joy:4}}),seen:s=>({t:'쌀자루를 두고 오는 걸 인민반장이 봤습니다.',e:{risk:22}}),quiet:s=>({t:'몇 달 동안 전화벨이 울릴 때마다 심장이 내려앉았습니다. 바람이 지나갔습니다.',e:{risk:-5}})}});
+EV('e_banquet',{pool:1,kind:'갈림길',max:1,tier:['elite'],stage:['adult'],min:25,title:'연회의 한마디',desc:'간부 연회에서 술이 몇 순배 돌자, 옆자리 간부가 목소리를 낮춥니다. "솔직히 요즘 위에서 하는 일, 이상하지 않소?"',hide:{honest:.5,trap:.5},
+ opts:[{t:'"저도 그렇게 생각합니다" 맞장구친다',go:{honest:{bond:1},trap:{trap:1}}},{t:'"취하셨습니다" 웃으며 화제를 돌린다',go:{'*':{dodge:1}}},{t:'다음 날 그 말을 보고한다',go:{honest:{report:1},trap:{report2:1}}}],good:{bond:1,trap:-3,dodge:0,report:0,report2:1},
+ out:{bond:s=>({t:'그날 이후 그 간부와 가끔 바둑을 둡니다. 둘 다 진짜 하고 싶은 말은 하지 않습니다.',e:{net:8,outside:4}}),trap:s=>({t:'다음 날 아침 보위부에서 전화가 왔습니다. 그는 처음부터 녹음기를 켜 두고 있었습니다.',e:{risk:35,loyal:-10}}),
+  dodge:s=>({t:'"그렇지, 내가 취했지." 그가 껄껄 웃었습니다. 등에 식은땀이 흘렀습니다.',e:{}}),report:s=>({t:'그 간부가 사라졌습니다. 그 자리가 비었습니다.',e:{loyal:10,rank:s.party?1:0,joy:-6}}),report2:s=>({t:'"자네도 시험을 통과했군." 보고서를 받은 담당이 웃었습니다.',e:{loyal:10,risk:-15}})}});
+EV('e_flat',{pool:1,kind:'갈림길',max:1,tier:['elite'],stage:['adult'],when:s=>!s.own.flat,title:'새 거리 아파트',desc:'새로 다 지은 거리의 고층 아파트 배정 명단이 돈다고 합니다. 명단 맨 아래에 이름을 올리는 "값"이 있답니다.',hide:{real:.7,scam:.3},
+ opts:[{t:'값을 치른다',cost:s=>bribeCost(s,800),go:{real:{got:1},scam:{scam:1}}},{t:'지금 집도 충분하다',go:{'*':{no:1}}}],good:{got:2,scam:-2,no:0},
+ out:{got:s=>(s.own.flat=s.year,s.house=s.place.type==='capital'?'평양 새 아파트':`${s.place.ko} 새 아파트`,{t:'열쇠를 받았습니다. 창밖으로 강이 보입니다. 엘리베이터는 가끔 섭니다.',e:{joy:10}}),scam:s=>({t:'명단은 처음부터 없었습니다.',e:{joy:-8}}),no:s=>({t:'지금 집에 남았습니다.',e:{}})}});
+EV('e_kidmatch',{pool:1,kind:'가족',max:1,tier:['elite'],stage:['adult'],when:s=>kidsOf(s).some(m=>{const a=ageOf(s,m);return a>=22&&a<=30&&!m.wed&&!m.armyTo}),pre:s=>{s.tgt=kidsOf(s).find(m=>{const a=ageOf(s,m);return a>=22&&a<=30&&!m.wed&&!m.armyTo}).id},
+ title:s=>`${callOf(tgtOf(s))}의 혼담`,desc:s=>`도당 간부 집에서 ${callOf(tgtOf(s))}에게 혼담이 들어왔습니다. 그런데 아이는 장마당 상인 집 사람을 좋아한다고 합니다.`,
+ fact:'북한 엘리트 사이에서는 집안끼리의 혼사가 출세와 안전을 지키는 수단으로 쓰인다고 알려져 있습니다.',
+ opts:[{t:'혼담을 밀어붙인다',go:{'*':{push:1}}},{t:'아이 뜻대로 하게 둔다',go:{'*':{love:1}}}],good:{push:1,love:1},
+ out:{push:s=>{const m=tgtOf(s);m.wed=1;bond(m,-25);return{t:'성대한 결혼식이었습니다. 식장 사진 속 아이 눈이 붉었습니다.',e:{net:12,loyal:4}}},love:s=>{const m=tgtOf(s);m.wed=1;bond(m,18);return{t:'작은 결혼식이었습니다. 간부 집에서는 한동안 연락이 없었습니다.',e:{net:-6,joy:8}}}}});
+EV('e_maid',{pool:1,kind:'뜻밖의 일',max:1,tier:['elite'],stage:['adult'],min:28,title:'시골에서 온 가정부',desc:'집에 들인 시골 출신 가정부가 밤마다 부엌에서 소리 죽여 웁니다. 고향 식구들이 굶는다고 합니다.',hide:{plain:.6,spy:.4},
+ opts:[{t:'쌀 한 자루를 고향에 보내 준다',go:{plain:{grateful:1},spy:{grateful:1}}},{t:'못 들은 척한다',go:{plain:{quit:1},spy:{report:1}}}],good:{grateful:2,quit:0,report:-2},
+ out:{grateful:s=>({t:'가정부가 바닥에 엎드려 절을 했습니다. 몇 해 뒤, 그녀가 보위부에 불려 가 우리 집 일을 물었을 때 "좋은 집"이라고만 했다는 걸 알게 됐습니다.',e:{risk:-10,joy:3}}),
+  quit:s=>({t:'어느 날 가정부가 짐을 싸서 떠났습니다.',e:{}}),report:s=>({t:'가정부는 보위부가 심어 둔 사람이었습니다. 우리 집 대화가 몇 달 치 보고서로 올라갔습니다.',e:{risk:25}})}});
+
+/* ---------- 중간: 장마당으로 사는 사람들 ---------- */
+EV('m_stall',{pool:1,kind:'갈림길',max:1,tier:['mid'],stage:['adult'],when:s=>s.dir==='trade'||s.jobK==='e83',title:'장마당 자리다툼',desc:'장마당 입구 쪽 좋은 매대 자리가 났습니다. 옆 매대 아주머니도 그 자리를 노립니다.',
+ fact:'북한 장마당은 국가가 관리하는 "종합시장"으로, 매대마다 자릿세를 냅니다. 좋은 자리는 뒷돈으로 오간다는 증언이 많습니다.',
+ opts:[{t:'시장 관리소에 돈을 쥐여 준다',cost:()=>60,go:{'*':{got:.75,both:.25}}},{t:'양보한다',go:{'*':{yield:1}}},{t:'새벽 세 시에 먼저 가서 자리를 깐다',go:{'*':{early:.5,fight:.5}}}],good:{got:2,both:0,yield:0,early:1,fight:-1},
+ out:{got:s=>({t:'입구 자리를 얻었습니다. 손님이 두 배가 됐습니다.',e:{net:4,money:R(60,180)}}),both:s=>({t:'관리소가 둘 다에게 돈을 받고 자리를 반으로 쪼갰습니다.',e:{}}),yield:s=>({t:'양보했습니다. 옆 매대 아주머니가 가끔 손님을 보내 줍니다.',e:{net:6}}),
+  early:s=>({t:'자리를 먼저 깔았습니다. 아주머니는 말없이 다른 데로 갔습니다.',e:{money:R(40,120)}}),fight:s=>({t:'머리채를 잡고 싸웠습니다. 둘 다 규찰대에 이름이 적혔습니다.',e:{risk:8,joy:-4}})}});
+EV('m_tv',{pool:1,kind:'갈림길',max:1,tier:['mid'],stage:['adult'],title:'옆집 노트텔',desc:'옆집에 노트텔이 생겼습니다. 밤마다 커튼 너머로 웃음소리가 들리고, 동네 사람들이 하나둘 모입니다. 오늘은 우리에게도 오라고 합니다.',hide:{safe:.65,raid:.35},
+ opts:[{t:'간다',go:{safe:{fun:1},raid:{raid:1}}},{t:'우리도 하나 산다',cost:()=>70,when:s=>!s.own.notetel,go:{'*':{buy:1}}},{t:'창문을 닫는다',go:{'*':{no:1}}}],good:{fun:1,raid:-2,buy:1,no:0},
+ out:{fun:s=>({t:'좁은 방에 열 명이 모여 남쪽 드라마를 봤습니다. 다들 같은 장면에서 울었습니다.',e:{outside:10,joy:5,net:3}}),raid:s=>({t:'세 번째 회에서 문이 부서졌습니다. 109상무였습니다. 모인 사람 전부 이름이 적혔습니다.',e:{outside:6,risk:25}}),
+  buy:s=>(s.own.notetel=s.year,{t:'우리 집에도 노트텔이 생겼습니다.',e:{joy:4}}),no:s=>({t:'창문을 닫았습니다. 웃음소리는 벽을 넘어왔습니다.',e:{}})}});
+EV('m_house',{pool:1,kind:'갈림길',max:1,tier:['mid'],stage:['adult'],when:s=>s.money>=800,pre:s=>{s.tmpInv=Math.round(s.money*.6)},title:'집 장사',desc:'요즘 집 "입사증"을 사고팔아 돈을 번다는 사람이 많습니다. 새로 짓는 아파트 한 칸을 미리 사 두면 두 배가 된답니다.',
+ fact:'북한에서 집은 원래 국가가 배정하지만, 실제로는 "입사증"을 사고파는 방식으로 집 거래가 이뤄진다는 증언이 많습니다.',hide:{boom:.5,stall:.3,gone:.2},
+ opts:[{t:'모은 돈의 절반 넘게 넣는다',cost:s=>s.tmpInv,go:{boom:{boom:1},stall:{stall:1},gone:{gone:1}}},{t:'안 한다',go:{'*':{no:1}}}],good:{boom:2,stall:0,gone:-3,no:0},
+ out:{boom:s=>({t:'아파트가 다 지어지자 값이 두 배 가까이 뛰었습니다. 팔아서 차액을 챙겼습니다.',e:{money:Math.round(s.tmpInv*(1.7+rnd()*.5))}}),stall:s=>({t:'공사가 멈췄습니다. 몇 해 뒤에야 겨우 원금 비슷하게 건졌습니다.',e:{money:Math.round(s.tmpInv*.9)}}),
+  gone:s=>({t:'"정리"라는 이름으로 공사가 취소됐습니다. 돈은 돌아오지 않았습니다.',e:{joy:-12}}),no:s=>({t:'넣지 않았습니다.',e:{}})}});
+EV('m_school',{pool:1,kind:'가족',max:1,tier:['mid'],stage:['adult'],when:s=>kidsOf(s).some(m=>{const a=ageOf(s,m);return a>=14&&a<=16}),pre:s=>{s.tgt=kidsOf(s).find(m=>{const a=ageOf(s,m);return a>=14&&a<=16}).id},
+ title:'대학 추천서',desc:s=>`${callOf(tgtOf(s))}의 성적이 꽤 좋습니다. 담임이 넌지시 말합니다. "대학 추천서는… 성의를 보이는 집에 먼저 갑니다."`,
+ opts:[{t:'성의를 보인다',cost:s=>bribeCost(s,300),go:{'*':{uni:.7,no:.3}}},{t:'실력으로 가게 둔다',go:{'*':{uni:.25,no:.75}}}],good:{uni:2,no:-1},
+ out:{uni:s=>{const m=tgtOf(s);m.job='대학생';bond(m,10);return{t:`${callOf(m)}${P(callOf(m),'이/가')} 대학 추천을 받았습니다. 집안에서 처음입니다.`,e:{joy:8}}},no:s=>({t:'추천서는 다른 집 아이에게 갔습니다.',e:{joy:-4}})}});
+
+/* ---------- 바닥: 감시받고 배고픈 사람들 ---------- */
+EV('b_spring',{pool:1,kind:'위기',max:2,tier:['bottom'],stage:['adult'],title:'보릿고개',desc:'봄입니다. 지난가을 받은 옥수수가 바닥났습니다. 햇감자가 나오려면 두 달이 남았습니다.',
+ opts:[{t:'산에서 풀뿌리와 나물을 캔다',go:{'*':{roots:1}}},{t:'돈주에게 옥수수를 꾼다 (가을에 두 배로)',go:{'*':{debt:1}}},{t:'아이를 친척 집에 잠시 보낸다',when:s=>kidsOf(s).some(m=>ageOf(s,m)<15),go:{'*':{send:1}}}],good:{roots:0,debt:1,send:-1},
+ out:{roots:s=>({t:'두 달 동안 나물죽으로 버텼습니다. 다들 얼굴이 누렇게 떴습니다.',e:{hp:-8,joy:-5}}),debt:s=>(s.flags.debt=s.year,{t:'돈주 집 창고에서 옥수수 한 가마니를 받아 왔습니다. 장부에 내 이름이 적혔습니다.',e:{hp:2}}),
+  send:s=>{const k=pick(kidsOf(s).filter(m=>ageOf(s,m)<15));bond(k,-12);return{t:`${callOf(k)}${P(callOf(k),'이/가')} 외갓집으로 가는 기차에 올랐습니다. 뒤돌아보지 않았습니다.`,e:{joy:-10}}}}});
+EV('b_debt',{pool:1,kind:'위기',max:2,w:4,stage:['adult'],when:s=>s.flags.debt&&s.year-s.flags.debt>=1,pre:s=>{delete s.flags.debt},title:'돈주의 장부',desc:'돈주가 보낸 사람 둘이 문 앞에 섰습니다. "가을이 지났소. 옥수수 두 가마니 값."',
+ opts:[{t:'가진 돈으로 갚는다',cost:()=>90,go:{'*':{paid:1}}},{t:'집 문서를 넘긴다',go:{'*':{house:1}}},{t:'돈주 밭에서 몸으로 갚는다',go:{'*':{work:1}}}],good:{paid:1,house:-2,work:-1},
+ out:{paid:s=>({t:'빚을 갚았습니다. 쌀독은 다시 비었습니다.',e:{}}),house:s=>(s.house='남의 집 셋방',{t:'우리 집에 돈주 친척이 들어왔습니다. 우리는 헛간 옆 셋방으로 옮겼습니다.',e:{joy:-12}}),work:s=>({t:'한 해 내내 돈주 밭에서 일했습니다. 내 밭은 풀밭이 됐습니다.',e:{hp:-10,net:2}})}});
+EV('b_mine',{pool:1,kind:'위기',max:2,tier:['bottom','mid'],stage:['adult'],when:s=>s.jobK==='mine',title:'갱도 붕괴',desc:'막장 천장에서 돌가루가 떨어지기 시작했습니다. 옆에서 일하던 동료가 다리가 끼었습니다.',
+ opts:[{t:'동료를 끌어낸다',go:{'*':{hero:.65,hurt:.35}}},{t:'먼저 빠져나와 사람을 부른다',go:{'*':{call:.6,lost:.4}}}],good:{hero:2,hurt:-1,call:0,lost:-2},
+ out:{hero:s=>({t:'둘 다 살아 나왔습니다. 그 동료는 그 뒤로 명절마다 술을 들고 옵니다.',e:{net:8,joy:4}}),hurt:s=>({t:'동료는 살렸지만 내 어깨가 망가졌습니다. 갱도에 다시 들어가지 못해 농장으로 옮겼습니다.',e:{hp:-15,job:'farm'}}),
+  call:s=>({t:'사람들을 데리고 돌아왔을 때 동료는 정신을 잃은 채였지만 살아 있었습니다.',e:{}}),lost:s=>({t:'사람들을 데리고 돌아왔을 때는 늦었습니다. 그 얼굴이 오래 꿈에 나왔습니다.',e:{joy:-12}})}});
+EV('b_cow',{pool:1,kind:'갈림길',max:1,tier:['bottom','mid'],stage:['adult'],when:s=>s.jobK==='farm'||s.place.type==='rural',title:'쓰러진 농장 소',desc:'협동농장 소가 밭에서 쓰러져 죽었습니다. 작업반장이 낮게 말합니다. "고기는 나눠 먹고, 위에는 늑대가 물어 갔다고 하자."',
+ fact:'북한에서 소는 국가 재산이라, 허가 없이 잡거나 먹으면 무겁게 처벌받는다고 알려져 있습니다.',hide:{quiet:.6,leak:.4},
+ opts:[{t:'고기를 나눠 받는다',go:{quiet:{meat:1},leak:{caught:1}}},{t:'"나는 모르는 일"이라며 빠진다',go:{'*':{out:1}}},{t:'관리위원회에 보고한다',go:{'*':{report:1}}}],good:{meat:2,caught:-2,out:0,report:0},
+ out:{meat:s=>({t:'몇 달 만에 고깃국을 끓였습니다. 아이들이 그릇을 핥았습니다.',e:{hp:8,joy:8}}),caught:s=>({t:'누군가 말을 흘렸습니다. "국가 재산 도살" 혐의로 끌려갔습니다.',e:{jail:R(1,3),jailKind:'교화소'}}),
+  out:s=>({t:'고기 냄새가 마을을 덮은 밤, 우리 집만 옥수수죽이었습니다.',e:{joy:-3}}),report:s=>({t:'작업반장이 끌려갔습니다. 마을 사람들이 나를 피합니다.',e:{loyal:8,net:-12}})}});
+EV('b_watch',{pool:1,kind:'위기',max:1,w:.6,tier:['bottom'],stage:['adult'],when:s=>s.songbun==='hostile'||s.flags.record,title:'요해 대상',desc:'담당 보위원이 매달 집에 들릅니다. 오늘은 차를 마시다 말고 제안합니다. "이웃들 얘기를 가끔 들려주면, 당신 집도 좀 편해질 텐데."',
+ opts:[{t:'받아들인다',go:{'*':{yes:1}}},{t:'"아는 게 없습니다" 거절한다',go:{'*':{no:.6,pressed:.4}}},{t:'담배 한 보루로 대신한다',cost:()=>25,go:{'*':{gift:1}}}],good:{yes:0,no:0,pressed:-1,gift:1},
+ out:{yes:s=>({t:'수첩 한 권을 받았습니다. 그날부터 이웃의 말을 다르게 듣게 됐습니다.',e:{risk:-25,net:-8,flag:'informer'}}),no:s=>({t:'보위원이 찻잔을 내려놓고 일어섰습니다. "생각이 바뀌면 말하시오."',e:{}}),
+  pressed:s=>({t:'그 뒤로 보위원의 방문이 일주일에 한 번이 됐습니다.',e:{risk:15}}),gift:s=>({t:'보위원이 담배를 주머니에 넣었습니다. "편하게 지내시오."',e:{risk:-8}})}});
+EV('b_porter',{pool:1,kind:'갈림길',max:2,tier:['bottom','mid'],stage:['adult'],when:s=>s.place.type==='border',title:'밤의 짐꾼',desc:'밀수꾼이 하룻밤 짐꾼을 구합니다. 강가까지 짐 다섯 개를 나르면 한 달 벌이를 준답니다.',hide:{ok:.7,guard:.3},
+ opts:[{t:'한다',go:{ok:{paid:1},guard:{caught:.5,paid:.5}}},{t:'안 한다',go:{'*':{no:1}}}],good:{paid:2,caught:-2,no:0},
+ out:{paid:s=>({t:'새벽까지 짐을 날랐습니다. 강 건너 사람과 처음으로 손짓을 주고받았습니다.',e:{money:R(40,120),prep:8,net:3}}),caught:s=>({t:'경비대 손전등에 걸렸습니다. 밀수꾼은 돈을 쥐여 주고 빠졌고, 나만 남았습니다.',e:{jail:1,jailKind:'노동단련대'}}),no:s=>({t:'밤새 강 쪽에서 발소리가 들렸습니다.',e:{}})}});
+EV('b_relief',{pool:1,kind:'뜻밖의 일',max:1,tier:['bottom','mid'],stage:['adult','school'],title:'파란 글씨 포대',desc:'국제기구 글씨가 찍힌 옥수수 포대가 마을에 들어왔다는 소문이 돕니다. 그런데 포대는 간부 집 창고로 먼저 들어갔습니다.',
+ fact:'세계식량계획(WFP) 같은 국제기구는 오랫동안 북한에 식량을 지원해 왔습니다. 지원 물자가 간부나 군대로 먼저 빠진다는 증언도 있습니다.',
+ opts:[{t:'간부 집 앞에서 기다린다',go:{'*':{got:.4,nothing:.6}}},{t:'장마당에 흘러나온 포대를 산다',cost:()=>20,go:{'*':{bought:1}}},{t:'기대하지 않는다',go:{'*':{skip:1}}}],good:{got:1,nothing:-1,bought:1,skip:0},
+ out:{got:s=>({t:'반나절을 기다려 옥수수 한 바가지를 받았습니다.',e:{hp:4}}),nothing:s=>({t:'해가 질 때까지 기다렸지만 문은 열리지 않았습니다.',e:{joy:-4}}),bought:s=>({t:'포대째 샀습니다. 파란 글씨가 무슨 뜻인지는 몰랐지만 옥수수는 고소했습니다.',e:{hp:5,joy:3}}),skip:s=>({t:'기대하지 않았습니다. 그게 덜 아팠습니다.',e:{}})}});
+EV('b_street',{pool:1,kind:'위기',max:1,tier:['bottom'],stage:['school'],min:8,maxAge:15,title:'역전의 아이들',desc:'집에 먹을 게 떨어진 지 사흘째입니다. 역전에서 꽃제비 아이들이 손짓합니다. "여기 있으면 굶진 않아."',
+ opts:[{t:'아이들을 따라간다',go:{'*':{street:1}}},{t:'학교에서 버틴다',go:{'*':{stay:1}}},{t:'장마당 바닥에 떨어진 낟알을 줍는다',go:{'*':{grain:1}}}],good:{street:-1,stay:0,grain:1},
+ out:{street:s=>({t:'석 달 동안 역전에서 잤습니다. 훔치는 법과 도망치는 법을 배웠습니다. 어머니가 찾으러 왔을 때 나는 한 뼘 작아져 있었습니다.',e:{hp:-10,net:6,edu:-8,outside:4,flag:'wasKotjebi'}}),
+  stay:s=>({t:'수업 시간 내내 배에서 소리가 났습니다. 선생님이 옥수수떡 반쪽을 몰래 쥐여 줬습니다.',e:{hp:-5,loyal:2}}),grain:s=>({t:'하루 종일 바닥만 보고 다녔습니다. 한 줌을 모아 죽을 쒔습니다.',e:{hp:-2,net:2}})}});
+EV('b_plotbust',{pool:1,kind:'위기',max:1,stage:['adult'],when:s=>s.dir==='plot',title:'뙈기밭 단속',desc:'산비탈에 몰래 일군 뙈기밭에 산림 감독원이 나타났습니다. "국토를 마음대로 갈아엎었다"며 장부를 꺼냅니다.',
+ fact:'북한 주민들은 식량을 보태려고 산비탈에 개인 밭(뙈기밭)을 일구는데, 산림 훼손을 이유로 단속하는 일이 잦다고 알려져 있습니다.',
+ opts:[{t:'수확한 감자 한 자루를 바친다',go:{'*':{gift:1}}},{t:'"원래 있던 밭"이라고 우긴다',go:{'*':{pass:.4,lost:.6}}}],good:{gift:0,pass:1,lost:-1},
+ out:{gift:s=>({t:'감독원이 감자 자루를 들고 내려갔습니다. 내년에도 올 겁니다.',e:{hp:-2}}),pass:s=>({t:'감독원이 고개를 갸웃하더니 그냥 갔습니다.',e:{}}),lost:s=>({t:'밭을 빼앗겼습니다. 나무 묘목을 심으라는 지시가 내려왔습니다.',e:{joy:-6,risk:5}})}});
 
 /* ================================================================
    2600만 분의 1 — 해 볼 수 있는 일: 일자리 · 도전 · 사랑 · 떠나기
@@ -1376,7 +1506,7 @@ function renderId(){const s=S,rs=realStars(s);const doc=s.age>=17?'공민 기록
  $('idCard').className='idc'+(s.royal?' gold':'');
  $('idCard').innerHTML=`<div class="idh"><span>${doc} · PRK</span><small>${s.year-s.age}</small></div><div class="idb"><canvas id="meAv" width="32" height="40" aria-label="내 모습"></canvas><div><b class="idn">${esc(s.name)}</b><small>${esc(jobLabel(s))}</small></div></div>
   <dl class="idl"><dt>성별</dt><dd>${s.sex==='F'?'여성':'남성'}</dd><dt>출생</dt><dd>${esc(s.birthPlace||s.place.ko)} · ${s.year-s.age}년 ${s.month||1}월</dd><dt>거주</dt><dd>${esc(s.place.ko)} · ${esc(s.house||'')}</dd>
-  <dt>성분</dt><dd>${s.royal?'백두혈통':SONGBUN[s.songbun].ko} <span class="stars" title="실질 계급 · ${STAR_KO[rs]}">${starsTxt(rs)}</span></dd><dt>학력</dt><dd>${eduTxt(s)}</dd>${s.flags.record?`<dt>전과</dt><dd>${s.flags.record}번</dd>`:''}</dl><div class="mrz">${no}&lt;&lt;${esc(s.sur||'')}&lt;&lt;PRK&lt;&lt;&lt;&lt;&lt;&lt;</div>`;drawAv($('meAv'),s)}
+  <dt>성분</dt><dd>${s.royal?'백두혈통':SONGBUN[s.songbun].ko} <span class="stars" title="실질 계급 · ${STAR_KO[rs]}">${starsTxt(rs)}</span></dd><dt>사는 세상</dt><dd>${TIER_KO[tierOf(s)]}</dd><dt>학력</dt><dd>${eduTxt(s)}</dd>${s.flags.record?`<dt>전과</dt><dd>${s.flags.record}번</dd>`:''}</dl><div class="mrz">${no}&lt;&lt;${esc(s.sur||'')}&lt;&lt;PRK&lt;&lt;&lt;&lt;&lt;&lt;</div>`;drawAv($('meAv'),s)}
 const bar=(k,v,col,tip)=>`<div class="sb"${tip?` title="${tip}"`:''}><span>${k}</span><i><u style="width:${clamp(v,0,100)}%;background:${col}"></u></i><b>${Math.round(v)}</b></div>`;
 function statBars(s){return bar('건강',s.hp,'var(--good)','0이 되면 세상을 떠납니다')+bar('행복',s.joy,'var(--gold)','가족 · 밥 · 전기 · 자유가 좌우합니다')+bar('위험',s.risk,'var(--bad)','높을수록 단속에 걸리기 쉽습니다')+bar('바깥 소식',s.outside,'var(--blue)','바깥세상을 얼마나 아는지')}
 const curDirKo=s=>{const d=curDir(s);if(!d)return'버티기';const L=DIRS[stageOf(s)];return L&&L[d]?L[d].ko:'버티기'};
@@ -1444,7 +1574,7 @@ const DIR_HEAD={baby:['아직은 자라는 중','일곱 살부터 마음 쏟을 
 function tabFocus(){const s=S,st=stageOf(s),L=dirsOf(s),cur=curDir(s);const[h,hint]=DIR_HEAD[st]||['',''];
  let g=L.map(([k,d])=>`<button type="button" class="dbtn" data-d="${k}" aria-pressed="${k===cur}"><b>${d.ko}</b><small>${d.d}</small></button>`).join('');
  if(canEscape(s))g+=`<button type="button" class="dbtn flee" data-flee="1"><b>떠난다</b><small>준비 ${Math.round(s.prep)}% · 강을 건넌다</small></button>`;
- return`<div class="th"><b>${h}</b><small>${esc(hint)} · ${esc(jobLabel(s))} · ${esc(s.place.ko)}</small></div><div class="dgrid">${g||`<p class="sub" style="margin:0">${st==='baby'?'먹고, 자고, 자랍니다.':'할 수 있는 게 없습니다.'}</p>`}</div>`}
+ return`<div class="th"><b>${h}</b><small>${esc(hint)} · ${esc(jobLabel(s))} · ${esc(s.place.ko)} · ${TIER_KO[tierOf(s)].split(' · ')[0]}</small></div><div class="dgrid">${g||`<p class="sub" style="margin:0">${st==='baby'?'먹고, 자고, 자랍니다.':'할 수 있는 게 없습니다.'}</p>`}</div>`}
 function tabActs(){const s=S,A=actsFor(s);if(!A.length)return`<p class="sub">${stageOf(s)==='baby'?'아직은 너무 어립니다.':'지금은 해 볼 수 있는 일이 없습니다.'}</p>`;
  const cats=[...new Set(A.map(a=>a.cat))];
  return cats.map(cat=>`<div class="acat"><h4>${cat}</h4>${A.filter(a=>a.cat===cat).map(a=>{const st=actState(s,a);const c=a.cost?Math.round(a.cost(s)):0;const p=a.open?null:pct(a.p(s));
@@ -1514,7 +1644,7 @@ function runAct(k){if(FLOW.busy||!$('modal').hidden)return;const r=doAct(S,k);if
 /* ---------- 끝 ---------- */
 function finish(){FLOW.busy=false;closeModal();const s=S,E=endingOf(s);const dx=LS.get('nk.dex',{});if(!s.counted){s.counted=1;dx[E.id]={n:((dx[E.id]||{}).n||0)+1,last:s.name};LS.set('nk.dex',dx)}LS.del('nk.cur');
  const why={south:'남쪽에 닿았습니다',exile:'외국으로 떠났습니다',purged:'숙청됐습니다',heir:'후계자가 됐습니다',unify:'통일을 맞았습니다',dead:s.flags.diedIn==='jail'||s.flags.diedIn==='camp'?'갇힌 채 생을 마쳤습니다':'생을 마쳤습니다'}[s.end]||'';
- const extra=[];if(s.end==='south'){if(s.flags.powAddr)extra.push('할아버지의 고향 마을을 찾아가 그 이름을 불러 봤습니다.');if(s.flags.southAunt)extra.push('남쪽 이모가 공항에 마중 나와 있었습니다.')}
+ const extra=[];if(s.end==='south'){if(s.flags.powAddr)extra.push('할아버지의 고향 마을을 찾아가 그 이름을 불러 봤습니다.');if(s.flags.southAunt)extra.push('남쪽 이모가 공항에 마중 나와 있었습니다.');if(s.flags.eliteDefect)extra.push('평양에 남겨진 가족 소식은 끝내 듣지 못했습니다.')}
  const mom=s.big.slice().sort((a,b)=>Math.abs(b.g)-Math.abs(a.g)).slice(0,7).sort((a,b)=>a.age-b.age);const sp=(s.fam||[]).find(m=>m.sp&&!m.gone);const kn=(s.fam||[]).filter(m=>m.kid&&m.alive).length;
  $('endCard').className='endcard'+(s.royal?' gold':'');
  $('endCard').innerHTML=`<div class="endtop"><canvas id="endAv" width="32" height="40"></canvas><div><span class="tone ${E.tone}">이번 생</span><h2>${esc(E.t)}</h2><div class="why">${esc(s.name)} · ${s.age}세 · ${esc(why)}</div></div></div>
