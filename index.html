@@ -110,35 +110,107 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 .topr{display:flex;gap:6px;align-items:center}
 .pill.link{text-decoration:none;color:var(--red);border-color:var(--red);font-weight:700}
 @media (max-width:600px){.top{flex-wrap:wrap;gap:8px}.eyebrow{flex-basis:100%}}
+
+/* ================= 넓은 화면 (컴퓨터) ================= */
+.wrap{max-width:1120px}
+.hero{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);gap:40px;align-items:center;margin-top:8px}
+.hero>*{min-width:0}
+.idcard{background:#F4EEDF;color:#1F1B15;border-radius:14px;box-shadow:0 30px 60px -28px rgba(60,30,10,.55),0 0 0 1px rgba(0,0,0,.06);overflow:hidden;cursor:pointer;transform:rotate(1.5deg);transition:transform .25s;max-width:380px;margin-left:auto}
+.idcard:hover{transform:rotate(0) translateY(-2px)}
+.idh{display:flex;justify-content:space-between;align-items:center;background:#B3261E;color:#F4EEDF;padding:10px 16px;font-family:var(--f-disp);font-size:18px;letter-spacing:.06em}
+.idh small{font-family:var(--f-num);font-size:11.5px;letter-spacing:0;opacity:.85}
+.idb{display:grid;grid-template-columns:110px minmax(0,1fr);gap:16px;padding:16px}
+.idb canvas{width:110px;height:138px;image-rendering:pixelated;border-radius:6px;background:#E3D8C2;border:3px solid #fff;box-shadow:0 2px 0 rgba(0,0,0,.08)}
+.idb dl{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 10px;font-size:13.5px;align-content:start}
+.idb dt{color:#7C7365;font-size:12px;padding-top:1px}.idb dd{margin:0;font-weight:700}
+.idf{border-top:1px dashed #CFC3AA;padding:8px 16px;font-size:12px;color:#7C7365;text-align:center}
+.idcard.flip .idb{animation:pop .4s ease-out}
+.feats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:40px}
+.feats div{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:14px 16px}
+.feats b{font-family:var(--f-disp);font-weight:400;font-size:20px;color:var(--red)}.feats p{margin:6px 0 0;font-size:13.5px;color:var(--ink2);line-height:1.55}
+.ggrid{display:grid;grid-template-columns:320px minmax(0,1fr);gap:20px;align-items:start}
+.side{position:sticky;top:12px;display:flex;flex-direction:column;gap:12px}
+.panel{background:var(--card);border:1px solid var(--rule);border-radius:16px;padding:14px 16px}
+.panel h3{margin:0 0 10px;font-size:14px}.panel h3 small{font-weight:400;color:var(--ink3);font-size:12px;margin-left:6px}
+@media (min-width:901px){
+ .me{position:relative;top:auto;grid-template-columns:1fr;justify-items:center;text-align:center;padding:18px 16px}
+ .me canvas{width:120px;height:150px}
+ .mn{justify-content:center}.mn b{font-size:28px}
+ .mj{font-size:13.5px}
+ .mbars{margin:10px auto 0;width:100%;max-width:none}
+ .mm{text-align:center;border-top:1px dashed var(--rule);padding-top:10px;width:100%}.mm b{font-size:24px}
+ .dgrid{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+ .main .dirs{background:var(--card);border:1px solid var(--rule);border-radius:16px;padding:14px 16px;margin:0 0 14px}
+ .tl li{font-size:15px}
+ .bar{left:50%;right:auto;transform:translateX(-50%);bottom:16px;border:1px solid var(--rule);border-radius:999px;padding:8px 10px;box-shadow:var(--shadow);background:color-mix(in srgb,var(--card) 92%,transparent)}
+ .gwrap{padding-bottom:110px}
+}
+.mm em{display:block;font-style:normal;font-size:12.5px;color:var(--ink3);font-family:var(--f-num)}
+.sidex dl{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 12px;font-size:13.5px}
+.sidex dt{color:var(--ink3);font-size:12.5px}.sidex dd{margin:0}
+.spark{width:100%;height:70px;display:block;margin-top:10px}
+.legend{display:flex;gap:12px;font-size:11.5px;color:var(--ink3);margin-top:4px}.legend i{display:inline-block;width:10px;height:3px;border-radius:2px;vertical-align:middle;margin-right:4px}
+.tlp{padding-top:12px}.tl li.now{background:var(--red-soft);border-radius:8px;border-bottom-color:transparent}
+.tl li .a{font-weight:700}
+@media (max-width:900px){
+ .hero{grid-template-columns:1fr;gap:24px}.idcard{margin:0 auto;transform:none}
+ .feats{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .ggrid{grid-template-columns:1fr}.side{position:static}
+ .sidex{display:none}
+ .tlp{background:none;border:0;padding:0}
+}
+@media (max-width:600px){.feats{grid-template-columns:1fr}.idb{grid-template-columns:90px minmax(0,1fr)}.idb canvas{width:90px;height:113px}}
+a.btn{text-decoration:none;color:inherit;display:inline-flex;align-items:center;justify-content:center}
 </style></head><body><section id="home" class="wrap">
  <div class="top"><span class="eyebrow">인생 시뮬레이션 · 북한편 · 1년이 한 턴</span><span class="topr"><a class="pill link" href="https://alohang1985.github.io/debut-gak/">데뷔각 하러 가기 →</a><button class="pill" id="themeBtn" type="button" aria-label="밝은 화면과 어두운 화면 바꾸기">◐</button></span></div>
  <div id="resumeBox" hidden></div>
- <h1 class="title"><span>2600만</span><small>분의 1</small></h1>
- <p class="lede">북한에서 태어납니다. 고를 수 있는 건 아무것도 없습니다. 성분, 사는 곳, 부모님, 운은 주사위가 정합니다. 해마다 무엇에 마음을 쏟을지만 정하세요. 장마당에서 돈을 벌 수도, 당원이 되어 평양으로 갈 수도, 강을 건널 수도 있습니다. 어쩌면 백두혈통으로 태어날 수도 있죠.</p>
- <div class="facts"><div><b>약 35만</b><span>한 해에 태어나는 아이</span></div><div><b>300분의 1</b><span>백두혈통으로 태어날 확률</span></div><div><b id="fEnd">16</b><span>가지 결말, 정답은 없음</span></div></div>
- <button class="btn pri big" type="button" id="goBtn">태어나기</button>
- <section class="block"><h2>결말 도감</h2><p class="sub">이 브라우저에서 본 인생의 결말이 모입니다.</p><div class="dex" id="dex"></div></section>
- <p class="foot">모든 인물은 가상입니다. 제도와 생활은 탈북민 증언과 보도를 바탕으로 했습니다. 어떤 삶도 웃음거리로 만들려는 게 아닙니다.</p>
+ <div class="hero">
+  <div class="hl">
+   <h1 class="title"><span>2600만</span><small>분의 1</small></h1>
+   <p class="lede">북한에서 태어납니다. 고를 수 있는 건 아무것도 없습니다. 성분, 사는 곳, 부모님, 운은 주사위가 정합니다. 해마다 무엇에 마음을 쏟을지만 정하세요. 장마당에서 돈을 벌 수도, 당원이 되어 평양으로 갈 수도, 강을 건널 수도 있습니다. 어쩌면 백두혈통으로 태어날 수도 있죠.</p>
+   <div class="facts"><div><b>약 35만</b><span>한 해에 태어나는 아이</span></div><div><b>300분의 1</b><span>백두혈통으로 태어날 확률</span></div><div><b id="fEnd">16</b><span>가지 결말, 정답은 없음</span></div></div>
+   <button class="btn pri big" type="button" id="goBtn">태어나기</button>
+  </div>
+  <div class="hr"><div class="idcard" id="idCard" role="button" tabindex="0" title="눌러서 다른 인생 보기">
+   <div class="idh"><span>출생 기록</span><small>No. <b id="idNo"></b></small></div>
+   <div class="idb"><canvas id="idAv" width="32" height="40" aria-label="무작위로 태어난 아이"></canvas>
+    <dl><dt>이름</dt><dd id="idName"></dd><dt>태어난 곳</dt><dd id="idPlace"></dd><dt>성분</dt><dd id="idSong"></dd><dt>부모</dt><dd id="idPar"></dd></dl></div>
+   <div class="idf">누르면 다른 아이가 태어납니다</div></div></div>
+ </div>
+ <div class="feats">
+  <div><b>장마당</b><p>배급은 끊긴 지 오래. 옥수수와 중국 옷을 팔며 살림을 꾸립니다. 단속반은 늘 옵니다.</p></div>
+  <div><b>출세</b><p>붉은 당원증, 승진, 평양 아파트. 올라갈수록 숙청 명단도 가까워집니다.</p></div>
+  <div><b>바깥세상</b><p>전기가 들어온 밤, 남쪽 드라마 한 편. 109상무가 문을 두드릴 수도 있습니다.</p></div>
+  <div><b>강 건너</b><p>두만강, 중국, 메콩강 또는 고비 사막. 떠날지 남을지는 당신이 정합니다.</p></div>
+ </div>
+ <section class="block"><h2>결말 도감</h2><p class="sub">이 브라우저에서 본 인생의 결말이 모입니다. 정답은 없습니다.</p><div class="dex" id="dex"></div></section>
+ <p class="foot">모든 인물은 가상입니다. 제도와 생활은 탈북민 증언과 보도를 바탕으로 했습니다. 어떤 삶도 웃음거리로 만들려는 게 아닙니다. 달러는 1달러 = 약 1,380원으로 한국 돈을 함께 보여 줍니다.</p>
 </section>
 
 <section id="game" hidden>
  <div class="wrap gwrap">
-  <div class="me">
-   <canvas id="meAv" width="32" height="40" aria-label="내 캐릭터"></canvas>
-   <div class="mi"><div class="mn"><b id="meName"></b><span id="meAge"></span></div><div class="mj" id="meJob"></div>
-    <div class="mbars" id="meBars"></div></div>
-   <div class="mm"><small>돈</small><b id="meMoney"></b></div>
-   <button class="quit" type="button" id="quitBtn" aria-label="저장하고 처음으로">나가기</button>
+  <div class="ggrid">
+   <aside class="side">
+    <div class="me">
+     <canvas id="meAv" width="32" height="40" aria-label="내 캐릭터"></canvas>
+     <div class="mi"><div class="mn"><b id="meName"></b><span id="meAge"></span></div><div class="mj" id="meJob"></div><div class="mbars" id="meBars"></div></div>
+     <div class="mm"><small>돈</small><b id="meMoney"></b><em id="meKrw"></em></div>
+     <button class="quit" type="button" id="quitBtn" aria-label="저장하고 처음으로">나가기</button>
+    </div>
+    <div class="panel sidex" id="meExtra"></div>
+   </aside>
+   <main class="main">
+    <div class="dirs"><div class="dh"><b id="dirTitle">올해 마음 쏟을 곳</b><small id="dirHint"></small></div><div class="dgrid" id="dirGrid"></div></div>
+    <div class="panel tlp"><h3>연표 <small>위로 갈수록 최근</small></h3><ol class="tl" id="timeline"></ol></div>
+   </main>
   </div>
-  <div class="dirs"><div class="dh"><b id="dirTitle">올해 마음 쏟을 곳</b><small id="dirHint"></small></div><div class="dgrid" id="dirGrid"></div></div>
-  <ol class="tl" id="timeline"></ol>
-  <div class="bar"><button class="pill" type="button" id="flowBtn">❚❚ 멈춤</button><button class="pill" type="button" id="spdBtn">1×</button><span class="fl" id="flowLbl"></span><button class="btn pri" type="button" id="stepBtn">1년 보내기 →</button></div>
  </div>
+ <div class="bar"><button class="pill" type="button" id="flowBtn">❚❚ 멈춤</button><button class="pill" type="button" id="spdBtn">1×</button><span class="fl" id="flowLbl"></span><button class="btn pri" type="button" id="stepBtn">1년 보내기 →</button></div>
 </section>
 
 <section id="end" class="wrap" hidden>
  <div class="endcard" id="endCard"></div>
- <div class="endbtns"><button class="btn pri big" type="button" id="againBtn">다시 태어나기</button><button class="btn" type="button" id="homeBtn">처음으로</button></div>
+ <div class="endbtns"><button class="btn pri big" type="button" id="againBtn">다시 태어나기</button><button class="btn" type="button" id="homeBtn">처음으로</button><a class="btn" href="https://alohang1985.github.io/debut-gak/">데뷔각 하러 가기</a></div>
 </section>
 
 <div class="mback" id="modal" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="mT"><div class="mh"><span class="mk" id="mK"></span><span class="mw" id="mW"></span></div><div class="mb"><h2 id="mT"></h2><p class="md" id="mD"></p><div id="mBody"></div></div></div></div>
@@ -156,6 +228,8 @@ const chance=p=>rnd()<p;
 function wpick(ws){let t=0;for(const w of ws)t+=w[1];let r=rnd()*t;for(const w of ws){r-=w[1];if(r<=0)return w[0]}return ws[ws.length-1][0]}
 function gauss(){let u=0,v=0;while(!u)u=rnd();while(!v)v=rnd();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
 const fmt=n=>Math.round(n).toLocaleString('ko-KR');
+const KRW_PER_USD=1380;   // 1달러 ≈ 1,380원으로 계산
+const krw=n=>{const w=Math.abs(Math.round(n*KRW_PER_USD));const t=w>=100000000?(w/100000000).toFixed(w>=1000000000?0:1).replace(/\.0$/,'')+'억':w>=10000?fmt(Math.round(w/10000))+'만':fmt(w);return`약 ${t} 원`};
 const usd=n=>{n=Math.round(n);const a=Math.abs(n);const t=a>=100000000?(a/100000000).toFixed(1)+'억':a>=10000?(a/10000).toFixed(a>=1000000?0:1).replace(/\.0$/,'')+'만':fmt(a);return(n<0?'-':'')+'$'+t};
 function jong(w){const c=w.charCodeAt(w.length-1);if(c<0xAC00||c>0xD7A3)return-1;return(c-0xAC00)%28}
 function J(w,p){const[a,b]=p.split('/');const j=jong(w);if(p==='으로/로')return w+(j>0&&j!==8?'으로':'로');return w+(j>0?a:b)}
@@ -185,13 +259,13 @@ const ROYAL_GIVEN=['태성','은별','주원','다온','시혁','하늘'];
 /* ---------- 해마다 흘러가는 한 줄 (같은 문장은 한 인생에 한 번) ---------- */
 const LINES={
  baby:['정전이 계속돼 엄마가 촛불 아래서 기저귀를 갈았습니다.','배급으로 나온 옥수수를 죽으로 끓여 먹었습니다.','겨울에 연탄이 떨어져 온 가족이 한 이불을 덮었습니다.','아빠가 장마당에서 사 온 중국산 분유를 아껴 먹였습니다.','처음으로 "엄마"라고 말했습니다. 옆집까지 다 들렸습니다.','이웃 할머니가 쌀 한 줌을 몰래 놓고 갔습니다.'],
- kid:['아침마다 초상화 앞에서 인사를 했습니다.','학교에서 토끼 가죽 과제가 나왔습니다. 토끼를 키우기 시작했습니다.','겨울 땔감 과제를 채우려고 산을 탔습니다.','친구와 굴러다니는 깡통으로 축구를 했습니다.','장마당 국수 냄새를 맡으며 집에 왔습니다.','전기가 들어온 날 온 동네 아이들이 한 집 TV 앞에 모였습니다.','교실 난로에 넣을 나무를 각자 가져갔습니다.','학교 마당에서 집단 체조를 연습했습니다. 발이 얼었습니다.','엄마가 장사로 번 돈으로 운동화를 사 줬습니다.','소학교 숙제로 "수령님 은덕" 글짓기를 했습니다.'],
- teen:['고급중학교 교실 창문에 비닐이 붙었습니다. 유리는 없습니다.','친구들끼리 몰래 남쪽 노래 가사를 돌려 적었습니다.','농촌 지원 동원으로 한 달 동안 모를 심었습니다.','장마당에서 중국산 청바지를 구경만 하다 왔습니다.','밤마다 정전이라 촛불 아래서 공부했습니다.','학교에서 반미 교육 영화를 단체로 봤습니다.'],
- adult:['정전이 석 달 계속됐습니다.','배급이 또 끊겼습니다. 다들 장마당으로 나갔습니다.','옥수수 값이 두 배가 됐습니다.','건설 돌격대 동원으로 두 달을 공사장에서 보냈습니다.','인민반 회의에서 "사회주의 생활양식"을 또 들었습니다.','국경 단속이 세졌다는 소문이 돌았습니다. 중국 물건 값이 뛰었습니다.','새 구호가 붙었습니다. 다들 외우는 척했습니다.','전기가 들어온 날 밤, 집집마다 몰래 문을 걸어 잠갔습니다.','장마당에서 휘발유 값이 쌀값보다 비싸졌습니다.','태풍으로 강냉이 밭이 쓸려 갔습니다.','혁명 사적지 답사에 동원됐습니다.','직장에서 월급 대신 감자 한 자루가 나왔습니다.','공장 기계가 다 멈춰 출근해서 청소만 했습니다.','이웃집 아저씨가 어느 날 조용히 사라졌습니다. 아무도 묻지 않았습니다.','장마당 단속반이 들이닥쳐 좌판이 엎어졌습니다.','명절 공급으로 술 한 병과 사탕 한 봉지가 나왔습니다.'],
- army:['새벽 구보로 하루가 시작됐습니다.','배가 고파 부대 옆 밭에서 감자를 캐 먹었습니다.','농사 지원과 건설 동원으로 총보다 삽을 더 많이 들었습니다.','집에서 부친 쌀 자루가 반쯤 비어서 왔습니다.','상관 생일 선물로 쓸 돈을 모으라는 지시가 내려왔습니다.','훈련 중 동기 하나가 영양실조로 쓰러졌습니다.'],
- jail:['새벽부터 밤까지 노동이 이어졌습니다.','배식은 옥수수 한 줌이었습니다.','같은 방 사람이 아무 말 없이 실려 나갔습니다.','바깥 소식은 하나도 들어오지 않습니다.','버티는 것만이 일입니다.'],
- china:['새벽 공장에서 몰래 일했습니다. 사장은 신분증을 묻지 않았습니다.','공안 차가 지나갈 때마다 숨을 죽였습니다.','처음으로 배불리 밥을 먹은 날, 밥그릇을 보며 울었습니다.','중국어 단어를 몇 개 외웠습니다.','같이 넘어온 사람이 잡혀갔다는 소식을 들었습니다.'],
- royal:['평양의 전용 병원에서 정기 검진을 받았습니다.','특별 공급으로 수입 과일이 상자째 들어왔습니다.','전용 사격장에서 오후를 보냈습니다.','외국 영화를 전용 상영관에서 봤습니다.','관저 수영장 물을 새로 갈았습니다.','경호원이 하나 바뀌었습니다. 이유는 아무도 말하지 않았습니다.']};
+ kid:['아침마다 초상화 앞에서 인사를 했습니다.','학교에서 토끼 가죽 과제가 나왔습니다. 토끼를 키우기 시작했습니다.','겨울 땔감 과제를 채우려고 산을 탔습니다.','친구와 굴러다니는 깡통으로 축구를 했습니다.','장마당 국수 냄새를 맡으며 집에 왔습니다.','전기가 들어온 날 온 동네 아이들이 한 집 TV 앞에 모였습니다.','교실 난로에 넣을 나무를 각자 가져갔습니다.','학교 마당에서 집단 체조를 연습했습니다. 발이 얼었습니다.','엄마가 장사로 번 돈으로 운동화를 사 줬습니다.','소학교 숙제로 "수령님 은덕" 글짓기를 했습니다.','동네 형들이 깡통 라디오를 만들어 보였습니다.','소학교 운동회에서 줄다리기를 했습니다.','학교 꽃밭 가꾸기에 동원됐습니다.','엄마 몰래 장마당 꽈배기를 사 먹었습니다.','설날에 처음으로 사탕 한 봉지를 받았습니다.','겨울 방학 내내 썰매를 탔습니다.'],
+ teen:['고급중학교 교실 창문에 비닐이 붙었습니다. 유리는 없습니다.','친구들끼리 몰래 남쪽 노래 가사를 돌려 적었습니다.','농촌 지원 동원으로 한 달 동안 모를 심었습니다.','장마당에서 중국산 청바지를 구경만 하다 왔습니다.','밤마다 정전이라 촛불 아래서 공부했습니다.','학교에서 반미 교육 영화를 단체로 봤습니다.','고급중학교 졸업반 선배들이 군대 이야기를 했습니다.','친구 집에서 몰래 중국 영화를 봤습니다.','학교 대신 장마당 짐을 날랐습니다.','학급 회의에서 "학습 태도" 비판을 받았습니다.'],
+ adult:['정전이 석 달 계속됐습니다.','배급이 또 끊겼습니다. 다들 장마당으로 나갔습니다.','옥수수 값이 두 배가 됐습니다.','건설 돌격대 동원으로 두 달을 공사장에서 보냈습니다.','인민반 회의에서 "사회주의 생활양식"을 또 들었습니다.','국경 단속이 세졌다는 소문이 돌았습니다. 중국 물건 값이 뛰었습니다.','새 구호가 붙었습니다. 다들 외우는 척했습니다.','전기가 들어온 날 밤, 집집마다 몰래 문을 걸어 잠갔습니다.','장마당에서 휘발유 값이 쌀값보다 비싸졌습니다.','태풍으로 강냉이 밭이 쓸려 갔습니다.','혁명 사적지 답사에 동원됐습니다.','직장에서 월급 대신 감자 한 자루가 나왔습니다.','공장 기계가 다 멈춰 출근해서 청소만 했습니다.','이웃집 아저씨가 어느 날 조용히 사라졌습니다. 아무도 묻지 않았습니다.','장마당 단속반이 들이닥쳐 좌판이 엎어졌습니다.','명절 공급으로 술 한 병과 사탕 한 봉지가 나왔습니다.','시장 단속이 느슨해진 틈에 다들 좌판을 넓혔습니다.','중국산 태양광 패널이 지붕마다 하나씩 생겼습니다.','장마당에서 휴대폰 충전을 해 주는 장사가 생겼습니다.','명절에 고향 친척들이 쌀 한 자루씩 들고 왔습니다.','동네 우물이 말라 물 긷는 줄이 길어졌습니다.','중국 드라마가 장마당 아래에서 돌았습니다.','공장이 몇 달 만에 잠깐 돌아갔습니다.','이웃 결혼식에 갔습니다. 국수가 귀했습니다.','겨울 김장 배추 값을 두고 온 동네가 술렁였습니다.','아이들이 학교 대신 장마당에 나와 있었습니다.','전기 들어오는 시간에 맞춰 밤에 빨래를 했습니다.','버스가 멈춰 직장까지 두 시간을 걸었습니다.'],
+ army:['새벽 구보로 하루가 시작됐습니다.','배가 고파 부대 옆 밭에서 감자를 캐 먹었습니다.','농사 지원과 건설 동원으로 총보다 삽을 더 많이 들었습니다.','집에서 부친 쌀 자루가 반쯤 비어서 왔습니다.','상관 생일 선물로 쓸 돈을 모으라는 지시가 내려왔습니다.','훈련 중 동기 하나가 영양실조로 쓰러졌습니다.','보초를 서다 강 건너 중국 쪽 불빛을 한참 봤습니다.','휴가증을 받으려고 상관에게 담배를 바쳤습니다.','훈련보다 부대 돼지 키우기가 더 바빴습니다.','동기와 몰래 라디오를 들었습니다. 들키지 않았습니다.','겨울 산악 행군에서 발가락에 동상이 걸렸습니다.','부대 텃밭 배추가 다 얼어 버렸습니다.','편지가 석 달 만에 도착했습니다. 엄마 글씨가 떨렸습니다.','휴가를 나갔다가 장마당에서 집 밥을 사 먹었습니다.','새로 온 신병이 울면서 집 이야기를 했습니다.','사단 검열 때문에 일주일 동안 페인트칠만 했습니다.'],
+ jail:['새벽부터 밤까지 노동이 이어졌습니다.','배식은 옥수수 한 줌이었습니다.','같은 방 사람이 아무 말 없이 실려 나갔습니다.','바깥 소식은 하나도 들어오지 않습니다.','버티는 것만이 일입니다.','교화소 담장 너머로 기차 소리가 들렸습니다.','같은 방 할머니가 몰래 옥수수를 나눠 줬습니다.'],
+ china:['새벽 공장에서 몰래 일했습니다. 사장은 신분증을 묻지 않았습니다.','공안 차가 지나갈 때마다 숨을 죽였습니다.','처음으로 배불리 밥을 먹은 날, 밥그릇을 보며 울었습니다.','중국어 단어를 몇 개 외웠습니다.','같이 넘어온 사람이 잡혀갔다는 소식을 들었습니다.','조선족 할머니가 밥을 챙겨 줬습니다.','휴대폰으로 처음 인터넷을 봤습니다.','몰래 남쪽 방송을 틀어 놓고 잤습니다.'],
+ royal:['평양의 전용 병원에서 정기 검진을 받았습니다.','특별 공급으로 수입 과일이 상자째 들어왔습니다.','전용 사격장에서 오후를 보냈습니다.','외국 영화를 전용 상영관에서 봤습니다.','관저 수영장 물을 새로 갈았습니다.','경호원이 하나 바뀌었습니다. 이유는 아무도 말하지 않았습니다.','외국에서 들여온 피아노 선생님에게 레슨을 받았습니다.','관저 정원의 공작새가 새끼를 낳았습니다.','농구 경기를 보러 해외에 다녀왔습니다. 가명으로요.','특별 열차를 타고 지방 순시를 따라갔습니다.','회의 자리에서 누군가 내 말에 크게 웃었습니다. 모두가 따라 웃었습니다.','생일 선물로 수입 시계가 상자째 들어왔습니다.','관저 지하 극장에서 외국 영화를 밤새 봤습니다.','경호원 몰래 평양 시내를 걸어 보려다 바로 붙잡혔습니다.']};
 const POWER_LINE={on:['올해는 전기가 꽤 들어왔습니다.','밤에도 가끔 불이 켜졌습니다.'],some:['전기는 하루에 두세 시간 들어왔습니다.','정전이 일상이었습니다.'],off:['한 해 내내 거의 정전이었습니다. 겨울이 혹독했습니다.','몇 달 동안 전기가 한 번도 안 들어왔습니다.']};
 
 /* ================================================================
@@ -221,12 +295,13 @@ function newLife(){const sb=wpick(Object.entries(SONGBUN).map(([k,v])=>[k,v.p]))
  addLog(s,born,'mile');return s}
 function addLog(s,t,c){s.log.unshift({age:s.age,y:s.year,t,c:c||''});if(s.log.length>400)s.log.length=400}
 function big(s,t,g){s.big.push({age:s.age,t,g})}
-function line(s,pool){const L=pool.filter(x=>!s.used[x]);const x=pick(L.length?L:pool);s.used[x]=1;return x}
+const QUIET=['별일 없이 한 해가 지났습니다.','조용한 한 해였습니다.','어제 같은 오늘이 이어졌습니다.','올해도 그럭저럭 버텼습니다.','계절이 네 번 바뀌었습니다.'];
+function line(s,pool){const L=pool.filter(x=>!s.used[x]);if(!L.length)return pick(QUIET);const x=pick(L);s.used[x]=1;return x}
 
 /* ---------- effects ---------- */
 function applyE(s,e){if(!e)return[];const ch=[];const add=(v,good)=>ch.push({v,good});
  const num=(k,ko,lo,hi)=>{if(!e[k])return;s[k]=clamp(s[k]+e[k],lo,hi);add(`${ko} ${e[k]>0?'+':''}${e[k]}`,k==='risk'?e[k]<0:e[k]>0)};
- if(e.money){s.money=Math.max(0,s.money+e.money);add(`${e.money>0?'+':'-'}${usd(Math.abs(e.money))}`,e.money>0)}
+ if(e.money){s.money=Math.max(0,s.money+e.money);add(`${e.money>0?'+':'-'}${usd(Math.abs(e.money))} (${krw(e.money).replace('약 ','')})`,e.money>0)}
  num('hp','건강',0,100);num('risk','위험',0,100);num('loyal','충성',0,100);num('outside','바깥 소식',0,100);num('net','인맥',0,100);num('prep','탈북 준비',0,100);num('edu','공부',0,100);
  if(e.art){s.art=clamp(s.art+e.art,0,4);add('예술단 승급',true)}
  if(e.party){s.party=true;s.rank=Math.max(s.rank,1);add('입당',true)}
@@ -275,6 +350,7 @@ function yearTurn(s){const out={events:[],lines:[]};s.age++;s.year++;const st=st
  const old=s.age>55?.01*Math.exp((s.age-55)/6):0;if(!s.end&&(s.hp<=0||chance(old))){s.end='dead';s.flags.diedIn=stageOf(s);say(s.hp<=0?'몸이 더는 버티지 못했습니다.':'조용히 눈을 감았습니다.','mile')}
  // 결혼 · 후계 · 망명처럼 때가 된 사건
  for(const k of['marry','heir','exile'])if(!s.end&&s.flags['q_'+k]){delete s.flags['q_'+k];if(!out.events.includes(k))out.events.push(k)}
+ s.hist=s.hist||[];s.hist.push({a:s.age,hp:Math.round(s.hp),r:Math.round(s.risk),m:Math.round(s.money)});if(s.hist.length>120)s.hist.shift();
  // 선택 사건
  if(!s.end&&!out.events.length){const p=s.age<7?.0:s.age<17?.3:.38;if(chance(p)){const e=pickEvent(s);if(e)out.events.push(e)}}
  return out}
@@ -527,13 +603,18 @@ const barRow=(k,v,col)=>`<em>${k}</em><i><u style="width:${clamp(v,0,100)}%;back
 function renderMe(){const s=S;drawAv($('meAv'),s);$('meName').textContent=s.name;$('meAge').textContent=`${s.age}살 · ${s.year}년`;
  const rs=realStars(s);$('meJob').innerHTML=`${s.royal?'백두혈통':SONGBUN[s.songbun].ko} <span class="stars" title="실질 계급 · ${STAR_KO[rs]}">${starsTxt(rs)}</span> · ${esc(s.place.ko)} · ${esc(jobLabel(s))}${s.married?' · 기혼':''}${s.kids?` · 아이 ${s.kids}`:''}`;
  $('meBars').innerHTML=barRow('건강',s.hp,'var(--good)')+barRow('위험',s.risk,'var(--bad)')+(!s.royal&&(s.prep>0||s.china)?barRow('탈북 준비',s.china?100:s.prep,'var(--blue)'):'');
- $('meMoney').textContent=usd(s.money)}
+ $('meMoney').textContent=usd(s.money);$('meKrw').textContent=krw(s.money);renderExtra()}
+const POWER_KO={on:'전기가 꽤 들어옴',some:'하루 두세 시간',off:'거의 정전'};
+function spark(h,key,col,max){if(h.length<2)return'';const w=280,hh=64,n=h.length;const pts=h.map((p,i)=>`${(i/(n-1)*w).toFixed(1)},${(hh-clamp(p[key],0,max)/max*hh).toFixed(1)}`).join(' ');return`<polyline points="${pts}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round"/>`}
+function renderExtra(){const s=S,rs=realStars(s),h=(s.hist||[]).slice(-60);
+ $('meExtra').innerHTML=`<h3>나의 처지</h3><dl><dt>성분</dt><dd>${s.royal?'백두혈통':SONGBUN[s.songbun].ko}</dd><dt>실질 계급</dt><dd><span class="stars">${starsTxt(rs)}</span> ${STAR_KO[rs]}</dd><dt>사는 곳</dt><dd>${esc(s.place.ko)}</dd><dt>가족</dt><dd>${s.married?`배우자 ${esc(s.spouse||'')}${s.kids?` · 아이 ${s.kids}`:''}`:'혼자'}</dd><dt>올해 전기</dt><dd>${POWER_KO[s.power]||'-'}</dd>${s.flags.record?`<dt>전과</dt><dd>${s.flags.record}번</dd>`:''}</dl>
+  ${h.length>1?`<svg class="spark" viewBox="0 0 280 64" preserveAspectRatio="none" aria-label="건강과 위험의 변화">${spark(h,'hp','var(--good)',100)}${spark(h,'r','var(--bad)',100)}</svg><div class="legend"><span><i style="background:var(--good)"></i>건강</span><span><i style="background:var(--bad)"></i>위험</span><span>${h[0].a}살 → ${h[h.length-1].a}살</span></div>`:'<p class="sub" style="margin:8px 0 0">해가 지나면 인생 그래프가 그려집니다.</p>'}`}
 const DIR_HEAD={baby:['아직은 자라는 중','일곱 살부터 마음 쏟을 곳을 고릅니다'],school:['올해 마음 쏟을 곳','학교 밖에서의 시간'],army:['군 생활','제대까지 버티기'],adult:['올해 마음 쏟을 곳','고른 쪽으로 한 해가 흘러갑니다'],royal:['무엇을 해 볼까','무엇이든 됩니다. 대신 위에서 봅니다'],jail:['버티는 수밖에','나갈 날을 셉니다'],camp:['버티는 수밖에',''],china:['중국에서','숨어 살거나, 더 멀리 가거나']};
 function renderDirs(){const s=S,st=stageOf(s),L=dirsOf(s),cur=curDir(s);const [h,hint]=DIR_HEAD[st]||['',''];$('dirTitle').textContent=h;$('dirHint').textContent=hint;
  let g=L.map(([k,d])=>`<button type="button" class="dbtn" data-d="${k}" aria-pressed="${k===cur}"><b>${d.ko}</b><small>${d.d}</small></button>`).join('');
  if(canEscape(s))g+=`<button type="button" class="dbtn flee" data-flee="1"><b>떠난다</b><small>준비 ${Math.round(s.prep)}% · 강을 건넌다</small></button>`;
  $('dirGrid').innerHTML=g||`<p class="sub" style="margin:0">${st==='baby'?'먹고, 자고, 자랍니다.':'할 수 있는 게 없습니다.'}</p>`}
-function renderTL(){$('timeline').innerHTML=S.log.slice(0,120).map(l=>`<li class="${l.c}"><span class="a">${l.age}살</span><span class="t">${esc(l.t)}</span></li>`).join('')}
+function renderTL(){$('timeline').innerHTML=S.log.slice(0,120).map(l=>`<li class="${l.c}${l.age===S.age?' now':''}"><span class="a">${l.age}살</span><span class="t">${esc(l.t)}</span></li>`).join('')}
 function renderAll(){if(!S)return;renderMe();renderDirs();renderTL();syncFlow()}
 function syncFlow(){$('flowBtn').textContent=FLOW.on?'❚❚ 멈춤':'▶ 흐르게';$('spdBtn').textContent=FLOW.speed+'×';$('flowLbl').textContent=FLOW.on?`1년에 약 ${(YEAR_SEC/FLOW.speed).toFixed(1)}초`:'멈춤'}
 function startFlow(){FLOW.last=0;if(!FLOW.raf)FLOW.raf=requestAnimationFrame(loop)}
@@ -549,7 +630,7 @@ const chipsH=ch=>`<div class="chips">${(ch||[]).map(c=>`<span class="${c.good===
 function okBtn(label,fn){const b=document.createElement('button');b.className='btn pri';b.type='button';b.textContent=label;b.onclick=fn;$('mBody').appendChild(b);setTimeout(()=>b.focus({preventScroll:true}),30)}
 function openEvent(id,q){const prep=prepEvent(S,id);if(!prep){runQueue(q);return}
  modal(id==='caught'||id==='purge'?'위기':'갈림길',id==='caught'||id==='purge'?'bad':'',prep.title,prep.desc);
- $('mBody').innerHTML=`<div class="opts">${prep.opts.map((o,i)=>{const dis=o.cost&&o.cost>S.money;return`<button type="button" class="opt" data-i="${i}"${dis?' disabled':''}><span class="n">${i+1}</span><span><b>${esc(o.t)}</b>${o.sub||o.cost?`<small>${esc(o.sub)}${o.cost?` ${usd(o.cost)}`:''}${dis?' · 돈이 모자람':''}</small>`:''}</span></button>`}).join('')}</div>`;
+ $('mBody').innerHTML=`<div class="opts">${prep.opts.map((o,i)=>{const dis=o.cost&&o.cost>S.money;return`<button type="button" class="opt" data-i="${i}"${dis?' disabled':''}><span class="n">${i+1}</span><span><b>${esc(o.t)}</b>${o.sub||o.cost?`<small>${esc(o.sub)}${o.cost?` ${usd(o.cost)} · ${krw(o.cost)}`:''}${dis?' · 돈이 모자람':''}</small>`:''}</span></button>`}).join('')}</div>`;
  $('mBody').onclick=e=>{const b=e.target.closest('.opt');if(!b||b.disabled)return;const r=resolveEvent(S,prep,+b.dataset.i);if(r.err){toast(r.err);return}$('mBody').onclick=null;
   $('mK').textContent='결과';$('mK').className='mk res';$('mBody').innerHTML=`<p class="res ${r.g>0?'good':r.g<0?'bad':''}">${esc(r.t)}</p>${chipsH(r.chips)}`;save();renderAll();
   okBtn(S.end?'마지막 장으로':'계속',()=>{closeModal();if(r.next&&!S.end)openEvent(r.next,q);else runQueue(q)})}}
@@ -560,7 +641,7 @@ function finish(){FLOW.busy=false;closeModal();const s=S,E=endingOf(s);const dx=
  const mom=s.big.slice().sort((a,b)=>Math.abs(b.g)-Math.abs(a.g)).slice(0,6).sort((a,b)=>a.age-b.age);
  $('endCard').innerHTML=`<div class="endtop"><canvas id="endAv" width="32" height="40"></canvas><div><span class="tone ${E.tone}">${{good:'이번 생',neutral:'이번 생',bad:'이번 생'}[E.tone]}</span><h2>${esc(E.t)}</h2><div class="why">${esc(s.name)} · ${s.age}살 · ${esc(why)}</div></div></div>
   <p class="desc">${esc(E.d)}</p>
-  <div class="eg"><div><small>성분 · 마지막 계급</small><b>${s.royal?'백두혈통':SONGBUN[s.songbun].ko} <span class="stars">${starsTxt(realStars(s))}</span></b></div><div><small>태어난 곳</small><b>${esc(s.birthPlace||s.place.ko)}</b></div><div><small>마지막 모습</small><b>${esc(s.end==='south'?'남쪽 시민':jobLabel(s))}</b></div><div><small>남긴 돈</small><b>${usd(s.money)}</b></div><div><small>가족</small><b>${s.married?`배우자${s.kids?` · 아이 ${s.kids}`:''}`:'혼자'}</b></div><div><small>살아온 해</small><b>${s.age}년</b></div></div>
+  <div class="eg"><div><small>성분 · 마지막 계급</small><b>${s.royal?'백두혈통':SONGBUN[s.songbun].ko} <span class="stars">${starsTxt(realStars(s))}</span></b></div><div><small>태어난 곳</small><b>${esc(s.birthPlace||s.place.ko)}</b></div><div><small>마지막 모습</small><b>${esc(s.end==='south'?'남쪽 시민':jobLabel(s))}</b></div><div><small>남긴 돈</small><b>${usd(s.money)}</b><small>${krw(s.money)}</small></div><div><small>가족</small><b>${s.married?`배우자${s.kids?` · 아이 ${s.kids}`:''}`:'혼자'}</b></div><div><small>살아온 해</small><b>${s.age}년</b></div></div>
   <h3 style="margin:0 0 6px;font-size:15px">기억에 남는 순간</h3><ol class="moments">${(mom.length?mom:[{age:s.age,t:'조용한 나날이었습니다.',g:0}]).map(m=>`<li><span style="font-family:var(--f-num);color:var(--ink3)">${m.age}살</span> · <span style="color:${m.g>0?'var(--good)':m.g<0?'var(--bad)':'inherit'}">${esc(m.t)}</span></li>`).join('')}</ol>`;
  show('end');drawAv($('endAv'),s)}
 
@@ -582,7 +663,9 @@ function birthShow(s,done){const old=$('birth');if(old)old.remove();s.birthPlace
  tm.push(setTimeout(()=>$('bCard').classList.add('in'),500));rows.forEach((r,i)=>tm.push(setTimeout(()=>r.classList.add('in'),1000+i*550)));tm.push(setTimeout(fin,1000+rows.length*550+300))}
 
 /* ---------- wiring ---------- */
-function boot(){applyTheme(LS.get('nk.theme',null));$('fEnd').textContent=ENDINGS.length;refreshHome();
+function paintID(){const d=newLife();drawAv($('idAv'),Object.assign({},d,{age:R(5,40)}));$('idNo').textContent=String(R(100000,999999));$('idName').textContent=d.name;$('idPlace').textContent=d.place.ko;
+ $('idSong').innerHTML=`${d.royal?'백두혈통':SONGBUN[d.songbun].ko} <span class="stars">${starsTxt(realStars(d))}</span>`;$('idPar').textContent=d.royal?'혁명 가문':`${d.dad} · ${d.mom}`;const c=$('idCard');c.classList.remove('flip');void c.offsetWidth;c.classList.add('flip')}
+function boot(){applyTheme(LS.get('nk.theme',null));$('fEnd').textContent=ENDINGS.length;refreshHome();paintID();$('idCard').onclick=paintID;$('idCard').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();paintID()}};
  $('goBtn').onclick=startLife;$('againBtn').onclick=startLife;$('homeBtn').onclick=()=>{show('home');refreshHome()};$('themeBtn').onclick=toggleTheme;
  $('quitBtn').onclick=()=>{save();show('home');refreshHome()};
  $('flowBtn').onclick=()=>{FLOW.on=!FLOW.on;LS.set('nk.flow',FLOW.on);syncFlow()};
