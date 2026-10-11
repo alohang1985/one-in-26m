@@ -243,6 +243,8 @@ b.g{color:var(--good)}b.b{color:var(--bad)}
 .endbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
 .endcard.gold{border:2px solid #c9a24a;background:linear-gradient(160deg,#fffaf0,#f3e5c2);color:#2a2008}.endcard.gold .eg div{background:#f1e2b8}.endcard.gold .why,.endcard.gold .eg small{color:#7d6630}.endcard.gold .desc{color:#4a3b14}
 
+/* 진행 중인 이야기 */
+.arcs{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:12px}.arcs small{color:var(--ink3);font-size:12px;margin-right:2px}.arcs span{font-size:12.5px;border:1px solid var(--gold);color:var(--gold);border-radius:999px;padding:3px 10px;background:color-mix(in srgb,var(--gold) 8%,transparent)}
 /* 백두혈통 이용권 */
 .gobtns{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .royalbtn{background:linear-gradient(100deg,#7d5508,#d8a93e 35%,#fff0b3 50%,#d8a93e 65%,#7d5508);background-size:220% 100%;animation:shine 3.5s linear infinite;color:#2b1c00;border-color:#b8860b}
@@ -772,6 +774,8 @@ function yearTurn(s){const out={events:[],lines:[]};s.age++;s.year++;const st=st
   if(k==='secret'){if(!s.secret||s.flags.secretOut){delete s.flags.q_secret;continue}if(!['school','adult','army'].includes(stageOf(s)))continue}
   delete s.flags['q_'+k];const id=k==='secret'?'sec_'+s.secret:k;if(!out.events.includes(id))out.events.push(id)}
  if(!s.end&&s.age>=7){const tr=tierOf(s);if(s.tier&&tr!==s.tier&&tr!=='royal'){const up=['bottom','mid','elite'].indexOf(tr)>['bottom','mid','elite'].indexOf(s.tier);say(up?(tr==='elite'?'사는 세상이 달라졌습니다. 이제 공급소 줄이 아니라 연회 자리에 섭니다.':'바닥에서 한 계단 올라섰습니다. 장마당이 내 편이 됐습니다.'):(tr==='bottom'?'바닥으로 떨어졌습니다. 이웃들이 우리 집을 피해 다닙니다.':'위쪽 세상에서 밀려났습니다. 이제 줄을 서야 합니다.'),up?'good':'bad');big(s,up?'계층 상승':'계층 추락',up?2:-2)}s.tier=tr}
+ // 시나리오: 때가 된 다음 장
+ if(!s.end&&s.arcs)for(const[id,a]of Object.entries(s.arcs)){if(!a.st||a.y>s.year)continue;const ev=EVS[id+'_'+a.st];if(!ev){a.st=null;continue}if(ev.stage&&!ev.stage.includes(stageOf(s))){a.y=s.year+1;continue}if(out.events.length<3&&!out.events.includes(ev.id)){out.events.push(ev.id);a.st=null}}
  if(!s.end&&s.age%5===0&&s.age<=60)peerNote(s,say);
  s.hist.push({a:s.age,hp:Math.round(s.hp),r:Math.round(s.risk),j:Math.round(s.joy),m:Math.round(s.money),t:stageOf(s)});if(s.hist.length>120)s.hist.shift();
  // 선택 사건
@@ -1547,6 +1551,257 @@ EV('coup',{royalOK:1,kind:'위기',title:'새벽의 탱크',desc:'새벽 네 시
   fall:s=>({t:'집무실 문이 열렸습니다. 들어온 사람들은 더 이상 고개를 숙이지 않았습니다.',e:{flag:'couped',endNow:'purged'}}),flee:s=>({t:'새벽 하늘로 전용기가 떠올랐습니다. 다음 날 평양 방송은 "건강 문제로 휴양 중"이라고 발표했습니다.',e:{flag:'leaderFled',endNow:'exile'}})}});
 
 /* ================================================================
+   2600만 분의 1 — 시나리오: 몇 해에 걸쳐 이어지는 큰 이야기
+   첫 사건이 문을 열면, 1~3년 간격으로 다음 장이 찾아오고, 갈래마다 결말이 다릅니다.
+   ================================================================ */
+const ARC_NAMES={dj:'장마당 재벌의 길',sm:'국경 밀수 조직',usb:'드라마 유통망',star:'무대의 별',sp:'국가대표',sci:'연구소의 천재',off:'별을 단 군인',bw:'보위부의 두 얼굴',rest:'해외 식당의 밤',wit:'세계에 닿은 목소리',kot:'역전의 왕',farm:'분조장의 실험',run:'사랑의 도피',
+ rsib:'형제 전쟁',rref:'비밀 개혁파',rbank:'마카오의 비자금',rgov:'망명 정부',rdip:'정상 외교',rkid:'지도자의 아이',rhealth:'쓰러진 지도자',rwar:'서해의 포성'};
+function arcGo(s,id,st,yrs){s.arcs=s.arcs||{};const a=s.arcs[id]||{n:0};s.arcs[id]={st,y:s.year+(yrs==null?R(1,2):yrs),n:(a.n||0)+1}}
+function arcEnd(s,id,res){s.arcs=s.arcs||{};s.arcs[id]={done:res,n:((s.arcs[id]||{}).n||0)+1};s.flags['arc_'+id]=res}
+function arcStart(s,id,st,yrs){addLog(s,`새로운 이야기 · 〈${ARC_NAMES[id]}〉`,'mile');big(s,`〈${ARC_NAMES[id]}〉의 시작`,1);arcGo(s,id,st,yrs)}
+const arcOn=(s,id)=>!!(s.arcs&&s.arcs[id]);
+const SP=(t,e)=>({t,e:e||{}});
+
+/* ================= 일반 ================= */
+/* 장마당 재벌의 길 */
+EV('dj_a',{pool:1,kind:'시나리오',max:1,w:1.6,stage:['adult'],tier:['mid','bottom'],when:s=>!arcOn(s,'dj')&&s.money>=1200&&(s.dir==='trade'||['e83','gadu'].includes(s.jobK)||s.own.wholesale),title:'화교 상인의 제안',
+ desc:'중국 화교 상인이 찾아왔습니다. "물건은 내가 댈 테니 도매를 해 보시오. 선금은 필요 없소. 대신 이윤은 반반." 장마당 판을 바꿀 수 있는 제안입니다.',
+ opts:[{t:'손을 잡는다',go:{'*':{yes:1}}},{t:'"내 장사는 내가 한다" 거절한다',go:{'*':{no:1}}}],good:{yes:2,no:0},
+ out:{yes:s=>(arcStart(s,'dj','b'),SP('첫 트럭이 들어온 날, 장마당 매대 열 곳이 내 물건으로 채워졌습니다.',{money:R(300,800),net:6})),no:s=>(arcEnd(s,'dj','no'),SP('거절했습니다. 그 화교는 옆 동네 장사꾼과 손을 잡았습니다.'))}});
+EV('dj_b',{kind:'시나리오',stage:['adult'],title:'평양에서 온 간부',desc:'장사가 커지자 평양에서 간부가 찾아왔습니다. "이 정도 규모면 \'보호\'가 필요하지 않겠소?" 매달 몫을 내라는 뜻입니다.',
+ opts:[{t:'몫을 낸다',go:{'*':{pay:1}}},{t:'간부를 아예 동업자로 끌어들인다',go:{'*':{partner:1}}},{t:'"보호는 필요 없습니다"',go:{'*':{refuse:1}}}],good:{pay:1,partner:2,refuse:-1},
+ out:{pay:s=>(arcGo(s,'dj','c'),SP('다달이 봉투가 평양으로 올라갔습니다. 단속반이 우리 매대만 비켜 갔습니다.',{risk:-15,money:-Math.round(s.money*.1)})),partner:s=>(s.flags.djPartner=1,arcGo(s,'dj','c'),SP('간부의 처남 이름으로 회사를 하나 차렸습니다. 이제 우리는 한배를 탔습니다.',{net:10})),refuse:s=>(s.flags.djAlone=1,arcGo(s,'dj','c'),SP('간부가 웃으며 돌아갔습니다. 그 웃음이 마음에 걸렸습니다.',{risk:20}))}});
+EV('dj_c',{kind:'시나리오',stage:['adult'],title:'평양 백화점',desc:'평양 새 백화점에 매장을 낼 수 있답니다. 들어가면 진짜 "돈주"가 됩니다. 대신 눈에도 띕니다.',
+ opts:[{t:'모은 돈을 걸고 들어간다',cost:s=>Math.max(500,Math.round(s.money*.5)),go:{'*':{in:1}}},{t:'지금이 딱 좋다',go:{'*':{stay:1}}}],good:{in:2,stay:0},
+ out:{in:s=>(arcGo(s,'dj','d',R(1,3)),SP('평양 한복판에 내 매장이 생겼습니다. 개업식에 간부 셋이 왔습니다.',{money:R(3000,9000),net:10})),stay:s=>(arcEnd(s,'dj','stay'),SP('딱 거기서 멈췄습니다. 더 가면 떨어진다는 걸 알았습니다.',{money:R(500,1500)}))}});
+EV('dj_d',{kind:'시나리오',stage:['adult'],title:'돈주 정리',desc:'중앙에서 "돈주 정리" 검열이 내려왔습니다. 큰 장사꾼들이 하나둘 사라집니다. 다음 명단에 내 이름이 있다는 소문입니다.',hide:s=>({safe:s.flags.djPartner?.7:s.flags.djAlone?.2:.45,hit:s.flags.djPartner?.3:s.flags.djAlone?.8:.55}),
+ opts:[{t:'재산 절반을 "충성 자금"으로 바친다',go:{safe:{king:1},hit:{king:.6,fall:.4}}},{t:'버틴다',go:{safe:{king:.7,fall:.3},hit:{fall:.8,king:.2}}},{t:'돈을 싸 들고 강을 건넌다',go:{'*':{flee:.7,caught:.3}}}],good:{king:3,fall:-3,flee:1,caught:-3},
+ out:{king:s=>(arcEnd(s,'dj','king'),SP('검열단이 떠났습니다. 평양 백화점 간판에 내 회사 이름이 그대로 걸려 있었습니다.',{money:-Math.round(s.money*.4),net:10})),fall:s=>(arcEnd(s,'dj','fall'),SP('새벽에 보위부 차가 섰습니다. 재산은 "국가 몰수", 나는 교화소였습니다.',{money:-Math.round(s.money*.85),jail:R(4,7),jailKind:'교화소'})),
+  flee:s=>(arcEnd(s,'dj','flee'),SP('돈가방 두 개를 들고 강을 건넜습니다. 브로커가 가방 하나를 가져갔습니다.',{money:-Math.round(s.money*.4),china:1})),caught:s=>(arcEnd(s,'dj','fall'),SP('강가에서 붙잡혔습니다. 돈가방이 증거가 됐습니다.',{money:-Math.round(s.money*.9),jail:R(5,8),jailKind:'교화소'}))}});
+
+/* 국경 밀수 조직 */
+EV('sm_a',{pool:1,kind:'시나리오',max:1,w:1.5,stage:['adult'],min:18,maxAge:48,when:s=>!arcOn(s,'sm')&&s.place.type==='border',title:'강가의 사내들',desc:'밤마다 강가에서 짐을 나르는 사내들이 말을 겁니다. "우리 쪽에 들어오면 한 달에 쌀 한 가마니는 우습지."',
+ opts:[{t:'들어간다',go:{'*':{join:1}}},{t:'"난 장사나 하겠소"',go:{'*':{no:1}}}],good:{join:1,no:0},
+ out:{join:s=>(arcStart(s,'sm','b'),SP('첫날 밤, 강 건너에서 손전등이 세 번 깜빡였습니다. 신호를 외웠습니다.',{money:R(100,300),risk:8,prep:6})),no:s=>(arcEnd(s,'sm','no'),SP('거절했습니다. 그 사내들은 다음 날부터 내 눈을 피했습니다.'))}});
+EV('sm_b',{kind:'시나리오',stage:['adult'],title:'첫 대형 거래',desc:'중국 휴대폰 오백 대가 강을 건넙니다. 경비대 초소 하나를 "매수"해야 하는데, 그 일을 나에게 맡겼습니다.',hide:{ok:.65,bad:.35},
+ opts:[{t:'초소장에게 달러를 쥐여 준다',cost:s=>bribeCost(s,200),go:{ok:{win:1},bad:{win:.6,lose:.4}}},{t:'순찰 교대 시간을 노린다',go:{ok:{win:.7,lose:.3},bad:{lose:.7,win:.3}}}],good:{win:2,lose:-2},
+ out:{win:s=>(arcGo(s,'sm','c'),SP('오백 대가 무사히 건넜습니다. 조직에서 내 이름이 달라졌습니다.',{money:R(800,2000),net:8})),lose:s=>(arcGo(s,'sm','c',2),SP('물건 절반이 압수됐습니다. 조직은 그 손해를 내 몫에서 깠습니다.',{risk:15,money:-Math.min(s.money,R(200,600))}))}});
+EV('sm_c',{kind:'시나리오',stage:['adult'],title:'조직 안의 끄나풀',desc:'요즘 거래마다 경비대가 먼저 와 있습니다. 조직 안에 보위부 끄나풀이 있다는 뜻입니다. 의심 가는 사람이 하나 있습니다.',
+ opts:[{t:'끄나풀을 찾아내 조직에 알린다',go:{'*':{find:.6,wrong:.4}}},{t:'모른 척한다',go:{'*':{quiet:1}}},{t:'보위부와 거래해 내가 끄나풀이 된다',go:{'*':{double:1}}}],good:{find:1,wrong:-1,quiet:0,double:0},
+ out:{find:s=>(arcGo(s,'sm','d'),SP('끄나풀은 그날 밤 강에서 "사고"를 당했습니다. 조직은 나를 믿기 시작했습니다.',{net:6,joy:-4})),wrong:s=>(arcGo(s,'sm','d'),SP('엉뚱한 사람을 지목했습니다. 그 사람이 사라진 뒤에도 단속은 계속됐습니다.',{joy:-8,risk:10})),
+  quiet:s=>(arcGo(s,'sm','d'),SP('아무 말도 하지 않았습니다. 다음 거래부터 내 짐은 늘 맨 뒤였습니다.',{})),double:s=>(arcEnd(s,'sm','double'),SP('보위원과 악수했습니다. 이제 조직의 일정이 내 입에서 나갑니다.',{risk:-25,flag:'informer',money:R(300,800)}))}});
+EV('sm_d',{kind:'시나리오',stage:['adult'],title:'국경 대단속',desc:'국경 전체에 대단속이 떨어졌습니다. 우두머리가 잡혀갔다는 소식입니다. 조직이 흔들립니다. 지금이 갈림길입니다.',hide:{ok:.5,hot:.5},
+ opts:[{t:'빈자리를 차지해 우두머리가 된다',go:{ok:{boss:.75,fall:.25},hot:{boss:.4,fall:.6}}},{t:'조직을 보위부에 넘기고 빠진다',go:{'*':{betray:1}}},{t:'이 틈에 강을 건넌다',go:{'*':{cross:.75,fall:.25}}}],good:{boss:3,fall:-3,betray:0,cross:1},
+ out:{boss:s=>(arcEnd(s,'sm','boss'),SP('강가 사내들이 이제 내게 고개를 숙입니다. 국경 경비대 초소 셋이 내 편입니다.',{money:R(3000,8000),net:15,risk:15})),fall:s=>(arcEnd(s,'sm','fall'),SP('단속반 손전등이 내 얼굴을 비췄습니다.',{jail:R(3,6),jailKind:'교화소'})),
+  betray:s=>(arcEnd(s,'sm','betray'),SP('명단을 넘겼습니다. 조직원 열둘이 끌려갔고, 나는 "모범 주민" 표창을 받았습니다.',{loyal:15,risk:-30,joy:-12})),cross:s=>(arcEnd(s,'sm','cross'),SP('신호를 아는 사람은 나뿐이었습니다. 세 번 깜빡이는 불빛을 따라 강을 건넜습니다.',{china:1}))}});
+
+/* 드라마 유통망 */
+EV('usb_a',{pool:1,kind:'시나리오',max:1,w:.8,stage:['adult'],tier:['mid','elite'],when:s=>!arcOn(s,'usb')&&s.outside>=15,title:'복사기 하나',desc:'중국에서 들어온 낡은 노트북 한 대. USB에 남쪽 드라마를 복사해 팔면 한 개에 쌀 1킬로 값이랍니다.',
+ opts:[{t:'복사를 시작한다',go:{'*':{go:1}}},{t:'너무 위험하다',go:{'*':{no:1}}}],good:{go:1,no:0},
+ out:{go:s=>(arcStart(s,'usb','b'),SP('밤마다 이불 속에서 USB 스무 개를 복사했습니다. 다음 날이면 다 팔렸습니다.',{money:R(200,500),outside:6,risk:8})),no:s=>(arcEnd(s,'usb','no'),SP('노트북은 장롱 깊숙이 들어갔습니다.'))}});
+EV('usb_b',{kind:'시나리오',stage:['adult'],title:'유통망',desc:'장마당 매대 다섯 곳이 내 USB를 팔겠다고 합니다. 커지면 돈도 커지고, 눈에도 띕니다.',
+ opts:[{t:'판을 키운다',go:{'*':{grow:1}}},{t:'이 정도에서 멈춘다',go:{'*':{stop:1}}}],good:{grow:1,stop:0},
+ out:{grow:s=>(arcGo(s,'usb','c'),SP('동네 젊은 애들이 다 내 USB로 같은 드라마를 봅니다. 장마당에 남쪽 말투가 퍼졌습니다.',{money:R(500,1500),outside:8,risk:12})),stop:s=>(arcEnd(s,'usb','small'),SP('노트북을 팔았습니다. 그 뒤로도 가끔 내가 복사한 USB가 돌아다니는 걸 봅니다.',{risk:-8}))}});
+EV('usb_c',{kind:'시나리오',stage:['adult'],title:'109상무의 추적',desc:'109상무가 "USB 출처 수사"를 시작했습니다. 잡힌 매대 주인 하나가 내 이름을 댔다는 소문입니다.',hide:{soft:.5,hard:.5},
+ opts:[{t:'노트북을 강에 던지고 시치미 뗀다',go:{soft:{clear:.8,caught:.2},hard:{clear:.4,caught:.6}}},{t:'윗선을 매수한다',cost:s=>bribeCost(s,400),go:{soft:{clear:1},hard:{clear:.6,caught:.4}}},{t:'남쪽 대북 방송에 몰래 연락한다',go:{'*':{seoul:1}}}],good:{clear:1,caught:-3,seoul:1},
+ out:{clear:s=>(arcGo(s,'usb','d',2),SP('수사는 다른 사람을 잡고 끝났습니다. 한동안 숨죽여 지냈습니다.',{risk:-10})),caught:s=>(arcEnd(s,'usb','caught'),SP('공개재판에 섰습니다. "괴뢰 영상 유포". 광장에 모인 사람들 중 절반은 내 USB를 본 사람들이었습니다.',{jail:R(5,10),jailKind:'교화소'})),
+  seoul:s=>(arcGo(s,'usb','d',1),SP('중국 손전화로 서울에 전화를 걸었습니다. "안에서 퍼뜨려 줄 사람을 찾고 있었습니다."',{outside:10,risk:10}))}});
+EV('usb_d',{kind:'시나리오',stage:['adult'],title:'서울에서 온 꾸러미',desc:'남쪽 단체가 브로커 편에 USB 천 개와 돈을 보내왔습니다. "뉴스와 드라마를 넣었습니다. 안에서 퍼뜨려 주십시오."',hide:{safe:.55,watched:.45},
+ opts:[{t:'퍼뜨린다',go:{safe:{network:1},watched:{network:.4,caught:.6}}},{t:'돈만 받고 USB는 묻는다',go:{'*':{quiet:1}}},{t:'이 돈으로 강을 건넌다',go:{'*':{flee:.75,caught:.25}}}],good:{network:3,caught:-3,quiet:0,flee:1},
+ out:{network:s=>(arcEnd(s,'usb','network'),SP('천 개의 USB가 도시 하나를 돌았습니다. 그해 장마당에서 가장 많이 들린 노래는 남쪽 노래였습니다.',{outside:20,money:R(500,1500),joy:8})),caught:s=>(arcEnd(s,'usb','caught'),SP('꾸러미를 받은 다음 날 문이 부서졌습니다.',{camp:1})),
+  quiet:s=>(arcEnd(s,'usb','small'),SP('USB 천 개를 뒷산에 묻었습니다. 언젠가 누군가 파낼지도 모릅니다.',{money:R(300,800)})),flee:s=>(arcEnd(s,'usb','flee'),SP('그 돈으로 강을 건넜습니다. 서울에서 그 단체 사람들과 처음으로 얼굴을 마주했습니다.',{china:1,prep:40}))}});
+
+/* 무대의 별 */
+EV('star_a',{pool:1,kind:'시나리오',max:1,w:1.6,stage:['adult'],when:s=>!arcOn(s,'star')&&s.art>=1,title:'1호 공연 단원 선발',desc:'"1호 공연"에 설 단원을 다시 뽑는답니다. 뽑히면 최고 무대, 떨어지면 지방 순회입니다.',
+ opts:[{t:'모든 걸 건다',go:{'*':{in:.6,out:.4}}},{t:'몸을 사린다',go:{'*':{out:1}}}],good:{in:2,out:0},
+ out:{in:s=>(arcStart(s,'star','b'),SP('명단 맨 위에 내 이름이 있었습니다. 그날 밤 숙소에서 한숨도 못 잤습니다.',{art:1,joy:8,net:6})),out:s=>(arcEnd(s,'star','no'),SP('지방 순회 공연단으로 배치됐습니다. 객석은 늘 반쯤 비어 있었습니다.',{}))}});
+EV('star_b',{kind:'시나리오',stage:['adult'],title:'해외 순회공연',desc:'중국 · 러시아 순회공연이 잡혔습니다. 마지막 공연이 끝나고 무대 뒤에서 낯선 사람이 꽃다발을 건넵니다. 꽃 사이에 쪽지가 꽂혀 있습니다.',
+ opts:[{t:'쪽지를 몰래 펼쳐 본다',go:{'*':{read:1}}},{t:'꽃다발째 감시원에게 넘긴다',go:{'*':{hand:1}}}],good:{read:1,hand:0},
+ out:{read:s=>(arcGo(s,'star','c',0),SP('"내일 밤 열한 시, 호텔 뒷문. 서울에서 기다리는 사람이 있습니다." 쪽지를 삼켰습니다.',{outside:12})),hand:s=>(arcEnd(s,'star','star'),SP('감시원이 고개를 끄덕였습니다. 귀국하자 공훈 칭호가 기다리고 있었습니다.',{art:1,loyal:10}))}});
+EV('star_c',{kind:'시나리오',stage:['adult'],title:'호텔 뒷문',desc:'밤 열한 시. 단원들은 다 잠들었습니다. 복도 끝 감시원 방에 불이 켜져 있습니다. 뒷문까지는 서른 걸음입니다.',hide:{clear:.6,watch:.4},
+ opts:[{t:'신발을 들고 걸어간다',go:{clear:{gone:.85,caught:.15},watch:{gone:.4,caught:.6}}},{t:'방으로 돌아간다',go:{'*':{back:1}}}],good:{gone:3,caught:-3,back:0},
+ out:{gone:s=>(arcEnd(s,'star','defect'),SP('뒷문 밖에 차가 기다리고 있었습니다. 일주일 뒤, 서울 공항에서 기자들이 내 이름을 불렀습니다.',{south:1})),caught:s=>(arcEnd(s,'star','caught'),SP('서른 걸음 중 스물아홉 번째에서 어깨에 손이 얹혔습니다.',{camp:1})),
+  back:s=>(arcEnd(s,'star','star'),SP('방으로 돌아와 이불을 덮었습니다. 다음 날 공연에서 가장 크게 웃었습니다.',{art:1,joy:-6}))}});
+
+/* 국가대표 */
+EV('sp_a',{pool:1,kind:'시나리오',max:1,w:1.5,stage:['school'],min:12,maxAge:16,when:s=>!arcOn(s,'sp')&&s.hp>=72,title:'체육단 선발',desc:'체육 선생님이 부릅니다. "도 체육단에서 사람이 왔다. 네 달리기를 봤단다." 운동만 하는 학교로 갈 수 있습니다.',
+ opts:[{t:'간다',go:{'*':{go:1}}},{t:'공부를 하겠다',go:{'*':{no:1}}}],good:{go:1,no:0},
+ out:{go:s=>(arcStart(s,'sp','b',R(2,4)),SP('체육단 기숙사에 들어갔습니다. 밥이 집보다 많았습니다.',{hp:8,joy:5})),no:s=>(arcEnd(s,'sp','no'),SP('공부를 택했습니다. 운동장 트랙을 지날 때마다 다리가 근질거렸습니다.',{edu:3}))}});
+EV('sp_b',{kind:'시나리오',stage:['school','adult','army'],title:'국가대표 선발전',desc:'평양 체육촌에서 국가대표 선발전이 열립니다. 여기서 이기면 바깥 세상 대회에 나갑니다.',
+ opts:[{t:'죽기 살기로 뛴다',go:{'*':{in:.55,out:.45}}},{t:'코치에게 "성의"를 보인다',cost:s=>bribeCost(s,150),go:{'*':{in:.75,out:.25}}}],good:{in:2,out:-1},
+ out:{in:s=>(arcGo(s,'sp','c',R(1,2)),SP('국가대표 단복을 받았습니다. 가슴에 붉은 국기가 붙어 있었습니다.',{net:8,joy:8})),out:s=>(arcEnd(s,'sp','coach'),SP('0.3초 차이로 떨어졌습니다. 그 0.3초를 평생 생각했습니다.',{joy:-8}))}});
+EV('sp_c',{kind:'시나리오',stage:['school','adult','army'],title:'국제대회',desc:'아시아 대회 결승입니다. 옆 레인에 남쪽 선수가 섭니다. 출발 전, 그 선수가 작게 웃으며 "잘해요"라고 말합니다.',hide:s=>({gold:clamp(.3+s.luck*.08,.1,.6),silver:.35,none:.35}),
+ opts:[{t:'"그쪽도요" 하고 웃는다',go:{gold:{gold:1},silver:{silver:1},none:{none:1}}},{t:'못 들은 척 앞만 본다',go:{gold:{gold:1},silver:{silver:1},none:{none:1}}}],good:{gold:3,silver:2,none:0},
+ out:{gold:s=>(arcGo(s,'sp','d',0),s.flags.spMedal='금',SP('결승선을 가장 먼저 통과했습니다. 시상대 위에서 국가가 울렸습니다.',{joy:15,net:10})),silver:s=>(arcGo(s,'sp','d',0),s.flags.spMedal='은',SP('남쪽 선수 바로 뒤로 들어왔습니다. 시상대에서 그 선수가 내 손을 들어 올렸습니다.',{joy:8,outside:8})),
+  none:s=>(arcGo(s,'sp','d',0),SP('메달은 없었습니다. 숙소로 돌아오는 버스에서 감독이 한마디도 하지 않았습니다.',{joy:-6}))}});
+EV('sp_d',{kind:'시나리오',stage:['school','adult','army'],title:'선수촌의 마지막 밤',desc:'귀국 전날 밤, 선수촌 복도에서 남쪽 선수가 쪽지를 건넵니다. 휴대폰 번호와 "언제든"이라는 두 글자.',hide:{clear:.5,watch:.5},
+ opts:[{t:'쪽지를 쥐고 귀국한다',go:{'*':{home:1}}},{t:'그 밤에 선수촌을 빠져나간다',go:{clear:{defect:.8,caught:.2},watch:{defect:.35,caught:.65}}},{t:'쪽지를 감독에게 넘긴다',go:{'*':{loyal:1}}}],good:{home:1,defect:3,caught:-3,loyal:0},
+ out:{home:s=>(arcEnd(s,'sp',s.flags.spMedal?'hero':'friend'),SP(s.flags.spMedal?`${s.flags.spMedal}메달을 목에 걸고 평양 공항에 내렸습니다. 꽃다발과 "인민체육인" 칭호가 기다리고 있었습니다.`:'쪽지는 신발 깔창 밑에 넣었습니다. 그 번호를 평생 외우고 살았습니다.',{money:s.flags.spMedal?R(500,2000):0,net:8,outside:4})),
+  defect:s=>(arcEnd(s,'sp','defect'),SP('택시 한 대가 선수촌 담장 밖에 서 있었습니다. 다음 날 아침 뉴스에 내 이름이 나왔습니다.',{south:1})),caught:s=>(arcEnd(s,'sp','caught'),SP('선수촌 정문에서 붙잡혔습니다. 메달은 그날로 회수됐습니다.',{jail:R(3,5),jailKind:'교화소'})),
+  loyal:s=>(arcEnd(s,'sp','hero'),SP('감독이 쪽지를 받아 들고 내 어깨를 두드렸습니다.',{loyal:10,money:R(300,1000)}))}});
+
+/* 연구소의 천재 */
+EV('sci_a',{pool:1,kind:'시나리오',max:1,w:1.5,stage:['adult'],min:20,maxAge:40,when:s=>!arcOn(s,'sci')&&s.edu>=60,title:'연구소 발탁',desc:'평양 공과대학 연구소에서 사람을 보냈습니다. "수학 성적을 봤소. 나라가 당신 머리를 필요로 하오."',
+ opts:[{t:'간다',go:{'*':{go:1}}},{t:'지금 자리에 남는다',go:{'*':{no:1}}}],good:{go:1,no:0},
+ out:{go:s=>(arcStart(s,'sci','b'),SP('연구소 출입증을 받았습니다. 그 건물에는 전기가 끊기지 않았습니다.',{edu:8,net:6})),no:s=>(arcEnd(s,'sci','no'),SP('연구소 대신 지금 자리에 남았습니다.'))}});
+EV('sci_b',{kind:'시나리오',stage:['adult'],title:'선양 파견',desc:'중국 선양의 IT 회사로 파견됐습니다. 외주 프로그램을 짜서 외화를 법니다. 숙소 컴퓨터에는 바깥 인터넷이 연결돼 있습니다.',
+ opts:[{t:'밤에 몰래 검색해 본다',go:{'*':{search:.8,caught:.2}}},{t:'시킨 일만 한다',go:{'*':{work:1}}}],good:{search:1,caught:-2,work:0},
+ out:{search:s=>(arcGo(s,'sci','c'),SP('내 나라 이름을 검색창에 쳐 봤습니다. 밤새 화면을 내렸습니다.',{outside:25})),caught:s=>(arcGo(s,'sci','c'),SP('검색 기록이 감시원에게 걸렸습니다. "사상 검토" 보고서가 올라갔습니다.',{outside:12,risk:20})),work:s=>(arcGo(s,'sci','c'),SP('하루 열네 시간 코드를 짰습니다. 번 돈은 고스란히 "충성 자금"이 됐습니다.',{money:R(200,600)}))}});
+EV('sci_c',{kind:'시나리오',stage:['adult'],title:'특수 부대의 제안',desc:'정체를 밝히지 않는 사람들이 찾아왔습니다. "당신 실력이면 특수 부대에서 일할 수 있소. 대우는 간부급이오." 무슨 일을 하는지는 말해 주지 않습니다.',
+ opts:[{t:'받아들인다',go:{'*':{unit:1}}},{t:'"연구만 하고 싶습니다"',go:{'*':{lab:.7,pressed:.3}}},{t:'파견지에서 사라진다',go:{'*':{seoul:.65,caught:.35}}}],good:{unit:0,lab:1,pressed:-1,seoul:2,caught:-3},
+ out:{unit:s=>(arcEnd(s,'sci','unit'),SP('창문 없는 건물로 출근하기 시작했습니다. 가족에게도 하는 일을 말할 수 없습니다.',{money:R(1500,4000),risk:-15,joy:-6})),lab:s=>(arcEnd(s,'sci','lab'),SP('연구소에 남았습니다. 바깥을 아는 사람으로, 아무 말 하지 않고.',{edu:5})),
+  pressed:s=>(arcEnd(s,'sci','lab'),SP('"생각이 바뀌면 연락하시오." 그 뒤로 해외 파견 명단에서 이름이 빠졌습니다.',{risk:10})),seoul:s=>(arcEnd(s,'sci','seoul'),SP('파견지 숙소를 새벽에 빠져나갔습니다. 몇 달 뒤 서울의 한 회사 개발팀에 자리가 생겼습니다.',{south:1})),caught:s=>(arcEnd(s,'sci','caught'),SP('국경 검문소에서 붙잡혔습니다. 머릿속에 든 게 너무 많은 사람이었습니다.',{camp:1}))}});
+
+/* 별을 단 군인 */
+EV('off_a',{pool:1,kind:'시나리오',max:1,w:1.5,stage:['army','adult'],when:s=>!arcOn(s,'off')&&s.party&&s.songbun!=='hostile'&&s.age<=35,title:'군관 학교 추천',desc:'부대장이 부릅니다. "군관 학교 추천서를 써 주겠다. 평생 군복을 입을 각오가 있나?"',
+ opts:[{t:'"있습니다!"',go:{'*':{go:1}}},{t:'"제대하고 싶습니다"',go:{'*':{no:1}}}],good:{go:1,no:0},
+ out:{go:s=>(arcStart(s,'off','b',R(2,4)),SP('군관 학교에 들어갔습니다. 어깨에 처음으로 계급장이 붙었습니다.',{loyal:8,net:6})),no:s=>(arcEnd(s,'off','no'),SP('추천서를 사양했습니다. 부대장이 한참 나를 쳐다봤습니다.'))}});
+EV('off_b',{kind:'시나리오',stage:['army','adult'],title:'별을 달다',desc:'국경 부대 사단장 자리가 비었습니다. 후보는 셋. 위에서 "충성심"을 보여 주는 사람을 고른다고 합니다.',
+ opts:[{t:'부대 식량을 빼서 윗선에 바친다',go:{'*':{star:.8,no:.2}}},{t:'부대원 배급을 지키고 실력으로 간다',go:{'*':{star:.4,no:.6}}}],good:{star:2,no:-1},
+ out:{star:s=>(arcGo(s,'off','c',R(2,3)),SP('어깨에 별이 붙었습니다. 부대원들은 그해 겨울 배가 고팠습니다.',{rank:1,net:10})),no:s=>(arcGo(s,'off','c',R(2,3)),SP('별은 다른 사람에게 갔습니다. 부대원들이 내게 술을 따랐습니다.',{joy:6}))}});
+EV('off_c',{kind:'시나리오',stage:['army','adult'],title:'장성들의 밤',desc:'사냥터 별장에 장성 몇이 모였습니다. 술이 돌자 한 사람이 낮게 말합니다. "이대로는 나라가 망하오. 우리가 움직여야 하오." 모두의 눈이 나를 봅니다.',hide:{real:.5,test:.5},
+ opts:[{t:'가담한다',go:{real:{win:.3,fail:.7},test:{fail:1}}},{t:'다음 날 고발한다',go:{real:{report:1},test:{report:1}}},{t:'술에 취한 척 모른 척한다',go:{real:{quiet:.6,swept:.4},test:{quiet:1}}}],good:{win:3,fail:-3,report:0,quiet:0,swept:-3},
+ out:{win:s=>(arcEnd(s,'off','coup'),SP('새벽에 탱크가 움직였습니다. 해가 뜨자 방송에서 "새 지도부"가 발표됐습니다. 그 명단에 내 이름이 있었습니다.',{rank:2,net:20,risk:20})),fail:s=>(arcEnd(s,'off','fail'),SP('모임의 다음 날 아침, 별장 주인부터 사라졌습니다. 그다음이 나였습니다.',{camp:1})),
+  report:s=>(arcEnd(s,'off','report'),SP('고발장을 썼습니다. 장성 넷이 사라졌고, 나는 별 하나를 더 달았습니다.',{rank:1,loyal:15,joy:-10})),quiet:s=>(arcEnd(s,'off','star'),SP('아무 일도 일어나지 않았습니다. 그 장성들도 나도 그날 밤 일을 다시 꺼내지 않았습니다.',{})),swept:s=>(arcEnd(s,'off','fail'),SP('모임이 발각됐습니다. 그 자리에 있었다는 것만으로 충분했습니다.',{camp:1}))}});
+
+/* 보위부의 두 얼굴 */
+EV('bw_a',{pool:1,kind:'시나리오',max:1,w:1.5,stage:['adult'],when:s=>!arcOn(s,'bw')&&(s.jobK==='police'||s.flags.informer)&&s.songbun!=='hostile',title:'보위부 발탁',desc:'보위부에서 사람이 왔습니다. "그동안 일을 잘 봤소. 이제 정식으로 우리 쪽에서 일하시오."',
+ opts:[{t:'보위원이 된다',go:{'*':{go:1}}},{t:'지금 자리에 남는다',go:{'*':{no:1}}}],good:{go:1,no:0},
+ out:{go:s=>(arcStart(s,'bw','b'),SP('보위원 신분증을 받았습니다. 동네 사람들의 인사가 반 박자 빨라졌습니다.',{risk:-20,net:6,loyal:8})),no:s=>(arcEnd(s,'bw','no'),SP('사양했습니다. 보위부 사람은 아무 말 없이 돌아갔습니다.',{risk:6}))}});
+EV('bw_b',{kind:'시나리오',stage:['adult'],title:'브로커 수사',desc:'탈북 브로커를 잡는 수사를 맡았습니다. 잠복 끝에 잡은 브로커의 얼굴을 보는 순간 숨이 멎었습니다. 어릴 때 같이 깡통을 차던 친구입니다.',
+ opts:[{t:'원칙대로 넘긴다',go:{'*':{arrest:1}}},{t:'몰래 풀어 준다',go:{'*':{spare:1}}}],good:{arrest:0,spare:1},
+ out:{arrest:s=>(arcGo(s,'bw','c'),SP('친구는 끝까지 내 이름을 부르지 않았습니다. 그게 더 아팠습니다.',{loyal:10,joy:-12})),spare:s=>(s.flags.bwSpare=1,arcGo(s,'bw','c'),SP('수갑을 풀며 말했습니다. "오늘 밤 안에 강을 건너." 친구가 내 손을 한 번 꽉 잡았습니다.',{joy:4,risk:15}))}});
+EV('bw_c',{kind:'시나리오',stage:['adult'],title:'내부 감찰',desc:s=>s.flags.bwSpare?'보위부 내부 감찰이 시작됐습니다. 그날 밤 사라진 브로커 건이 다시 들춰지고 있습니다. 그때 중국 번호로 문자가 옵니다. "이번엔 내가 길을 놓을게."':'내부 감찰이 시작됐습니다. 실적 좋은 보위원들부터 뒤를 캡니다. 위에서 "더 큰 사냥감"을 원합니다.',hide:{soft:.5,hard:.5},
+ opts:[{t:s=>s.flags.bwSpare?'친구가 놓은 길로 강을 건넌다':'더 큰 사냥감을 찾아 바친다',go:s=>s.flags.bwSpare?'flee':'hunt'},{t:'감찰을 버틴다',go:{soft:{survive:1},hard:{survive:.4,fall:.6}}}],good:{flee:3,hunt:1,survive:1,fall:-3},
+ out:{flee:s=>(arcEnd(s,'bw','flee'),SP('친구의 브로커가 강가에서 기다리고 있었습니다. 보위원 신분증은 강물에 던졌습니다.',{china:1,prep:50})),hunt:s=>(arcEnd(s,'bw','loyal'),SP('간부 하나를 "반당 분자"로 잡아 바쳤습니다. 내 자리는 더 단단해졌습니다.',{rank:1,loyal:10,joy:-10})),
+  survive:s=>(arcEnd(s,'bw','loyal'),SP('감찰이 지나갔습니다. 나는 여전히 보위원입니다. 거울 속 얼굴이 조금 낯설어졌습니다.',{})),fall:s=>(arcEnd(s,'bw','fall'),SP('감찰관이 내 서류철을 덮으며 말했습니다. "당신도 결국 사람이었군."',{camp:1}))}});
+
+/* 해외 식당의 밤 */
+EV('rest_a',{pool:1,kind:'시나리오',max:1,w:2,stage:['adult'],min:18,maxAge:30,when:s=>!arcOn(s,'rest')&&s.sex==='F'&&s.songbun!=='hostile'&&!s.married,title:'해외 식당 파견',desc:'외국에 있는 우리 식당 종업원으로 뽑힐 기회가 생겼습니다. 노래도 하고 서빙도 합니다. 3년 동안 바깥에서 삽니다.',
+ opts:[{t:'간다',cost:s=>bribeCost(s,150),go:{'*':{go:1}}},{t:'가지 않는다',go:{'*':{no:1}}}],good:{go:1,no:0},
+ out:{go:s=>(arcStart(s,'rest','b',1),SP('동남아 어느 도시의 식당에 도착했습니다. 첫날 밤, 창밖 네온사인 때문에 잠이 오지 않았습니다.',{outside:15,joy:5})),no:s=>(arcEnd(s,'rest','no'),SP('가지 않았습니다.'))}});
+EV('rest_b',{kind:'시나리오',stage:['adult'],title:'단골손님',desc:'남쪽 말투를 쓰는 손님이 매일 같은 자리에 앉습니다. 오늘은 계산서 밑에 쪽지를 두고 갔습니다. "다들 사정 알아요. 마음 바뀌면 이 번호로."',
+ opts:[{t:'쪽지를 앞치마에 숨긴다',go:{'*':{keep:1}}},{t:'지배인에게 넘긴다',go:{'*':{hand:1}}}],good:{keep:1,hand:0},
+ out:{keep:s=>(arcGo(s,'rest','c',R(1,2)),SP('밤마다 쪽지의 번호를 외웠습니다.',{outside:8})),hand:s=>(arcGo(s,'rest','c',R(1,2)),SP('지배인이 쪽지를 태웠습니다. 그 손님은 다시 오지 않았습니다.',{loyal:6}))}});
+EV('rest_c',{kind:'시나리오',stage:['adult'],title:'지배인의 결심',desc:'자정에 지배인이 종업원들을 깨웁니다. 목소리가 떨립니다. "짐 싸라. 다 같이 남쪽으로 간다. 지금 안 가면 우리 모두 소환된다."',hide:{real:.75,trap:.25},
+ opts:[{t:'따라나선다',go:{real:{all:1},trap:{caught:1}}},{t:'"저는 남겠습니다"',go:{'*':{stay:1}}},{t:'혼자 다른 길로 빠져나간다',go:{real:{alone:.7,caught:.3},trap:{alone:.5,caught:.5}}}],good:{all:3,caught:-3,stay:0,alone:2},
+ out:{all:s=>(arcEnd(s,'rest','all'),SP('종업원 열둘이 한 비행기를 탔습니다. 서울 공항 입국장에서 서로 손을 잡고 울었습니다.',{south:1})),caught:s=>(arcEnd(s,'rest','caught'),SP('공항 가는 길에 차가 멈췄습니다. 지배인이 처음부터 보위부 쪽이었습니다.',{camp:1})),
+  stay:s=>(arcEnd(s,'rest','stay'),SP('혼자 식당에 남았습니다. 다음 주 새 종업원들이 왔고, 나는 귀국 비행기를 탔습니다.',{loyal:10,risk:15})),alone:s=>(arcEnd(s,'rest','alone'),SP('쪽지의 번호로 전화를 걸었습니다. 그 손님이 차를 몰고 왔습니다.',{south:1}))}});
+
+/* 세계에 닿은 목소리 */
+EV('wit_a',{pool:1,kind:'시나리오',max:1,w:.8,stage:['adult'],tier:['mid','bottom'],when:s=>!arcOn(s,'wit')&&s.outside>=40,title:'외신 기자의 연락',desc:'중국 손전화로 외국 기자가 연락해 왔습니다. "그곳 생활을 있는 그대로 찍어 보내 줄 수 있습니까? 얼굴은 가려 드립니다."',
+ opts:[{t:'몰래 찍어 보낸다',go:{'*':{go:1}}},{t:'"그런 거 모릅니다"',go:{'*':{no:1}}}],good:{go:1,no:0},
+ out:{go:s=>(arcStart(s,'wit','b',1),SP('장마당, 배급소 앞 줄, 정전된 거리를 몰래 찍었습니다. 손이 계속 떨렸습니다.',{outside:10,risk:10})),no:s=>(arcEnd(s,'wit','no'),SP('전화를 끊고 번호를 지웠습니다.'))}});
+EV('wit_b',{kind:'시나리오',stage:['adult'],title:'세계로 퍼진 영상',desc:'영상이 외국 뉴스에 나갔다는 소식이 국경 너머에서 들려옵니다. 얼굴은 가렸지만, 장마당 골목은 누구나 알아볼 만합니다.',
+ opts:[{t:'더 찍어 보낸다',go:{'*':{more:1}}},{t:'장비를 묻고 숨는다',go:{'*':{hide:1}}}],good:{more:1,hide:0},
+ out:{more:s=>(arcGo(s,'wit','c',1),SP('두 번째 영상에는 수용소로 가는 트럭이 찍혔습니다.',{outside:10,risk:18})),hide:s=>(arcGo(s,'wit','c',R(1,2)),SP('장비를 뒷산에 묻었습니다. 영상은 이미 세상에 나가 있었습니다.',{risk:8}))}});
+EV('wit_c',{kind:'시나리오',stage:['adult'],title:'수사망',desc:'보위부가 "영상 유출자"를 찾는 특별 수사를 시작했습니다. 그 골목 주민들을 한 명씩 부르고 있습니다.',hide:{soft:.45,hard:.55},
+ opts:[{t:'끝까지 모른 척한다',go:{soft:{anon:.8,caught:.2},hard:{anon:.35,caught:.65}}},{t:'기자가 놓아 준 길로 강을 건넌다',go:{'*':{voice:.7,caught:.3}}}],good:{anon:2,caught:-3,voice:3},
+ out:{anon:s=>(arcEnd(s,'wit','anon'),SP('수사는 다른 사람을 잡고 끝났습니다. 그 영상을 누가 찍었는지는 끝내 아무도 모릅니다.',{joy:-4})),caught:s=>(arcEnd(s,'wit','caught'),SP('조사관 책상 위에 내 손전화 통화 기록이 놓여 있었습니다.',{camp:1})),
+  voice:s=>(arcEnd(s,'wit','voice'),SP('강을 건너 몇 달 뒤, 외국 의회 증언석에 섰습니다. 이번엔 얼굴을 가리지 않았습니다.',{china:1,prep:60}))}});
+
+/* 역전의 왕 */
+EV('kot_a',{pool:1,kind:'시나리오',max:1,w:2,stage:['adult'],when:s=>!arcOn(s,'kot')&&s.flags.wasKotjebi&&s.age<=35,title:'역전의 아이들',desc:'역전에서 같이 자던 아이들이 이제 다 컸습니다. 다들 나를 "형", "언니"라고 부릅니다. 누군가 이 패거리를 이끌어야 합니다.',
+ opts:[{t:'우두머리가 된다',go:{'*':{boss:1}}},{t:'예전 일은 잊는다',go:{'*':{no:1}}}],good:{boss:1,no:0},
+ out:{boss:s=>(arcStart(s,'kot','b'),SP('역전 뒤 창고가 우리 본부가 됐습니다. 아이 서른 명이 내 말을 듣습니다.',{net:10})),no:s=>(arcEnd(s,'kot','no'),SP('역전 쪽으로는 다니지 않기로 했습니다.'))}});
+EV('kot_b',{kind:'시나리오',stage:['adult'],title:'장마당 경비 사업',desc:'장마당 상인들이 밤마다 물건을 도둑맞습니다. "우리가 지켜 주겠다"고 하면 다달이 돈을 받을 수 있습니다.',
+ opts:[{t:'경비를 맡는다',go:{'*':{guard:1}}},{t:'아이들을 학교로 돌려보낸다',go:{'*':{school:1}}}],good:{guard:1,school:2},
+ out:{guard:s=>(arcGo(s,'kot','c'),SP('장마당 밤이 조용해졌습니다. 상인들이 다달이 봉투를 놓고 갑니다.',{money:R(500,1500),risk:8})),school:s=>(arcEnd(s,'kot','teacher'),SP('아이들 몇을 학교로 돌려보냈습니다. 그중 하나가 몇 년 뒤 대학에 붙었다는 소식을 들었습니다.',{joy:12}))}});
+EV('kot_c',{kind:'시나리오',stage:['adult'],title:'보안원의 계산',desc:'담당 보안원이 찾아왔습니다. "경비 사업 잘된다며? 몫을 나누든지, 패거리를 해산하든지."',hide:{greedy:.6,strict:.4},
+ opts:[{t:'몫을 나눈다',go:{greedy:{king:1},strict:{king:.5,fall:.5}}},{t:'"우린 안 흩어집니다"',go:{'*':{fight:.4,fall:.6}}}],good:{king:2,fight:2,fall:-2},
+ out:{king:s=>(arcEnd(s,'kot','king'),SP('보안원과 손을 잡았습니다. 이제 역전과 장마당의 밤은 내 것입니다.',{money:R(1000,3000),net:10})),fight:s=>(arcEnd(s,'kot','king'),SP('아이들이 한 줄로 섰습니다. 보안원이 한참 보더니 돌아갔습니다.',{net:15,risk:10})),fall:s=>(arcEnd(s,'kot','fall'),SP('패거리는 하룻밤에 흩어졌습니다. 나는 노동단련대로, 아이들은 다시 역전으로.',{jail:1,jailKind:'노동단련대'}))}});
+
+/* 분조장의 실험 */
+EV('farm_a',{pool:1,kind:'시나리오',max:1,w:1.8,stage:['adult'],when:s=>!arcOn(s,'farm')&&(s.jobK==='farm'||s.place.type==='rural'),title:'분조장 임명',desc:'협동농장 분조장이 됐습니다. 사람 열둘, 밭 스무 정보. 올해 계획량을 못 채우면 책임은 내 몫입니다.',
+ opts:[{t:'몰래 땅을 가족 단위로 나눠 맡긴다',go:{'*':{split:1}}},{t:'시키는 대로 한다',go:{'*':{plan:1}}}],good:{split:2,plan:0},
+ out:{split:s=>(arcStart(s,'farm','b',1),SP('"거둔 만큼 너희 몫이다." 그해 봄, 새벽부터 밭에 나오는 사람이 두 배가 됐습니다.',{risk:10,net:6})),plan:s=>(arcEnd(s,'farm','plan'),SP('계획대로 했습니다. 계획량은 그해에도 모자랐습니다.',{}))}});
+EV('farm_b',{kind:'시나리오',stage:['adult'],title:'가을걷이',desc:'옥수수가 다른 분조보다 두 배는 열렸습니다. 소문이 납니다. 관리위원장이 우리 밭을 보러 온답니다.',
+ opts:[{t:'수확량을 줄여 보고한다',go:{'*':{hide:1}}},{t:'있는 그대로 보고한다',go:{'*':{show:1}}}],good:{hide:1,show:1},
+ out:{hide:s=>(arcGo(s,'farm','c'),SP('보고서에는 평년작이라고 적었습니다. 분조원들 집 창고는 처음으로 찼습니다.',{joy:8,risk:8})),show:s=>(s.flags.farmShow=1,arcGo(s,'farm','c'),SP('관리위원장이 밭을 둘러보더니 아무 말 없이 돌아갔습니다.',{}))}});
+EV('farm_c',{kind:'시나리오',stage:['adult'],title:'도 검열',desc:'도에서 검열단이 내려왔습니다. "개인 경작"이 문제인지, "증산 모범"인지, 그들의 기분에 달렸습니다.',hide:s=>({praise:s.flags.farmShow?.55:.3,punish:s.flags.farmShow?.45:.7}),
+ opts:[{t:'"분조원들의 충성심 덕분입니다"',go:{praise:{hero:1},punish:{hero:.3,taken:.7}}},{t:'"제가 시켰습니다. 책임은 저에게"',go:{praise:{hero:1},punish:{taken:1}}}],good:{hero:3,taken:-2},
+ out:{hero:s=>(arcEnd(s,'farm','hero'),SP('신문에 "증산 모범 분조"가 실렸습니다. 다음 해 도 전체가 우리 방식을 따라 했습니다.',{loyal:10,net:10,joy:10})),taken:s=>(arcEnd(s,'farm','taken'),SP('"사회주의 농업 질서 위반". 분조원들이 끌려가는 나를 끝까지 지켜봤습니다.',{jail:R(2,4),jailKind:'교화소'}))}});
+
+/* 사랑의 도피 */
+EV('run_a',{pool:1,kind:'시나리오',max:1,w:3,stage:['adult'],when:s=>!arcOn(s,'run')&&s.date&&s.date.dream&&s.date.bond>=55,title:'"같이 가자"',desc:s=>`강둑에서 ${s.date.name}${P(s.date.name,'이/가')} 내 손을 잡고 말합니다. "여기서는 우리 같은 사람은 결혼해도 안 돼. 강 건너에서 다시 시작하자."`,
+ opts:[{t:'"가자"',go:{'*':{yes:1}}},{t:'"조금만 더 생각해 보자"',go:{'*':{wait:1}}},{t:'"난 여기 남을래"',go:{'*':{no:1}}}],good:{yes:2,wait:0,no:-1},
+ out:{yes:s=>(arcStart(s,'run','b',1),SP('그날부터 둘이서 돈을 모으고 강가 순찰 시간을 외웠습니다.',{prep:30,joy:6})),wait:s=>(arcGo(s,'run','b',2),SP('대답을 미뤘습니다. 그 손을 놓지는 않았습니다.',{prep:10})),no:s=>{const n=s.date.name;s.date=null;arcEnd(s,'run','no');return SP(`${n}${P(n,'이/가')} 혼자 떠났다는 소식은 석 달 뒤에 들었습니다.`,{joy:-12})}}});
+EV('run_b',{kind:'시나리오',stage:['adult'],title:'강가의 밤',desc:s=>s.date?`약속한 밤입니다. ${s.date.name}${P(s.date.name,'이/가')} 강둑 버드나무 아래에서 기다립니다.`:'약속한 밤이지만, 강둑에는 아무도 없었습니다.',
+ opts:[{t:'손을 잡고 강으로 걸어 들어간다',when:s=>!!s.date,go:{'*':{go:1}}},{t:'마지막 순간 돌아선다',go:{'*':{back:1}}}],good:{go:2,back:-1},
+ out:{go:s=>{const d=s.date;arcEnd(s,'run','go');return{t:'둘이서 하나뿐인 혼인 서약을 하고 강물에 발을 담갔습니다.',e:{marry:d,flag:['leaving','withFamily']},next:'river'}},back:s=>{const n=s.date?s.date.name:'';s.date=null;arcEnd(s,'run','back');return SP(n?`돌아섰습니다. 뒤에서 ${n}${P(n,'이/가')} 내 이름을 한 번 불렀습니다.`:'돌아섰습니다.',{joy:-15})}}});
+
+/* ================= 백두혈통 ================= */
+EV('rsib_a',{pool:1,royalOK:1,kind:'시나리오',max:1,w:2,stage:['royal'],min:22,when:s=>s.royal&&!arcOn(s,'rsib')&&!s.flags.leader,title:'형의 측근이 사라졌다',desc:'배다른 형의 측근 둘이 하룻밤 새 지방으로 "내려갔습니다". 관저 사람들은 그 일을 내가 꾸몄다고 수군댑니다. 형의 눈빛이 달라졌습니다.',
+ opts:[{t:'형을 찾아가 오해를 푼다',go:{'*':{talk:1}}},{t:'이 기회에 내 사람을 심는다',go:{'*':{plant:1}}}],good:{talk:1,plant:1},
+ out:{talk:s=>(arcStart(s,'rsib','b'),SP('형이 술잔을 받긴 했지만 끝까지 마시지 않았습니다.',{risk:5})),plant:s=>(arcStart(s,'rsib','b'),SP('비운 자리마다 내 사람을 앉혔습니다. 이제 돌아갈 수 없습니다.',{risk:12,flag:'rsibPlant'}))}});
+EV('rsib_b',{royalOK:1,kind:'시나리오',stage:['royal'],title:'군부의 줄서기',desc:'군 원로들이 하나둘 형 쪽, 내 쪽으로 갈라섭니다. 아버지는 아무 말이 없습니다. 원로 한 사람이 조용히 묻습니다. "어느 쪽에 서실 겁니까?"',
+ opts:[{t:'원로들에게 별장과 외화를 나눠 준다',cost:()=>3000000,go:{'*':{buy:1}}},{t:'아버지께 직접 충성을 맹세한다',go:{'*':{oath:1}}},{t:'형에게 "같이 가자"고 제안한다',go:{'*':{ally:1}}}],good:{buy:1,oath:1,ally:1},
+ out:{buy:s=>(s.flags.rsibPow=(s.flags.rsibPow||0)+2,arcGo(s,'rsib','c'),SP('원로 넷이 내 편에 섰습니다. 형의 만찬에는 빈자리가 늘었습니다.',{})),oath:s=>(s.flags.rsibPow=(s.flags.rsibPow||0)+1,arcGo(s,'rsib','c'),SP('아버지가 처음으로 내 이름을 길게 불렀습니다.',{loyal:10})),ally:s=>(s.flags.rsibAlly=1,arcGo(s,'rsib','c'),SP('형이 한참 웃더니 손을 내밀었습니다. 진심인지는 아무도 모릅니다.',{}))}});
+EV('rsib_c',{royalOK:1,kind:'시나리오',stage:['royal'],title:'결전의 밤',desc:'아버지가 쓰러졌다는 소식이 새벽에 들어왔습니다. 관저 안에 탱크 소리가 울립니다. 오늘 밤, 형제 중 하나만 남습니다.',hide:s=>({me:clamp(.35+(s.flags.rsibPow||0)*.15+(s.flags.absolute?.5:0),.1,.95),him:.5}),
+ opts:[{t:'근위대를 앞세워 먼저 움직인다',go:{me:{win:1},him:{win:.4,lose:.6}}},{t:'형과 마주 앉아 담판을 짓는다',go:{me:{share:.6,win:.4},him:{share:.5,lose:.5}}},{t:'관저를 빠져나가 해외로 간다',go:{'*':{exile:1}}}],good:{win:3,share:2,lose:-3,exile:0},
+ out:{win:s=>(arcEnd(s,'rsib','win'),SP('해가 뜨자 형은 "건강 문제로 요양"을 떠났습니다. 가족 회의가 내 이름을 불렀습니다.',{flag:'heir',risk:-20})),share:s=>(arcEnd(s,'rsib','share'),SP('형제가 나라를 나눠 맡기로 했습니다. 군은 형, 경제는 나. 아무도 이게 오래갈 거라고 믿지 않습니다.',{flag:'heir',risk:10})),
+  lose:s=>(arcEnd(s,'rsib','lose'),SP('근위대가 형 쪽으로 돌아섰습니다. 관저 문이 닫혔습니다.',{endNow:'purged'})),exile:s=>(arcEnd(s,'rsib','exile'),SP('새벽 전용기로 빠져나갔습니다. 형이 이겼다는 소식은 비행기 안에서 들었습니다.',{endNow:'exile'}))}});
+EV('rref_a',{pool:1,royalOK:1,kind:'시나리오',max:1,w:1.6,stage:['royal'],min:20,when:s=>s.royal&&!arcOn(s,'rref')&&s.outside>=30,title:'젊은 관료들의 모임',desc:'외국 유학을 다녀온 젊은 관료 몇이 조용히 찾아왔습니다. "이대로는 안 됩니다. 중국처럼, 베트남처럼 바꿔야 합니다. 저희를 이끌어 주십시오."',
+ opts:[{t:'모임을 만든다',go:{'*':{go:1}}},{t:'"없던 일로 하지"',go:{'*':{no:1}}}],good:{go:1,no:0},
+ out:{go:s=>(arcStart(s,'rref','b'),SP('관저 서재에서 밤마다 모였습니다. 창문은 두꺼운 커튼으로 가렸습니다.',{outside:8})),no:s=>(arcEnd(s,'rref','no'),SP('그들을 돌려보냈습니다. 그중 하나는 몇 달 뒤 지방으로 쫓겨났습니다.',{}))}});
+EV('rref_b',{royalOK:1,kind:'시나리오',stage:['royal'],title:'개혁 문서',desc:'모임이 "경제 개혁안"을 완성했습니다. 장마당 합법화, 기업 자율, 외국 투자. 이 문서가 발각되면 모두 끝입니다.',
+ opts:[{t:'아버지 서재에 몰래 놓아 둔다',go:{'*':{leave:.5,found:.5}}},{t:'때를 기다리며 숨겨 둔다',go:{'*':{wait:1}}}],good:{leave:2,found:-2,wait:0},
+ out:{leave:s=>(arcGo(s,'rref','c',1),SP('다음 날 아침, 아버지 책상 위의 문서가 사라져 있었습니다. 아무 말도 없었습니다.',{})),found:s=>(arcGo(s,'rref','c',1),s.flags.rrefFound=1,SP('문서가 엉뚱한 사람 손에 들어갔습니다. 보위부가 모임 명단을 찾고 있습니다.',{risk:25})),wait:s=>(arcGo(s,'rref','c',R(2,3)),SP('문서를 금고에 넣었습니다. 언젠가 꺼낼 날을 기다리며.',{}))}});
+EV('rref_c',{royalOK:1,kind:'시나리오',stage:['royal'],title:'아버지의 서재',desc:s=>s.flags.rrefFound?'아버지가 서재로 부릅니다. 책상 위에 그 문서가 놓여 있습니다. "모임 명단을 대라."':'아버지가 서재로 부릅니다. 책상 위에 그 문서가 놓여 있습니다. 아버지가 낮게 묻습니다. "네가 썼느냐?"',hide:s=>({open:s.flags.rrefFound?.25:.55,shut:s.flags.rrefFound?.75:.45}),
+ opts:[{t:'"제가 썼습니다"',go:{open:{yes:1},shut:{fall:.6,yes:.4}}},{t:'"모르는 문서입니다"',go:{'*':{deny:1}}}],good:{yes:3,fall:-3,deny:0},
+ out:{yes:s=>(arcEnd(s,'rref','yes'),s.flags.opened=(s.flags.opened||0)+1,SP('아버지가 문서를 한참 보더니 말했습니다. "천천히 해라. 너무 빠르면 다 죽는다." 그해 장마당 단속이 조금 느슨해졌습니다.',{flag:'heir',outside:6})),fall:s=>(arcEnd(s,'rref','fall'),SP('"너도 결국 바깥물이 들었구나." 그날 밤 관저 문이 밖에서 잠겼습니다.',{endNow:'purged'})),
+  deny:s=>(arcEnd(s,'rref','deny'),SP('모임 사람들이 하나둘 사라졌습니다. 나만 남았습니다.',{joy:-15}))}});
+EV('rbank_a',{pool:1,royalOK:1,kind:'시나리오',max:1,w:1.6,stage:['royal'],min:22,when:s=>s.royal&&!arcOn(s,'rbank')&&s.dir==='biz',title:'마카오의 계좌',desc:'가문의 해외 비자금 관리를 맡게 됐습니다. 마카오, 싱가포르, 스위스. 숫자가 너무 커서 실감이 나지 않습니다.',
+ opts:[{t:'맡는다',go:{'*':{go:1}}},{t:'사양한다',go:{'*':{no:1}}}],good:{go:1,no:0},
+ out:{go:s=>(arcStart(s,'rbank','b'),SP('계좌 번호 열두 개를 외웠습니다. 종이에는 하나도 적지 않았습니다.',{money:R(1000000,3000000)})),no:s=>(arcEnd(s,'rbank','no'),SP('사양했습니다. 그 자리는 삼촌에게 갔습니다.'))}});
+EV('rbank_b',{royalOK:1,kind:'시나리오',stage:['royal'],title:'제재 동결',desc:'새 국제 제재로 마카오 계좌 셋이 동결됐습니다. 남은 돈을 옮겨야 합니다. 방법은 위험하거나, 더 위험합니다.',
+ opts:[{t:'가짜 회사 열 개로 쪼개 옮긴다',go:{'*':{ok:.6,traced:.4}}},{t:'현금으로 바꿔 외교 행낭에 싣는다',go:{'*':{ok:.7,traced:.3}}}],good:{ok:2,traced:-2},
+ out:{ok:s=>(arcGo(s,'rbank','c'),SP('돈이 무사히 옮겨졌습니다. 이제 이 돈의 길을 아는 사람은 나뿐입니다.',{money:R(2000000,5000000)})),traced:s=>(arcGo(s,'rbank','c'),s.flags.rbankTraced=1,SP('외국 수사기관이 가짜 회사 하나를 찾아냈습니다. 신문에 "북한 비자금"이라는 제목이 실렸습니다.',{risk:15}))}});
+EV('rbank_c',{royalOK:1,kind:'시나리오',stage:['royal'],title:'돈의 주인',desc:'이 돈의 행방을 아는 사람은 이제 나 하나입니다. 관저 안에서 내 위치가 달라졌습니다. 동시에, 누군가 나를 지켜보기 시작했습니다.',
+ opts:[{t:'돈줄을 쥐고 실세가 된다',go:{'*':{power:1}}},{t:'일부를 몰래 내 이름으로 돌린다',go:{'*':{skim:.7,caught:.3}}},{t:'돈을 들고 사라진다',go:{'*':{gone:1}}}],good:{power:2,skim:1,caught:-3,gone:1},
+ out:{power:s=>(arcEnd(s,'rbank','power'),s.flags.power=(s.flags.power||0)+30,SP('장성들이 돈 문제로 나를 찾아옵니다. 돈을 쥔 사람이 권력을 쥡니다.',{net:15})),skim:s=>(arcEnd(s,'rbank','skim'),SP('스위스에 내 이름으로 된 계좌가 하나 더 생겼습니다.',{money:R(3000000,8000000),outside:6})),
+  caught:s=>(arcEnd(s,'rbank','caught'),SP('삼촌이 장부를 들고 아버지를 찾아갔습니다.',{endNow:'purged'})),gone:s=>(arcEnd(s,'rbank','gone'),SP('가명 여권과 계좌 번호 열두 개. 그날 이후 나를 본 사람은 없습니다.',{endNow:'exile'}))}});
+EV('rgov_a',{pool:1,royalOK:1,kind:'시나리오',max:1,w:1.4,stage:['royal'],min:25,when:s=>s.royal&&!arcOn(s,'rgov')&&!s.flags.leader&&s.outside>=45,title:'외국 정보기관의 제안',desc:'해외 일정 중, 낯선 외국인이 호텔 방문을 두드립니다. "당신이 나오면, 우리가 지킵니다. 그리고 언젠가 당신이 그 나라의 얼굴이 될 수 있습니다."',
+ opts:[{t:'조건을 들어 본다',go:{'*':{listen:1}}},{t:'문을 닫는다',go:{'*':{no:1}}}],good:{listen:1,no:0},
+ out:{listen:s=>(arcStart(s,'rgov','b',1),SP('연락 방법이 적힌 성냥갑 하나를 받았습니다.',{outside:8})),no:s=>(arcEnd(s,'rgov','no'),SP('문을 닫았습니다. 그 사람의 얼굴은 다음 날 신문에서 봤습니다.',{}))}});
+EV('rgov_b',{royalOK:1,kind:'시나리오',stage:['royal'],title:'망명 정부',desc:'국경 밖에서 이 나라를 떠난 사람들이 "망명 정부"를 세우려 합니다. 그들이 필요한 건 상징입니다. 백두혈통의 이름.',hide:{safe:.6,hunted:.4},
+ opts:[{t:'떠나서 망명 정부를 이끈다',go:{safe:{lead:1},hunted:{lead:.6,hunted:.4}}},{t:'떠나되 조용히 숨어 산다',go:{'*':{hide:1}}},{t:'남는다',go:{'*':{stay:1}}}],good:{lead:3,hunted:-3,hide:1,stay:0},
+ out:{lead:s=>(arcEnd(s,'rgov','lead'),SP('외국 도시의 작은 사무실에서 "임시 정부"를 선포했습니다. 그날 평양 방송은 나를 "민족 반역자"라고 불렀습니다.',{endNow:'exile'})),hunted:s=>(arcEnd(s,'rgov','hunted'),SP('공항 화장실에서 낯선 남자 둘이 다가왔습니다.',{dead:1})),
+  hide:s=>(arcEnd(s,'rgov','hide'),SP('이름을 바꾸고 작은 섬나라에 집을 얻었습니다. 아무도 나를 알아보지 못합니다.',{endNow:'exile'})),stay:s=>(arcEnd(s,'rgov','stay'),SP('성냥갑을 태웠습니다. 남은 인생을 이 담장 안에서 살기로 했습니다.',{}))}});
+EV('rdip_a',{pool:1,royalOK:1,kind:'시나리오',max:1,w:2,stage:['royal'],when:s=>s.flags.leader&&!arcOn(s,'rdip'),title:'정상회담 제안',desc:'미국 대통령이 정상회담을 제안해 왔습니다. 싱가포르, 하노이, 아니면 판문점. 세계가 이 대답을 기다립니다.',
+ opts:[{t:'받는다',go:{'*':{yes:1}}},{t:'"때가 아니다"',go:{'*':{no:1}}}],good:{yes:1,no:0},
+ out:{yes:s=>(arcStart(s,'rdip','b',1),SP('전 세계 카메라 앞에서 악수했습니다. 그 사진이 모든 신문 1면을 덮었습니다.',{outside:10,joy:6})),no:s=>(arcEnd(s,'rdip','no'),SP('대답하지 않았습니다. 대신 미사일 시험 소식이 나갔습니다.',{}))}});
+EV('rdip_b',{royalOK:1,kind:'시나리오',stage:['royal'],title:'제재 해제 협상',desc:'협상 테이블입니다. 상대는 "핵 포기"를, 우리는 "제재 해제"를 먼저 요구합니다. 군 원로들은 등 뒤에서 지켜봅니다.',
+ opts:[{t:'핵 시설 절반을 먼저 내준다',go:{'*':{deal:.6,fail:.4}}},{t:'"동시에"를 고집한다',go:{'*':{deal:.35,fail:.65}}},{t:'판을 깨고 일어선다',go:{'*':{walk:1}}}],good:{deal:3,fail:-1,walk:-1},
+ out:{deal:s=>(arcGo(s,'rdip','c',R(1,2)),SP('제재 일부가 풀렸습니다. 첫 달, 중국 화물열차가 두 배로 늘었습니다.',{money:R(3000000,8000000),joy:8,risk:s.flags.absolute?0:10})),fail:s=>(arcEnd(s,'rdip','fail'),SP('협상이 결렬됐습니다. 원로들의 표정이 밝아졌습니다.',{})),walk:s=>(arcEnd(s,'rdip','fail'),SP('판을 깼습니다. 평양 방송은 "자주적 결단"이라고 불렀습니다.',{}))}});
+EV('rdip_c',{royalOK:1,kind:'시나리오',stage:['royal'],title:'경제 특구',desc:'제재가 풀리자 외국 기업들이 줄을 섭니다. 어디까지 열지 정해야 합니다.',
+ opts:[{t:'중국처럼 바닷가 특구부터 연다',go:{'*':{zone:1}}},{t:'나라 전체를 연다',go:{'*':{all:.6,shaky:.4}}}],good:{zone:2,all:3,shaky:-1},
+ out:{zone:s=>(arcEnd(s,'rdip','zone'),s.flags.opened=(s.flags.opened||0)+1,SP('원산과 신의주에 공장이 들어섰습니다. 월급을 달러로 받는 노동자가 생겼습니다.',{money:R(5000000,12000000),joy:8})),all:s=>(arcEnd(s,'rdip','all'),s.flags.opened=(s.flags.opened||0)+2,s.flags.unifyPts=(s.flags.unifyPts||0)+20,SP('평양에 외국 은행 간판이 걸렸습니다. 사람들이 처음으로 인터넷이라는 걸 써 봤습니다.',{outside:15,joy:10})),
+  shaky:s=>(arcEnd(s,'rdip','zone'),SP('너무 빨리 열었습니다. 물가가 뛰고, 원로들이 수군대기 시작했습니다.',{risk:s.flags.absolute?0:25}))}});
+EV('rkid_a',{pool:1,royalOK:1,kind:'시나리오',max:1,w:2,stage:['royal'],when:s=>s.flags.leader&&!arcOn(s,'rkid')&&kidsOf(s).some(m=>ageOf(s,m)>=15),pre:s=>{s.tgt=kidsOf(s).find(m=>ageOf(s,m)>=15).id},title:s=>`${callOf(tgtOf(s))}의 반항`,
+ desc:s=>`${subj(tgtOf(s))} 저녁 식탁에서 말합니다. "저는 이 자리를 물려받고 싶지 않아요. 외국에서 평범하게 살고 싶어요."`,
+ opts:[{t:'"너는 이 나라의 다음이다"',go:{'*':{force:1}}},{t:'"원하는 대로 해라"',go:{'*':{free:1}}}],good:{force:0,free:1},
+ out:{force:s=>(bond(tgtOf(s),-20),arcStart(s,'rkid','b',R(1,3)),SP('아이가 방문을 닫았습니다. 그날 이후 식탁이 조용해졌습니다.',{})),free:s=>(bond(tgtOf(s),15),arcStart(s,'rkid','b',R(1,3)),s.flags.rkidFree=1,SP('아이가 처음으로 나를 안았습니다.',{joy:6}))}});
+EV('rkid_b',{royalOK:1,kind:'시나리오',stage:['royal'],title:'대사관의 전화',desc:s=>s.flags.rkidFree?'외국에서 공부하던 아이에게서 전화가 왔습니다. "아빠, 저 여기서 살고 싶어요. 돌아가지 않을래요."':'해외 일정 중이던 아이가 사라졌습니다. 몇 시간 뒤, 한 외국 대사관에서 연락이 왔습니다. "자녀분이 보호를 요청했습니다."',
+ opts:[{t:'아이를 보내 준다',go:{'*':{let:1}}},{t:'무슨 수를 써서라도 데려온다',go:{'*':{back:.5,lost:.5}}}],good:{let:1,back:0,lost:-2},
+ out:{let:s=>(arcEnd(s,'rkid','let'),SP('"잘 살아라." 수화기를 내려놓고 한참 창밖을 봤습니다. 다음 날 세계 신문 1면은 내 아이였습니다.',{joy:-6,outside:6})),back:s=>(arcEnd(s,'rkid','back'),SP('아이가 돌아왔습니다. 그 뒤로 아이는 한 번도 웃지 않았습니다.',{joy:-10})),lost:s=>(arcEnd(s,'rkid','lost'),SP('데려오려다 아이를 영영 잃었습니다. 그 나라는 아이를 내주지 않았습니다.',{joy:-15}))}});
+EV('rhealth_a',{pool:1,royalOK:1,kind:'시나리오',max:1,w:1.8,stage:['royal'],min:45,when:s=>s.flags.leader&&!arcOn(s,'rhealth'),title:'쓰러지다',desc:'현지지도 중에 가슴을 움켜쥐고 쓰러졌습니다. 눈을 떠 보니 전용 병원 천장입니다. 의사들이 "수술이 필요하다"고 합니다.',
+ opts:[{t:'외국 의사를 몰래 부른다',go:{'*':{ok:.75,bad:.25}}},{t:'국내 의료진에게 맡긴다',go:{'*':{ok:.55,bad:.45}}}],good:{ok:2,bad:-2},
+ out:{ok:s=>(arcStart(s,'rhealth','b',0),SP('수술은 성공했습니다. 하지만 석 달 동안 공식 석상에 나서지 못합니다.',{hp:-10})),bad:s=>(arcStart(s,'rhealth','b',0),SP('수술 뒤 한쪽 팔이 말을 듣지 않습니다.',{hp:-30}))}});
+EV('rhealth_b',{royalOK:1,kind:'시나리오',stage:['royal'],title:'권력 공백',desc:'석 달째 공식 석상에 나서지 못하자, 외신이 "사망설"을 씁니다. 관저 안에서는 누가 대신 서명할지를 두고 눈치싸움이 시작됐습니다.',
+ opts:[{t:'여동생에게 대리 서명을 맡긴다',go:{'*':{sister:1}}},{t:'병상에서 직접 다스린다',go:{'*':{bed:.7,weak:.3}}},{t:'아이를 후계자로 서둘러 내세운다',when:s=>kidsOf(s).some(m=>ageOf(s,m)>=16),go:{'*':{kid:1}}}],good:{sister:1,bed:2,weak:-2,kid:1},
+ out:{sister:s=>(arcEnd(s,'rhealth','sister'),SP('여동생의 서명이 공문서에 찍히기 시작했습니다. 사람들은 이제 여동생의 눈치를 봅니다.',{risk:s.flags.absolute?0:10})),bed:s=>(arcEnd(s,'rhealth','bed'),SP('병상에서 영상을 찍어 방송에 내보냈습니다. 사망설은 하루 만에 사라졌습니다.',{loyal:10})),
+  weak:s=>(arcEnd(s,'rhealth','weak'),SP('병상의 지도자를 원로들이 하나둘 찾지 않게 됐습니다.',{risk:s.flags.absolute?0:30})),kid:s=>(arcEnd(s,'rhealth','kid'),SP('아이가 군 행사에 처음으로 혼자 나섰습니다. 박수가 생각보다 길었습니다.',{}))}});
+EV('rwar_a',{pool:1,royalOK:1,kind:'시나리오',max:1,w:1.6,stage:['royal'],when:s=>s.flags.leader&&!arcOn(s,'rwar'),title:'서해의 포성',desc:'새벽, 서해 경계선에서 경비정끼리 충돌했다는 보고가 들어왔습니다. 우리 쪽 병사 셋이 다쳤습니다. 군 수뇌부는 "반격"을 외칩니다.',
+ opts:[{t:'반격을 명령한다',go:{'*':{fire:1}}},{t:'남쪽 정상에게 핫라인을 건다',go:{'*':{call:1}}},{t:'"현장 지휘관을 문책하라"',go:{'*':{blame:1}}}],good:{fire:-1,call:2,blame:0},
+ out:{fire:s=>(arcStart(s,'rwar','b',0),s.flags.rwarFire=1,SP('포성이 사흘 밤낮 이어졌습니다. 양쪽 모두 사람이 죽었습니다.',{joy:-10,risk:s.flags.absolute?0:10})),call:s=>(arcStart(s,'rwar','b',0),SP('핫라인 너머 목소리가 떨렸습니다. "우리도 원하지 않습니다." 그날 오후 양쪽 경비정이 물러났습니다.',{outside:6})),
+  blame:s=>(arcStart(s,'rwar','b',0),SP('현장 지휘관이 해임됐습니다. 군 수뇌부는 불만스러운 얼굴로 회의장을 나갔습니다.',{}))}});
+EV('rwar_b',{royalOK:1,kind:'시나리오',stage:['royal'],title:'전쟁의 문턱',desc:s=>s.flags.rwarFire?'포격이 이어지자 남쪽과 미국 함대가 움직입니다. 다음 명령 하나에 수백만 명의 목숨이 걸려 있습니다.':'긴장은 가라앉았지만, 군 수뇌부는 "약한 모습"을 문제 삼습니다. 다음 결정이 정권의 색깔을 정합니다.',
+ opts:[{t:'모든 부대에 사격 중지를 명령한다',go:{'*':{peace:1}}},{t:'남북 군사 회담을 제안한다',go:{'*':{talks:.7,peace:.3}}},{t:'군부를 달래려 대규모 열병식을 연다',go:{'*':{parade:1}}}],good:{peace:2,talks:3,parade:0},
+ out:{peace:s=>(arcEnd(s,'rwar','peace'),SP('총성이 멎었습니다. 그날 밤, 서해 섬마을 사람들이 처음으로 방공호에서 나왔습니다.',{joy:8})),talks:s=>(arcEnd(s,'rwar','talks'),s.flags.unifyPts=(s.flags.unifyPts||0)+15,SP('판문점에서 남북 장성들이 마주 앉았습니다. 서해에 "평화 수역"이 그어졌습니다.',{joy:10,outside:6})),
+  parade:s=>(arcEnd(s,'rwar','parade'),SP('광장에 탱크가 줄지어 지나갔습니다. 군부는 만족했고, 서해는 다시 조용해졌습니다.',{loyal:10}))}});
+
+/* ================================================================
    2600만 분의 1 — 해 볼 수 있는 일: 일자리 · 도전 · 사랑 · 떠나기
    조건 · 비용 · 성공 확률이 미리 보입니다. 같은 일은 한 해에 한 번만 도전할 수 있습니다.
    ================================================================ */
@@ -1785,6 +2040,33 @@ const ENDINGS=[
  E_('leader_open','백두혈통','문을 연 지도자','good',s=>s.flags.leader&&(s.flags.opened||0)>=2,'장마당을 풀고 국경을 열었습니다. 역사책이 이 이름을 어떻게 적을지는 아직 모릅니다.'),
  E_('leader_iron','백두혈통','철권의 지도자','bad',s=>s.flags.leader&&(s.flags.leaderPurges||0)>=3,'반대하는 사람이 하나도 남지 않았습니다. 마지막에는 믿을 사람도 하나 남지 않았습니다.'),
  E_('leader_mercy','백두혈통','사면을 남발한 지도자','good',s=>s.flags.leader&&(s.flags.amnesty||0)>=3,'교화소 문을 세 번 열었습니다. 수용소 담장 너머 사람들이 이 이름을 다르게 기억합니다.'),
+ E_('r_sib_win','백두혈통 시나리오','형을 몰아낸 밤','neutral',s=>s.flags.arc_rsib==='win','결전의 밤, 해가 뜨자 형은 "요양"을 떠났습니다. 가족 회의가 내 이름을 불렀습니다.'),
+ E_('r_sib_share','백두혈통 시나리오','나라를 나눈 형제','neutral',s=>s.flags.arc_rsib==='share','군은 형이, 경제는 내가. 아무도 오래갈 거라 믿지 않았지만 생각보다 오래 갔습니다.'),
+ E_('r_sib_lose','백두혈통 시나리오','형에게 진 밤','bad',s=>s.flags.arc_rsib==='lose','근위대가 형 쪽으로 돌아섰습니다. 관저 문이 닫혔습니다.'),
+ E_('r_sib_exile','백두혈통 시나리오','비행기에서 들은 소식','neutral',s=>s.flags.arc_rsib==='exile','새벽 전용기 안에서 형이 이겼다는 소식을 들었습니다. 다시는 돌아가지 않았습니다.'),
+ E_('r_ref_yes','백두혈통 시나리오','그림자 개혁가','good',s=>s.flags.arc_rref==='yes','"천천히 해라." 아버지의 그 한마디 뒤로, 장마당 단속이 조금씩 느슨해졌습니다.'),
+ E_('r_ref_fall','백두혈통 시나리오','들킨 개혁 모임','bad',s=>s.flags.arc_rref==='fall','"너도 결국 바깥물이 들었구나." 그날 밤 관저 문이 밖에서 잠겼습니다.'),
+ E_('r_ref_deny','백두혈통 시나리오','혼자 남은 개혁가','bad',s=>s.flags.arc_rref==='deny','"모르는 문서입니다." 모임 사람들이 하나둘 사라지고 나만 남았습니다.'),
+ E_('r_bank_power','백두혈통 시나리오','돈줄을 쥔 실세','neutral',s=>s.flags.arc_rbank==='power','가문의 돈이 어디 있는지 아는 사람은 나뿐입니다. 장성들이 돈 문제로 나를 찾아옵니다.'),
+ E_('r_bank_skim','백두혈통 시나리오','스위스 계좌의 주인','neutral',s=>s.flags.arc_rbank==='skim','가문 돈의 일부가 조용히 내 이름으로 옮겨졌습니다. 만약을 대비한 돈입니다.'),
+ E_('r_bank_caught','백두혈통 시나리오','장부에 걸린 왕족','bad',s=>s.flags.arc_rbank==='caught','삼촌이 장부를 들고 아버지를 찾아갔습니다.'),
+ E_('r_bank_gone','백두혈통 시나리오','계좌 열두 개와 사라진 사람','neutral',s=>s.flags.arc_rbank==='gone','가명 여권과 계좌 번호 열두 개. 그날 이후 나를 본 사람은 없습니다.'),
+ E_('r_gov_lead','백두혈통 시나리오','망명 정부의 수반','neutral',s=>s.flags.arc_rgov==='lead','외국 도시의 작은 사무실에서 "임시 정부"를 선포했습니다. 평양 방송은 나를 반역자라 불렀습니다.'),
+ E_('r_gov_hunted','백두혈통 시나리오','공항 화장실의 그림자','bad',s=>s.flags.arc_rgov==='hunted','망명길 공항 화장실에서 낯선 남자 둘이 다가왔습니다.'),
+ E_('r_gov_hide','백두혈통 시나리오','섬나라의 이름 없는 사람','good',s=>s.flags.arc_rgov==='hide','이름을 바꾸고 작은 섬나라에서 살았습니다. 이웃들은 나를 그냥 "옆집 사람"이라 불렀습니다.'),
+ E_('r_dip_all','백두혈통 시나리오','나라를 연 지도자','good',s=>s.flags.arc_rdip==='all','평양에 외국 은행 간판이 걸렸습니다. 사람들이 처음으로 인터넷이라는 걸 써 봤습니다.'),
+ E_('r_dip_zone','백두혈통 시나리오','특구를 연 지도자','good',s=>s.flags.arc_rdip==='zone','바닷가 특구에 공장이 들어섰습니다. 월급을 달러로 받는 노동자가 생겼습니다.'),
+ E_('r_dip_fail','백두혈통 시나리오','결렬된 회담','neutral',s=>s.flags.arc_rdip==='fail','세계가 지켜본 악수는 결렬로 끝났습니다. 원로들의 표정만 밝아졌습니다.'),
+ E_('r_kid_let','백두혈통 시나리오','자식을 놓아준 지도자','neutral',s=>s.flags.arc_rkid==='let','"잘 살아라." 이 나라에서 가장 힘센 사람도 자식은 붙잡지 못했습니다.'),
+ E_('r_kid_back','백두혈통 시나리오','웃지 않는 아이의 아버지','bad',s=>s.flags.arc_rkid==='back','아이를 데려왔습니다. 그 뒤로 아이는 한 번도 웃지 않았습니다.'),
+ E_('r_kid_lost','백두혈통 시나리오','자식을 잃은 지도자','bad',s=>s.flags.arc_rkid==='lost','데려오려다 아이를 영영 잃었습니다.'),
+ E_('r_hl_sister','백두혈통 시나리오','여동생이 다스린 나라','neutral',s=>s.flags.arc_rhealth==='sister','병상에 누운 사이, 공문서에는 여동생의 서명이 찍혔습니다.'),
+ E_('r_hl_bed','백두혈통 시나리오','병상의 지도자','neutral',s=>s.flags.arc_rhealth==='bed','병상에서 찍은 영상 한 편으로 사망설을 잠재웠습니다. 끝까지 자리를 내주지 않았습니다.'),
+ E_('r_hl_weak','백두혈통 시나리오','원로들에게 밀린 환자','bad',s=>s.flags.arc_rhealth==='weak','병상의 지도자를 원로들이 하나둘 찾지 않게 됐습니다.'),
+ E_('r_hl_kid','백두혈통 시나리오','서둘러 세운 후계자','neutral',s=>s.flags.arc_rhealth==='kid','쓰러진 뒤 아이를 서둘러 앞에 세웠습니다. 박수가 생각보다 길었습니다.'),
+ E_('r_war_peace','백두혈통 시나리오','총성을 멈춘 지도자','good',s=>s.flags.arc_rwar==='peace','사격 중지 명령 하나로 서해 섬마을 사람들이 방공호에서 나왔습니다.'),
+ E_('r_war_talks','백두혈통 시나리오','평화 수역의 지도자','good',s=>s.flags.arc_rwar==='talks','판문점에서 남북 장성들이 마주 앉았습니다. 서해에 평화 수역이 그어졌습니다.'),
+ E_('r_war_parade','백두혈통 시나리오','열병식의 지도자','neutral',s=>s.flags.arc_rwar==='parade','광장에 탱크를 줄 세워 군부를 달랬습니다. 서해는 다시 조용해졌습니다.'),
  E_('leader_coup','백두혈통','새벽의 탱크','bad',s=>s.flags.couped,'개혁이 너무 빨랐습니다. 새벽에 들어온 군인들은 더 이상 고개를 숙이지 않았습니다.'),
  E_('leader_fled','백두혈통','전용기로 떠난 지도자','neutral',s=>s.flags.leaderFled,'쿠데타의 새벽, 전용기로 빠져나갔습니다. 평양 방송은 아직도 "휴양 중"이라고 합니다.'),
  E_('leader_handover','백두혈통','권좌를 물려준 사람','neutral',s=>s.end==='handover','내가 받은 자리를 내 아이에게 넘겼습니다. 그 아이가 무엇을 할지는, 이제 그 아이의 이야기입니다.'),
@@ -1819,6 +2101,55 @@ const ENDINGS=[
  E_('unify_kid','통일','통일 세대','good',s=>s.end==='unify'&&s.age<20,'열 몇 살에 통일을 맞았습니다. 이 아이의 이야기는 이제부터입니다.'),
  E_('unify','통일','통일을 본 사람','good',s=>s.end==='unify','철조망이 걷힌 날, 그 길을 걸어 내려간 사람 중 하나가 되었습니다.'),
  /* 남쪽 */
+ /* 시나리오 */
+ E_('a_dj_king','시나리오','평양 백화점의 주인','good',s=>s.flags.arc_dj==='king','화교 상인과 손잡은 좌판이 평양 백화점 매장이 됐습니다. 돈주 정리의 칼바람도 비켜 갔습니다.'),
+ E_('a_dj_south','시나리오','돈가방을 든 탈북자','good',s=>s.flags.arc_dj==='flee' &&s.end==='south','돈주 정리를 피해 돈가방 두 개를 들고 강을 건넜습니다. 서울에서 다시 장사를 시작했습니다.'),
+ E_('a_dj_flee','시나리오','중국으로 간 돈주','neutral',s=>s.flags.arc_dj==='flee','평양 백화점 매장을 두고 강을 건넜습니다. 남은 돈가방 하나로 중국에서 다시 시작했습니다.'),
+ E_('a_dj_fall','시나리오','사라진 돈주','bad',s=>s.flags.arc_dj==='fall','어느 날 새벽 보위부 차가 섰습니다. 평양 백화점 간판에서 내 회사 이름이 내려졌습니다.'),
+ E_('a_dj_stay','시나리오','딱 거기까지 간 장사꾼','good',s=>s.flags.arc_dj==='stay','평양 진출을 사양했습니다. 그 덕에 돈주 정리 명단에 오르지 않았습니다.'),
+ E_('a_sm_boss','시나리오','국경의 대부','neutral',s=>s.flags.arc_sm==='boss','강가 사내들이 고개를 숙이고, 경비대 초소 셋이 내 편입니다. 강 건너 물건은 다 내 손을 거칩니다.'),
+ E_('a_sm_betray','시나리오','조직을 판 사람','bad',s=>s.flags.arc_sm==='betray','동료 열둘의 이름을 넘기고 표창을 받았습니다. 그 표창장은 장롱 속에 넣어 두었습니다.'),
+ E_('a_sm_double','시나리오','이중 끄나풀','neutral',s=>s.flags.arc_sm==='double','밀수 조직과 보위부, 양쪽 모두에서 돈을 받았습니다. 어느 쪽도 나를 믿지 않았습니다.'),
+ E_('a_sm_cross','시나리오','신호를 따라 건넌 강','good',s=>s.flags.arc_sm==='cross','세 번 깜빡이는 손전등 신호를 아는 사람은 나뿐이었습니다. 그 불빛을 따라 강을 건넜습니다.'),
+ E_('a_sm_fall','시나리오','단속에 걸린 밀수꾼','bad',s=>s.flags.arc_sm==='fall','국경 대단속의 손전등이 내 얼굴을 비췄습니다.'),
+ E_('a_usb_network','시나리오','드라마를 퍼뜨린 사람','good',s=>s.flags.arc_usb==='network','내가 복사한 USB 천 개가 도시 하나를 돌았습니다. 그해 장마당에서 가장 많이 들린 노래는 남쪽 노래였습니다.'),
+ E_('a_usb_caught','시나리오','공개재판을 받은 사람','bad',s=>s.flags.arc_usb==='caught','광장 공개재판에 섰습니다. 모인 사람들 절반이 내 USB를 본 사람들이었습니다.'),
+ E_('a_usb_flee','시나리오','서울에 닿은 유통책','good',s=>s.flags.arc_usb==='flee','안에서 드라마를 퍼뜨리던 사람이, 이제 서울에서 USB에 담을 영상을 고릅니다.'),
+ E_('a_usb_small','시나리오','조용한 복사집','neutral',s=>s.flags.arc_usb==='small','이불 속 노트북 한 대로 시작해, 딱 들키지 않을 만큼만 했습니다.'),
+ E_('a_star_defect','시나리오','해외 공연 중 사라진 가수','good',s=>s.flags.arc_star==='defect','호텔 뒷문까지 서른 걸음. 일주일 뒤 서울 공항에서 기자들이 내 이름을 불렀습니다.'),
+ E_('a_star_caught','시나리오','스물아홉 번째 걸음','bad',s=>s.flags.arc_star==='caught','호텔 뒷문까지 서른 걸음 중 스물아홉 번째에서 어깨에 손이 얹혔습니다.'),
+ E_('a_star','시나리오','인민의 별','good',s=>s.flags.arc_star==='star','1호 공연 무대 맨 앞줄에 섰습니다. 쪽지 대신 박수를 골랐습니다.'),
+ E_('a_sp_hero','시나리오','국가대표 메달리스트','good',s=>s.flags.arc_sp==='hero','시상대 위에서 국가가 울렸습니다. 평양 공항에서 꽃다발이 기다리고 있었습니다.'),
+ E_('a_sp_friend','시나리오','남쪽 선수와 맞잡은 손','good',s=>s.flags.arc_sp==='friend','결승선에서 남쪽 선수가 내 손을 들어 올렸습니다. 그 쪽지의 번호는 평생 외우고 살았습니다.'),
+ E_('a_sp_defect','시나리오','경기장에서 사라진 선수','good',s=>s.flags.arc_sp==='defect','선수촌 담장 밖 택시 한 대. 다음 날 아침 뉴스에 내 이름이 나왔습니다.'),
+ E_('a_sp_caught','시나리오','메달을 빼앗긴 선수','bad',s=>s.flags.arc_sp==='caught','선수촌 정문에서 붙잡혔습니다. 메달은 그날로 회수됐습니다.'),
+ E_('a_sp_coach','시나리오','0.3초의 사나이','neutral',s=>s.flags.arc_sp==='coach','0.3초 차이로 국가대표가 되지 못했습니다. 그 0.3초를 아이들에게 가르치며 늙었습니다.'),
+ E_('a_sci_seoul','시나리오','서울에서 개발자가 된 사람','good',s=>s.flags.arc_sci==='seoul','선양 파견지 숙소를 새벽에 빠져나왔습니다. 서울의 한 회사에서 처음으로 마음껏 검색했습니다.'),
+ E_('a_sci_unit','시나리오','창문 없는 건물의 사람','neutral',s=>s.flags.arc_sci==='unit','창문 없는 건물로 출근했습니다. 가족에게도 하는 일을 끝내 말하지 못했습니다.'),
+ E_('a_sci_lab','시나리오','바깥을 아는 기술자','neutral',s=>s.flags.arc_sci==='lab','인터넷 너머를 본 사람으로, 아무 말 하지 않고 연구소에 남았습니다.'),
+ E_('a_sci_caught','시나리오','머릿속이 죄가 된 사람','bad',s=>s.flags.arc_sci==='caught','아는 게 너무 많은 사람이었습니다. 국경 검문소가 마지막 바깥이었습니다.'),
+ E_('a_off_coup','시나리오','쿠데타 장군','neutral',s=>s.flags.arc_off==='coup','새벽에 탱크가 움직였고, 해가 뜨자 "새 지도부" 명단에 내 이름이 있었습니다.'),
+ E_('a_off_fail','시나리오','사냥터 별장의 밤','bad',s=>s.flags.arc_off==='fail','그날 밤 그 자리에 있었다는 것만으로 충분했습니다.'),
+ E_('a_off_report','시나리오','동료를 판 장군','neutral',s=>s.flags.arc_off==='report','장성 넷을 고발하고 별 하나를 더 달았습니다. 그 별은 무거웠습니다.'),
+ E_('a_off_star','시나리오','별을 단 장군','good',s=>s.flags.arc_off==='star','어깨에 별을 달고 끝까지 아무 모임에도 끼지 않았습니다.'),
+ E_('a_bw_flee','시나리오','친구가 놓은 길','good',s=>s.flags.arc_bw==='flee','풀어 준 친구가 이번엔 내게 길을 놓았습니다. 보위원 신분증은 강물에 던졌습니다.'),
+ E_('a_bw_loyal','시나리오','충성의 보위원','neutral',s=>s.flags.arc_bw==='loyal','끝까지 보위원으로 살았습니다. 거울 속 얼굴은 점점 낯설어졌습니다.'),
+ E_('a_bw_fall','시나리오','사람이었던 보위원','bad',s=>s.flags.arc_bw==='fall','"당신도 결국 사람이었군." 감찰관이 서류철을 덮었습니다.'),
+ E_('a_rest_all','시나리오','식당 종업원들의 서울행','good',s=>s.flags.arc_rest==='all','종업원 열둘이 한 비행기를 탔습니다. 서울 공항 입국장에서 서로 손을 잡고 울었습니다.'),
+ E_('a_rest_alone','시나리오','혼자 떠난 종업원','good',s=>s.flags.arc_rest==='alone','계산서 밑 쪽지의 번호로 전화를 걸었습니다. 그 단골손님이 차를 몰고 왔습니다.'),
+ E_('a_rest_caught','시나리오','공항 가는 길','bad',s=>s.flags.arc_rest==='caught','공항 가는 길에 차가 멈췄습니다. 지배인은 처음부터 보위부 쪽이었습니다.'),
+ E_('a_rest_stay','시나리오','돌아온 종업원','neutral',s=>s.flags.arc_rest==='stay','혼자 식당에 남았다가 귀국 비행기를 탔습니다. 그 네온사인은 가끔 꿈에 나옵니다.'),
+ E_('a_wit_voice','시나리오','세계가 들은 목소리','good',s=>s.flags.arc_wit==='voice','외국 의회 증언석에 섰습니다. 이번엔 얼굴을 가리지 않았습니다.'),
+ E_('a_wit_anon','시나리오','이름 없는 제보자','good',s=>s.flags.arc_wit==='anon','그 영상을 누가 찍었는지는 끝내 아무도 모릅니다. 세계는 그 골목을 봤습니다.'),
+ E_('a_wit_caught','시나리오','수용소로 간 증언자','bad',s=>s.flags.arc_wit==='caught','조사관 책상 위에 내 통화 기록이 놓여 있었습니다. 영상은 아직도 세상에 남아 있습니다.'),
+ E_('a_kot_king','시나리오','역전의 왕','neutral',s=>s.flags.arc_kot==='king','역전에서 자던 아이가 이제 역전과 장마당의 밤을 다스립니다.'),
+ E_('a_kot_teacher','시나리오','아이들을 학교로 보낸 사람','good',s=>s.flags.arc_kot==='teacher','역전 아이들을 학교로 돌려보냈습니다. 그중 하나가 대학에 붙었다는 편지를 받았습니다.'),
+ E_('a_kot_fall','시나리오','다시 길바닥으로','bad',s=>s.flags.arc_kot==='fall','패거리는 하룻밤에 흩어졌습니다. 아이들은 다시 역전으로 갔습니다.'),
+ E_('a_farm_hero','시나리오','배고픔을 줄인 분조장','good',s=>s.flags.arc_farm==='hero','몰래 나눠 맡긴 밭이 도 전체의 "모범"이 됐습니다. 그해 마을에 보릿고개가 없었습니다.'),
+ E_('a_farm_taken','시나리오','실험 때문에 끌려간 분조장','bad',s=>s.flags.arc_farm==='taken','"제가 시켰습니다." 분조원들이 끌려가는 나를 끝까지 지켜봤습니다.'),
+ E_('a_run_go','시나리오','함께 건넌 강','good',s=>s.flags.arc_run==='go' &&s.end==='south','버드나무 아래에서 혼인 서약을 하고 둘이서 강을 건넜습니다.'),
+ E_('a_run_back','시나리오','강가에 남겨진 사람','bad',s=>s.flags.arc_run==='back','약속한 밤, 마지막 순간에 돌아섰습니다. 그 사람이 내 이름을 부르던 목소리가 남았습니다.'),
+ E_('a_run_no','시나리오','혼자 떠난 사람을 보낸 사람','neutral',s=>s.flags.arc_run==='no','"난 여기 남을래." 그 사람은 혼자 떠났고, 나는 남았습니다.'),
  E_('realmom','남쪽','서울에서 만난 어머니','good',s=>s.end==='south'&&s.flags.realMom,'역전에서 잃어버린 아이를, 수십 년 만에 서울의 한 지하철역에서 다시 안았습니다.'),
  E_('s_elite','남쪽','영사관 문을 넘은 간부','neutral',s=>s.end==='south'&&s.flags.eliteDefect,'출장 가방 하나로 영사관 문을 넘었습니다. 평양에 남겨진 가족 소식은 끝내 듣지 못했습니다.'),
  E_('s_pulled','남쪽','먼저 간 가족이 놓은 길','good',s=>s.end==='south'&&s.flags.pulled,'몇 해 전 사라진 가족이 서울에서 길을 놓아 줬습니다. 공항에서 서로를 한참 못 알아봤습니다.'),
@@ -2147,7 +2478,8 @@ const DIR_HEAD={baby:['아직은 자라는 중','일곱 살부터 마음 쏟을 
 function tabFocus(){const s=S,st=stageOf(s),L=dirsOf(s),cur=curDir(s);const[h,hint]=DIR_HEAD[st]||['',''];
  let g=L.map(([k,d])=>`<button type="button" class="dbtn" data-d="${k}" aria-pressed="${k===cur}"><b>${d.ko}</b><small>${d.d}</small></button>`).join('');
  if(canEscape(s))g+=`<button type="button" class="dbtn flee" data-flee="1"><b>떠난다</b><small>준비 ${Math.round(s.prep)}% · 강을 건넌다</small></button>`;
- return`<div class="th"><b>${h}</b><small>${esc(hint)} · ${esc(jobLabel(s))} · ${esc(s.place.ko)} · ${TIER_KO[tierOf(s)].split(' · ')[0]}</small></div><div class="dgrid">${g||`<p class="sub" style="margin:0">${st==='baby'?'먹고, 자고, 자랍니다.':'할 수 있는 게 없습니다.'}</p>`}</div>`}
+ const arcs=Object.entries(s.arcs||{}).filter(([k,a])=>!a.done);
+ return`${arcs.length?`<div class="arcs"><small>진행 중인 이야기</small>${arcs.map(([k,a])=>`<span>〈${esc(ARC_NAMES[k]||k)}〉 ${a.n||1}장 · 다음 장 ${a.st?`${a.y}년쯤`:'곧'}</span>`).join('')}</div>`:''}<div class="th"><b>${h}</b><small>${esc(hint)} · ${esc(jobLabel(s))} · ${esc(s.place.ko)} · ${TIER_KO[tierOf(s)].split(' · ')[0]}</small></div><div class="dgrid">${g||`<p class="sub" style="margin:0">${st==='baby'?'먹고, 자고, 자랍니다.':'할 수 있는 게 없습니다.'}</p>`}</div>`}
 function tabActs(){const s=S,A=actsFor(s);if(!A.length)return`<p class="sub">${stageOf(s)==='baby'?'아직은 너무 어립니다.':'지금은 해 볼 수 있는 일이 없습니다.'}</p>`;
  const cats=[...new Set(A.map(a=>a.cat))];
  return cats.map(cat=>`<div class="acat"><h4>${cat}</h4>${A.filter(a=>a.cat===cat).map(a=>{const st=actState(s,a);const c=a.cost?Math.round(a.cost(s)):0;const p=a.open?null:pct(a.p(s));
@@ -2220,7 +2552,7 @@ function closeModal(){stopAuto();$('modal').hidden=true;$('mBody').innerHTML='';
 const chipsH=ch=>`<div class="chips">${(ch||[]).map(c=>`<span class="${c.good===true?'g':c.good===false?'b':''}">${esc(c.v)}</span>`).join('')}</div>`;
 function autoRun(label,ms,fn){if(!FLOW.auto)return;stopAuto();const t0=performance.now();$('mAuto').hidden=false;$('mAtxt').textContent=label;$('mAbar').style.width='0%';
  FLOW.timer=setInterval(()=>{if(FLOW.parked)return;const p=(performance.now()-t0)/ms;$('mAbar').style.width=Math.min(100,p*100)+'%';if(p>=1){stopAuto();fn()}},80)}
-const KIND_TONE={'위기':'bad','중대 결정':'big','집안의 비밀':'sec','비밀':'sec','뜻밖의 일':'odd','사랑':'love','가족':'fam'};
+const KIND_TONE={'시나리오':'big','위기':'bad','중대 결정':'big','집안의 비밀':'sec','비밀':'sec','뜻밖의 일':'odd','사랑':'love','가족':'fam'};
 function openEvent(id){const prep=prepEvent(S,id);if(!prep){FLOW.busy=false;return}FLOW.busy=true;FLOW.cur=id;
  modal(prep.kind,KIND_TONE[prep.kind]||'',prep.title,prep.desc,prep.fact);
  $('mBody').innerHTML=`<div class="opts">${prep.opts.map((o,i)=>{const dis=o.cost&&o.cost>S.money;return`<button type="button" class="opt" data-i="${i}"${dis?' disabled':''}><span class="n">${i+1}</span><span><b>${esc(o.t)}</b>${o.sub||o.cost?`<small>${esc(o.sub)}${o.cost?` ${usd(o.cost)} · ${krw(o.cost)}`:''}${dis?' · 돈이 모자람':''}</small>`:''}</span></button>`}).join('')}</div>`;
