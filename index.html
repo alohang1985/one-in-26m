@@ -243,6 +243,12 @@ b.g{color:var(--good)}b.b{color:var(--bad)}
 .endbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
 .endcard.gold{border:2px solid #c9a24a;background:linear-gradient(160deg,#fffaf0,#f3e5c2);color:#2a2008}.endcard.gold .eg div{background:#f1e2b8}.endcard.gold .why,.endcard.gold .eg small{color:#7d6630}.endcard.gold .desc{color:#4a3b14}
 
+/* 백두혈통 이용권 */
+.gobtns{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.royalbtn{background:linear-gradient(100deg,#7d5508,#d8a93e 35%,#fff0b3 50%,#d8a93e 65%,#7d5508);background-size:220% 100%;animation:shine 3.5s linear infinite;color:#2b1c00;border-color:#b8860b}
+.royalbtn small{display:block;font-size:12px;font-weight:700;font-family:var(--f-body);opacity:.85}
+.royalbtn:disabled{animation:none;background:var(--card);color:var(--ink3);border-color:var(--rule);opacity:.85}
+.rhint{font-size:12.5px;color:var(--ink3);margin:8px 0 0;max-width:34em}
 /* 설명 · 안내 · 생존 곡선 · 설치 */
 .explain{margin-top:10px;font-size:12.5px;color:var(--ink2)}.explain summary{cursor:pointer;color:var(--ink3)}.explain ul{margin:6px 0 0;padding-left:16px}.explain li{margin:3px 0}
 .tip{border:2px solid var(--red);font-size:14px}.tip ol{margin:6px 0 10px;padding-left:20px}.tip li{margin:3px 0}
@@ -292,7 +298,7 @@ body.royal .mbig b{color:#c9962a}
    <p class="lede">지금 이 순간에도 북한에서는 한 시간에 마흔 명쯤 아기가 태어납니다. 그중 한 명이 되어 단 한 번뿐인 삶을 끝까지 살아 봅니다. 어디서, 어떤 성분의 집에서 태어날지는 고를 수 없습니다. 그곳의 아이들이 그랬던 것처럼.</p>
    <div class="facts"><div><b id="cBorn">0</b><span>이 페이지를 연 뒤 북한에서 태어난 아기</span><i class="nb" aria-hidden="true"><u id="cBar"></u></i><small class="nbt" id="cNext"></small></div><div><b id="cDied">80,000</b><span>넉 달 전부터 지금까지 세상을 떠난 사람</span></div><div><b>300분의 1</b><span>백두혈통으로 태어날 확률</span></div></div>
    <p class="live"><i></i>성분 · 사는 곳 · 부모님 · 집안의 비밀까지, 태어나는 순간 정해집니다.</p>
-   <button class="btn pri big" type="button" id="goBtn">태어나기</button>
+   <div class="gobtns"><button class="btn pri big" type="button" id="goBtn">태어나기</button><button class="btn big royalbtn" type="button" id="royalBtn">👑 백두혈통으로 태어나기</button></div><p class="rhint" id="royalHint"></p>
   </div>
   <div class="hr"><div class="mapwrap"><svg id="homeMap" class="nkmap" viewBox="0 0 420 420" aria-label="북한 지도"></svg><div class="mapcap">점 하나가 도시 하나 · 아기가 태어나면 그 도시가 깜빡입니다</div></div></div>
  </div>
@@ -657,13 +663,13 @@ function dirsOf(s){const st=stageOf(s);const L=s.royal&&st==='school'?DIRS.royal
 function curDir(s){const L=dirsOf(s);if(!L.length)return null;return L.find(([k])=>k===s.dir)?s.dir:L[0][0]}
 const RANK_PARTY=['노동자','작업반장','당 세포 비서','시당 간부','도당 간부','중앙당 간부'];
 const ART_KO=['','예술선전대원','중앙예술단 배우','공훈배우','인민배우'];
-function jobLabel(s){if(s.royal)return s.flags.heir?'후계자':'백두혈통';const st=stageOf(s);if(st==='baby')return'아기';
+function jobLabel(s){if(s.royal)return s.flags.leader?'최고지도자':s.flags.heir?'후계자':'백두혈통';const st=stageOf(s);if(st==='baby')return'아기';
  if(st==='school')return s.age<11?'소학교 학생':s.age<14?'초급중학교 학생':'고급중학교 학생';
  if(st==='army')return s.flags.dolgyeok?'돌격대원':s.flags.borderPost?'국경경비대 병사':'인민군 병사';if(st==='jail')return s.jailKind||'수감 중';if(st==='camp')return'정치범수용소';if(st==='china')return'중국 은신 중';
  if(s.art>=1)return ART_KO[s.art]||'배우';if(s.party&&s.rank>=2)return RANK_PARTY[clamp(s.rank,1,5)];if(s.uni>0)return'대학생';const J=JOBS[s.jobK];return(J?J.ko:s.job||'일자리 없음')+(s.party?' · 당원':'')}
 const HOUSE={capital:'평양 아파트',border:'하모니카 주택',city:'하모니카 주택',rural:'농촌 단층집'};
 
-function newLife(opt){opt=opt||{};const sb=opt.royal?'royal':wpick(Object.entries(SONGBUN).map(([k,v])=>[k,v.p]));const pt=wpick(PLACE_BY_SONGBUN[sb]);const sex=chance(.5)?'F':'M';
+function newLife(opt){opt=opt||{};if(opt.absolute)opt.royal=true;const sb=opt.royal?'royal':wpick(Object.entries(SONGBUN).map(([k,v])=>[k,v.p]));const pt=wpick(PLACE_BY_SONGBUN[sb]);const sex=chance(.5)?'F':'M';
  const royal=sb==='royal';const sur=royal?'김':pick(SUR);const name=sur+(royal?pick(ROYAL_GIVEN):pick(sex==='F'?GIVEN_F:GIVEN_M));
  const s={v:2,id:Date.now().toString(36)+Math.floor(rnd()*1e6).toString(36),name,sur,sex,songbun:sb,royal,place:{type:pt,ko:pick(PLACES[pt].list)},month:R(1,12),
   dad:pick(PARENT_JOB[sb]),mom:pick(MOM_JOB[sb]),age:0,year:2026,hp:R(70,92),joy:R(55,70),money:royal?R(2000000,8000000):0,risk:royal?10:R(2,8),loyal:sb==='core'?60:sb==='royal'?80:sb==='waver'?45:30,
@@ -674,7 +680,7 @@ function newLife(opt){opt=opt||{};const sb=opt.royal?'royal':wpick(Object.entrie
  if(!royal)s.secret=wpick(SECRET_P);if(sb==='core'&&['pow','partisan'].includes(s.secret))s.secret=null;
  initFamily(s);if(s.secret==='informer')s.infPar=pick(s.fam.filter(m=>m.par)).id;
  for(const m of s.fam)m.bond=m.par?R(50,68):R(45,62);
- if(opt.royal){s.money=R(30000000,60000000);s.hp=97;s.joy=82;s.luck=2.6;s.net=88;s.loyal=92;s.risk=0;s.edu=35;s.flags.power=40;s.flags.vip=1;s.house='관저 (본관)'}
+ if(opt.absolute){s.flags.absolute=1;s.money=R(30000000,60000000);s.hp=97;s.joy=82;s.luck=2.6;s.net=88;s.loyal=92;s.risk=0;s.edu=35;s.flags.power=40;s.flags.vip=1;s.house='관저 (본관)'}
  s.peers=makePeers(s);s.tier0=tierOf(s);
  addLog(s,birthStory(s),'mile');return s}
 function birthStory(s){const sib=s.fam.find(m=>m.sib&&!m.young);const mo=s.month;
@@ -751,17 +757,18 @@ function yearTurn(s){const out={events:[],lines:[]};s.age++;s.year++;const st=st
  // 위험이 높으면 단속 — 어릴 때 꽃제비에게 빵을 나눠 줬다면, 그 아이가 보위원이 되어 나타날 수도
  if(!s.end&&!s.royal&&['school','army','adult'].includes(stageOf(s))&&chance(crackP(s)))out.events.push(s.flags.kotShare&&!s.flags.kotBack&&s.age>=20&&chance(.45)?'kotback':'caught');
  // 숙청 바람 (왕족 · 고위 간부)
- if(!s.end&&(s.royal||s.rank>=3)&&chance(Math.pow(s.risk/100,1.6)*.4*eraMul(s,'purgeX')))out.events.push('purge');
+ if(!s.end&&!s.flags.absolute&&(s.royal||s.rank>=3)&&chance(Math.pow(s.risk/100,1.6)*.4*eraMul(s,'purgeX')))out.events.push('purge');
  // 자연스러운 변화
  s.risk=clamp(s.risk-4-eraMul(s,'riskDecay')+1,0,100);if(s.age>45)s.hp=clamp(s.hp-R(0,3),0,100);if(s.age>=7&&!['jail','camp'].includes(stageOf(s)))s.hp=clamp(s.hp+(62-s.hp)*.08,0,100);
- joyYear(s);
+ joyYear(s);if(s.flags.absolute)s.risk=Math.min(s.risk,5);
+ if(!s.end&&s.royal&&(s.flags.unifyPts||0)>=100){s.flags.unified=s.year;s.flags.envoyUnify=s.flags.leader?0:s.year;s.end='unify';say('남과 북의 대표가 함께 휴전선을 넘었습니다. 그날 철조망이 걷혔습니다.','mile');big(s,'통일',3)}
  if(!s.end&&s.year>=2035&&chance(.0006)){s.flags.unified=s.year;s.end='unify';say('어느 날 정말로 철조망이 걷혔습니다.','mile');big(s,'통일',3)}
  // 죽음
  const old=s.age>55?.01*Math.exp((s.age-55)/6):0;if(!s.end&&(s.hp<=0||chance(old))){s.end='dead';s.flags.diedIn=stageOf(s);say(s.hp<=0?'몸이 더는 버티지 못했습니다.':'조용히 눈을 감았습니다.','mile')}
  // 집안의 비밀은 언젠가 드러납니다
  if(!s.end&&s.secret&&!s.flags.secretOut&&s.age>=15&&chance(.06))s.flags.q_secret=1;
  // 때가 된 사건
- for(const k of['assign','muri','marry','rwed','heir','exile','secret']){if(s.end||!s.flags['q_'+k])continue;
+ for(const k of['assign','muri','marry','rwed','heir','leader','coup','exile','secret']){if(s.end||!s.flags['q_'+k])continue;if(k==='heir'&&s.flags.absolute){delete s.flags.q_heir;if(!s.flags.heir&&!out.events.includes('heir_abs'))out.events.push('heir_abs');continue}if(k==='leader'){delete s.flags.q_leader;if(!out.events.includes('leader_rise'))out.events.push('leader_rise');continue}
   if(k==='secret'){if(!s.secret||s.flags.secretOut){delete s.flags.q_secret;continue}if(!['school','adult','army'].includes(stageOf(s)))continue}
   delete s.flags['q_'+k];const id=k==='secret'?'sec_'+s.secret:k;if(!out.events.includes(id))out.events.push(id)}
  if(!s.end&&s.age>=7){const tr=tierOf(s);if(s.tier&&tr!==s.tier&&tr!=='royal'){const up=['bottom','mid','elite'].indexOf(tr)>['bottom','mid','elite'].indexOf(s.tier);say(up?(tr==='elite'?'사는 세상이 달라졌습니다. 이제 공급소 줄이 아니라 연회 자리에 섭니다.':'바닥에서 한 계단 올라섰습니다. 장마당이 내 편이 됐습니다.'):(tr==='bottom'?'바닥으로 떨어졌습니다. 이웃들이 우리 집을 피해 다닙니다.':'위쪽 세상에서 밀려났습니다. 이제 줄을 서야 합니다.'),up?'good':'bad');big(s,up?'계층 상승':'계층 추락',up?2:-2)}s.tier=tr}
@@ -823,6 +830,10 @@ function adultYear(s,d,say){const L=[],add=(k,v)=>{v=Math.round(v);if(v)L.push({
  else say(yearLine(s,'adult'));
  if(s.power==='off'&&chance(.4))say(line(s,POWER_LINE.off))}
 function royalYear(s,d,say){const L=[],add=(k,v)=>{v=Math.round(v);if(v)L.push({k,v})};
+ if(s.flags.absolute){s.risk=Math.min(s.risk,5);if(!s.flags.heir&&s.age>=20&&!s.flags.heirAsked){s.flags.heirAsked=s.year;s.flags.q_heir=1}
+  }
+ {const dad=(s.fam||[]).find(m=>m.rel==='아버지');if(s.flags.heir&&!s.flags.leader&&(!dad||!dad.alive||s.age>=(s.flags.absolute?35:42))){s.flags.leader=s.year;say('최고지도자의 자리에 올랐습니다. 이제 이 나라의 모든 결정은 내 몫입니다.','mile');big(s,'최고지도자 취임',3);s.flags.q_leader=1}
+  if(s.flags.leader){add('국가 통치 자금',R(500000,2000000));s.flags.power=(s.flags.power||0)+2;s.flags.leaderY=(s.flags.leaderY||0)+1;if(!s.flags.absolute&&s.risk>=45&&chance(.12+(s.risk-45)/200))s.flags.q_coup=1}}
  if(d==='biz')add('사업 수익',R(50000,400000)*Math.exp(gauss()*.4+s.luck*.15));
  if(d==='power'){s.flags.power=(s.flags.power||0)+R(3,8);s.risk=clamp(s.risk+R(2,6),0,100);if(s.flags.power>=70&&s.age>=25&&!s.flags.heirAsk)s.flags.q_heir=1}
  if(d==='abroad'){s.outside=clamp(s.outside+R(8,15),0,100);s.risk=clamp(s.risk+R(1,3),0,100);add('해외 체류비',-R(30000,90000));if(s.outside>=60&&!s.flags.exileAsk)s.flags.q_exile=1}
@@ -1001,7 +1012,7 @@ EV('resort',{pool:1,min:20,when:s=>s.royal,title:'평양 개발 사업',desc:'�
  out:{hit:s=>({t:'완공식에 높은 분이 오셨습니다. "잘했다" 한마디에 지위가 단단해졌습니다.',e:{money:R(500000,3000000),risk:-10}}),flop:s=>({t:'예산은 다 썼는데 손님이 없습니다. 누군가 책임을 져야 합니다.',e:{risk:25}})}});
 EV('heir',{pool:0,title:'후계 회의',desc:'가족 회의가 열렸습니다. 다음 자리를 두고 형제들이 서로를 봅니다.',hide:s=>({me:clamp(.25+(s.flags.power||0)/250,.2,.6),other:.5}),
  opts:[{t:'군부를 내 편으로 만든다',cost:()=>1000000,go:{me:{heir:.8,purged:.2},other:{heir:.3,purged:.4,side:.3}}},{t:'한발 물러선다',go:{'*':{side:1}}}],good:{heir:3,purged:-3,side:0},
- out:{heir:s=>({t:'이름이 불렸습니다. 내가 다음입니다.',e:{flag:'heir',endNow:'heir'}}),purged:s=>({t:'너무 앞서 나갔습니다. 그날 밤 관저에 군인들이 들어왔습니다.',e:{endNow:'purged'}}),side:s=>(s.flags.heirAsk=1,{t:'물러섰습니다. 형제가 그 자리에 앉았습니다. 대신 목숨은 지켰습니다.',e:{risk:-20}})}});
+ out:{heir:s=>({t:'이름이 불렸습니다. 내가 다음입니다. 형제들이 차례로 고개를 숙였습니다.',e:{flag:'heir',risk:-10}}),purged:s=>({t:'너무 앞서 나갔습니다. 그날 밤 관저에 군인들이 들어왔습니다.',e:{endNow:'purged'}}),side:s=>(s.flags.heirAsk=1,{t:'물러섰습니다. 형제가 그 자리에 앉았습니다. 대신 목숨은 지켰습니다.',e:{risk:-20}})}});
 EV('exile',{pool:0,title:'망명 제안',desc:'해외 공항 라운지에서 낯선 외교관이 다가와 속삭입니다. "원하면 오늘 밤 다른 나라로 갈 수 있습니다."',hide:{real:.6,test:.4},
  opts:[{t:'따라간다',go:{real:{gone:1},test:{caught:1}}},{t:'못 들은 척한다',go:{real:{stay:1},test:{loyal:1}}}],good:{gone:2,caught:-3,stay:0,loyal:1},
  out:{gone:s=>({t:'그날 밤 비행기에 올랐습니다. 다음 날 외국 신문 1면에 내 사진이 실렸습니다.',e:{endNow:'exile'}}),caught:s=>({t:'시험이었습니다. 귀국하자마자 모든 것을 잃었습니다.',e:{endNow:'purged'}}),stay:s=>(s.flags.exileAsk=1,{t:'돌아왔습니다. 그 외교관의 명함은 태웠습니다.',e:{}}),loyal:s=>(s.flags.exileAsk=1,{t:'시험이었습니다. 따라가지 않은 덕에 신임을 얻었습니다.',e:{risk:-20}})}});
@@ -1486,7 +1497,7 @@ EV('r_sibling',{pool:1,kind:'위기',max:1,stage:['royal'],min:22,title:'형제�
  opts:[{t:'간다. 웃으며 술잔을 받는다',go:{peace:{ally:1},plot:{poison:.3,escape:.7}}},{t:'아프다고 하고 가지 않는다',go:{'*':{avoid:1}}},{t:'먼저 그쪽 측근을 친다',go:{peace:{war:1},plot:{win:.6,war:.4}}}],good:{ally:2,poison:-3,escape:-1,avoid:0,war:-2,win:1},
  out:{ally:s=>({t:'그날 밤 둘이서 어릴 적 이야기를 했습니다. 오랜만에 형제 같았습니다.',e:{risk:-15,joy:6}}),poison:s=>({t:'잔을 비운 뒤 손끝이 저려 왔습니다. 전용 병원에서 사흘을 누워 있었습니다.',e:{hp:-35,risk:10,flag:'poisoned'}}),
   escape:s=>({t:'잔을 입에 대기만 했습니다. 다음 날 그 잔을 따른 시종이 사라졌습니다.',e:{risk:12}}),avoid:s=>({t:'만찬 자리는 비었습니다. 서로가 서로를 더 의심하게 됐습니다.',e:{risk:6}}),
-  war:s=>({t:'싸움이 커졌습니다. 위에서 둘 다를 불러 꾸짖었습니다.',e:{risk:22}}),win:s=>(s.flags.power=(s.flags.power||0)+15,{t:'그쪽 측근 둘이 "지방으로 내려갔습니다". 이제 그쪽이 나를 피합니다.',e:{risk:8}})}});
+  war:s=>({t:'싸움이 커졌습니다. 위에서 둘 다를 불러 꾸짖었습니다.',e:{risk:22}}),win:s=>(s.flags.power=(s.flags.power||0)+15,s.flags.sibWin=s.year,{t:'그쪽 측근 둘이 "지방으로 내려갔습니다". 이제 그쪽이 나를 피합니다.',e:{risk:8}})}});
 EV('r_famine',{pool:1,kind:'갈림길',max:1,stage:['royal'],min:18,title:'현지 시찰',desc:'처음으로 지방 시찰을 따라갔습니다. 길가에 선 아이들이 손을 흔드는데, 팔이 막대기처럼 가늡니다. 수행원이 커튼을 쳐 줍니다.',
  opts:[{t:'커튼을 다시 걷는다',go:{'*':{look:1}}},{t:'커튼을 그대로 둔다',go:{'*':{close:1}}},{t:'차를 세우게 한다',go:{'*':{stop:.6,scold:.4}}}],good:{look:1,close:0,stop:2,scold:-1},
  out:{look:s=>({t:'끝까지 봤습니다. 그날 밤 관저의 저녁상이 목에 걸렸습니다.',e:{outside:8,joy:-6}}),close:s=>({t:'커튼 너머는 보지 않았습니다. 관저로 돌아오는 길은 조용했습니다.',e:{}}),
@@ -1520,6 +1531,20 @@ EV('rk_scarf',{royalOK:1,kind:'정해진 날',title:'붉은 넥타이',desc:'소
  opts:[{t:'씩씩하게 선서한다',go:{'*':{proud:1}}},{t:'친구 손을 잡고 같이 올라간다',go:{'*':{friend:1}}}],good:{proud:1,friend:1},
  out:{proud:s=>({t:'선서가 끝나자 박수가 오래 이어졌습니다. 다른 아이들 선서 때보다 훨씬 길게.',e:{loyal:5}}),friend:s=>({t:'간부들이 당황했지만 아무도 말리지 못했습니다. 그 친구는 그날 이후 특별 학교로 옮겼습니다.',e:{joy:4,net:3}})}});
 for(const id of['swiss','car','resort','r_guard','r_sibling','r_famine','r_kidheir','rwed','heir','exile','purge','youth','dol'])if(EVS[id])EVS[id].royalOK=1;
+
+/* ---------- 절대 권력 비밀 패스 ---------- */
+EV('heir_abs',{royalOK:1,kind:'중대 결정',title:'후계 회의',desc:'가족 회의가 열렸습니다. 형제들이 서로를 봅니다. 그런데 오늘 회의의 결론은 이미 정해져 있습니다. 군 원로들이 회의장에 들어서자마자 내 쪽으로 고개를 숙입니다.',
+ opts:[{t:'조용히 자리에 앉아 결과를 기다린다',go:{'*':{calm:1}}},{t:'형제들을 한 사람씩 바라본다',go:{'*':{stare:1}}}],good:{calm:3,stare:3},
+ out:{calm:s=>({t:'내 이름이 불렸습니다. 아무도 다른 이름을 입에 올리지 않았습니다.',e:{flag:'heir',risk:-30,loyal:10}}),stare:s=>(s.flags.power=(s.flags.power||0)+20,{t:'형제들이 차례로 눈을 내리깔았습니다. 내 이름이 불렸고, 박수는 일어서서 쳤습니다.',e:{flag:'heir',risk:-30}})}});
+EV('leader_rise',{royalOK:1,kind:'중대 결정',title:'최고지도자',desc:'오늘부터 이 나라의 모든 결정은 내가 내립니다. 집무실 책상 위에 첫 보고서가 올라왔습니다. 무엇부터 하시겠습니까?',
+ opts:[{t:'"인민들 먹는 문제부터 보고하라"',go:{'*':{food:1}}},{t:'"군부터 내 사람으로 채워라"',go:{'*':{army:1}}},{t:'"바깥 세상 보고서를 가져와라"',go:{'*':{world:1}}}],good:{food:2,army:1,world:2},
+ out:{food:s=>({t:'각 도의 식량 보고서가 올라왔습니다. 숫자 뒤에 숨은 굶주림이 처음으로 보였습니다.',e:{joy:4,outside:4}}),army:s=>(s.flags.power=(s.flags.power||0)+25,{t:'장성들의 자리가 하룻밤 새 바뀌었습니다. 누구도 내게 반대하지 못합니다.',e:{loyal:10}}),world:s=>({t:'외국 신문 번역본이 책상에 쌓였습니다. 이 나라가 바깥에서 어떻게 보이는지 처음 알았습니다.',e:{outside:15}})}});
+
+/* ---------- 최고지도자의 위기 (일반 백두혈통만) ---------- */
+EV('coup',{royalOK:1,kind:'위기',title:'새벽의 탱크',desc:'새벽 네 시, 집무실 창밖으로 탱크 소리가 들립니다. 경호 사령관이 전화를 받지 않습니다. 군 원로 몇이 "개혁이 너무 빠르다"며 움직였다는 보고입니다.',hide:{weak:.5,strong:.5},
+ opts:[{t:'근위대를 이끌고 맞선다',go:{weak:{win:.7,fall:.3},strong:{win:.35,fall:.65}}},{t:'원로들을 불러 협상한다',go:{weak:{deal:.7,fall:.3},strong:{deal:.5,fall:.5}}},{t:'전용기로 빠져나간다',go:{'*':{flee:.75,fall:.25}}}],good:{win:2,deal:0,fall:-3,flee:0},
+ out:{win:s=>(s.flags.power=(s.flags.power||0)+30,{t:'해가 뜨기 전에 탱크가 돌아갔습니다. 그날 오후, 원로 세 명의 이름이 공식 기록에서 지워졌습니다.',e:{risk:-30,joy:-6}}),deal:s=>({t:'원로들에게 군 지휘권 절반을 내줬습니다. 자리는 지켰지만, 이제 혼자 정할 수 있는 건 많지 않습니다.',e:{risk:-20}}),
+  fall:s=>({t:'집무실 문이 열렸습니다. 들어온 사람들은 더 이상 고개를 숙이지 않았습니다.',e:{flag:'couped',endNow:'purged'}}),flee:s=>({t:'새벽 하늘로 전용기가 떠올랐습니다. 다음 날 평양 방송은 "건강 문제로 휴양 중"이라고 발표했습니다.',e:{flag:'leaderFled',endNow:'exile'}})}});
 
 /* ================================================================
    2600만 분의 1 — 해 볼 수 있는 일: 일자리 · 도전 · 사랑 · 떠나기
@@ -1610,7 +1635,21 @@ const ACTS=[
  {k:'x_flee',cat:'떠나기',ko:'강을 건넌다',d:'두만강 · 압록강. 돌아올 수 없는 길',show:s=>canEscape(s),sub:s=>`탈북 준비 ${Math.round(s.prep)}%`,req:()=>[],cost:()=>0,open:'escape'},
 
  /* ---- 백두혈통 ---- */
- {k:'k_heir',cat:'도전',ko:'후계 경쟁에 뛰어들기',d:'가족 회의에서 다음 자리를 노립니다',once:1,show:s=>s.royal&&stageOf(s)==='royal'&&s.age>=25&&!s.flags.heirAsk,req:()=>[],cost:()=>0,open:'heir'},
+ /* ---- 최고지도자 (절대 권력 비밀 패스) ---- */
+ {k:'L_tour',cat:'최고지도자 명령',ko:'지방 현지지도',d:'굶는 마을을 직접 본다 · 행복 · 바깥 소식↑',show:s=>!!s.flags.leader,req:()=>[],cost:()=>0,p:()=>1,win:s=>(s.flags.tours=(s.flags.tours||0)+1,{t:pick(['협동농장에 내려갔습니다. 미리 칠해 둔 벽 뒤에서 아이들이 맨발로 서 있었습니다. 그 자리에서 쌀 창고를 열게 했습니다.','탄광 마을에 갔습니다. 노동자 하나가 "배급이 석 달째 없습니다"라고 말했다가 얼어붙었습니다. 그날 배급표가 다시 돌았습니다.','국경 도시에 갔습니다. 강 건너 중국 불빛이 생각보다 밝았습니다.']),e:{joy:6,outside:6}}),lose:s=>({t:'',e:{}})},
+ {k:'L_amnesty',cat:'최고지도자 명령',ko:'대사면령',d:'교화소와 노동단련대의 문을 연다',show:s=>!!s.flags.leader,req:()=>[],cost:()=>0,p:()=>1,win:s=>(s.flags.amnesty=(s.flags.amnesty||0)+1,{t:'대사면령에 서명했습니다. 수만 명이 집으로 돌아갔습니다. 어떤 집은 돌아온 사람을 알아보지 못했습니다.',e:{joy:10}}),lose:s=>({t:'',e:{}})},
+ {k:'L_market',cat:'최고지도자 명령',ko:'장마당 합법화',d:'장사를 단속하지 않는다 · 개혁 바람 10년',once:1,show:s=>!!s.flags.leader,req:()=>[],cost:()=>0,p:()=>1,win:s=>(s.flags.opened=(s.flags.opened||0)+1,s.era={k:'reform',from:s.year,until:s.year+10},{t:'"장마당 단속을 멈추라." 다음 날 아침, 장마당 입구의 규찰대가 사라졌습니다. 사람들은 한동안 믿지 못했습니다.',e:{joy:8,risk:s.flags.absolute?0:12}}),lose:s=>({t:'',e:{}})},
+ {k:'L_border',cat:'최고지도자 명령',ko:'국경 문 열기',d:'중국과 오가는 길을 연다 · 남북 해빙 10년',once:1,show:s=>!!s.flags.leader,req:()=>[],cost:()=>0,p:()=>1,win:s=>(s.flags.opened=(s.flags.opened||0)+1,s.era={k:'thaw',from:s.year,until:s.year+10},{t:'국경 검문소의 철조망이 걷혔습니다. 첫 주에만 수만 명이 강을 건너 친척을 만나러 갔습니다. 대부분은 돌아왔습니다.',e:{outside:20,joy:6,risk:s.flags.absolute?0:15}}),lose:s=>({t:'',e:{}})},
+ {k:'L_summit',cat:'최고지도자 명령',ko:'남북 정상회담',d:'통일로 한 걸음 · 쌓이면 통일',show:s=>!!s.flags.leader,sub:s=>`통일 준비 ${Math.min(100,s.flags.unifyPts||0)}%`,req:()=>[],cost:()=>0,p:s=>s.flags.absolute?.9:.7,win:s=>{s.flags.summits=(s.flags.summits||0)+1;if(!s.flags.absolute)s.risk=clamp(s.risk+8,0,100);s.flags.unifyPts=(s.flags.unifyPts||0)+R(18,32)+((s.flags.opened||0)*4)+((s.flags.reunions||0)*3);if(s.flags.unifyPts>=100){s.flags.leaderUnify=s.year;s.flags.unified=s.year;s.end='unify';big(s,'통일',3);return{t:'판문점에서 남쪽 대통령과 손을 맞잡고 함께 휴전선을 넘었습니다. 그날 철조망이 걷혔습니다.',e:{joy:20}}}return{t:pick(['판문점에서 남쪽 대통령과 마주 앉았습니다. 이산가족 상봉을 다시 열기로 했습니다.','평양에 남쪽 대표단이 왔습니다. 냉면을 같이 먹었습니다.','철도를 잇기로 합의했습니다. 개성에서 첫 기차가 남쪽으로 출발했습니다.']),e:{joy:6,outside:6}}},lose:s=>({t:'회담이 결렬됐습니다. 군 원로들이 "속도가 너무 빠르다"며 수군댑니다.',e:{}})},
+ {k:'L_reunion',cat:'최고지도자 명령',ko:'이산가족 상봉 정례화',d:'해마다 만나게 한다 · 통일 준비↑',show:s=>!!s.flags.leader,req:()=>[],cost:()=>0,p:()=>1,win:s=>(s.flags.reunions=(s.flags.reunions||0)+1,s.flags.unifyPts=(s.flags.unifyPts||0)+6,{t:pick(['금강산 면회소가 다시 열렸습니다. 아흔 살 할머니가 일흔 살 딸을 안고 한참을 울었습니다.','이번엔 상봉 인원을 열 배로 늘렸습니다. 명단에 오른 사람들이 밤새 잠을 못 잤다고 합니다.','상봉 뒤에도 편지를 주고받게 했습니다. 첫 편지 묶음이 판문점을 넘어갔습니다.']),e:{joy:8,outside:4}}),lose:s=>({t:'',e:{}})},
+ {k:'L_tourism',cat:'최고지도자 명령',ko:'관광객에게 문 열기',d:'외화↑ · 바깥 소식↑ · 원로들이 싫어함',once:1,show:s=>!!s.flags.leader,req:()=>[],cost:()=>0,p:()=>1,win:s=>(s.flags.opened=(s.flags.opened||0)+1,s.flags.tourism=s.year,{t:'원산 해변에 외국 관광객들이 들어왔습니다. 아이들이 처음 보는 사람들에게 손을 흔들었습니다.',e:{money:R(2000000,6000000),outside:12,risk:s.flags.absolute?0:8}}),lose:s=>({t:'',e:{}})},
+ {k:'L_food',cat:'최고지도자 명령',ko:'농업 개혁 (분조 · 개인 땅)',d:'굶는 사람이 줄어든다 · 행복↑',show:s=>!!s.flags.leader,req:()=>[],cost:()=>0,p:()=>1,win:s=>(s.flags.foodReform=(s.flags.foodReform||0)+1,{t:pick(['협동농장 땅을 가족 단위로 나눠 맡겼습니다. 가을에 거둔 만큼 가져가게 했습니다.','비료 공장을 다시 돌리고 중국에서 비료를 들여왔습니다. 그해 옥수수 값이 절반으로 떨어졌습니다.','뙈기밭 단속을 멈추라고 했습니다. 산비탈마다 감자꽃이 피었습니다.']),e:{joy:8}}),lose:s=>({t:'',e:{}})},
+ {k:'L_handover',cat:'최고지도자 명령',ko:'자식에게 권좌 물려주기',d:'이 인생의 마지막 선택',once:1,show:s=>!!s.flags.leader&&kidsOf(s).some(m=>ageOf(s,m)>=20),req:()=>[],cost:()=>0,p:()=>1,win:s=>(s.end='handover',{t:'가족 회의에서 내 아이의 이름을 불렀습니다. 형제들이 그랬듯, 이번엔 내 아이 앞에서 모두가 고개를 숙였습니다.',e:{}}),lose:s=>({t:'',e:{}})},
+ {k:'L_purge',cat:'최고지도자 명령',ko:'측근 숙청',d:'권력↑↑ · 행복↓',show:s=>!!s.flags.leader,req:()=>[],cost:()=>0,p:()=>1,win:s=>(s.flags.power=(s.flags.power||0)+20,s.flags.leaderPurges=(s.flags.leaderPurges||0)+1,{t:'고모부뻘 원로 하나가 회의장에서 끌려 나갔습니다. 그날 밤 아무도 내 눈을 마주치지 못했습니다.',e:{joy:-10,loyal:10}}),lose:s=>({t:'',e:{}})},
+ {k:'L_retire',cat:'최고지도자 명령',ko:'스스로 물러나기',d:'권력을 내려놓는다 · 이 인생의 마지막 선택',once:1,show:s=>!!s.flags.leader&&s.age>=40,req:()=>[],cost:()=>0,p:()=>1,win:s=>(s.end='retired',{t:'"오늘로 물러난다." 회의장이 한참 조용했습니다. 그날 밤, 처음으로 경호원 없이 대동강 변을 걸었습니다.',e:{joy:15}}),lose:s=>({t:'',e:{}})},
+ {k:'k_envoy',cat:'통일',ko:'남북 대화 특사',d:'판문점을 오가며 통일을 준비한다 · 쌓이면 통일',show:s=>s.royal&&stageOf(s)==='royal'&&!s.flags.leader&&s.age>=22,sub:s=>`통일 준비 ${Math.min(100,s.flags.unifyPts||0)}%`,req:s=>[['바깥 소식 20 이상',s.outside>=20]],cost:()=>0,p:s=>s.flags.absolute?.95:.7,win:s=>{s.flags.envoy=(s.flags.envoy||0)+1;s.flags.unifyPts=(s.flags.unifyPts||0)+R(8,16);return{t:pick(['판문점 회담장에서 남쪽 대표와 처음 악수했습니다. 손이 따뜻했습니다.','개성에서 남북 실무 회담이 열렸습니다. 철도 연결 날짜가 정해졌습니다.','남쪽 기자가 내게 질문했습니다. 처음으로 원고 없이 대답했습니다.']),e:{outside:8,risk:s.flags.absolute?0:6}}},lose:s=>({t:'회담장에 앉기도 전에 "건강 문제"로 일정이 취소됐습니다. 위에서 막은 것입니다.',e:{risk:s.flags.absolute?0:10}})},
+ {k:'k_defect',cat:'통일',ko:'남쪽으로 망명',d:'백두혈통이 서울로 · 실패하면 끝',once:1,show:s=>s.royal&&stageOf(s)==='royal'&&!s.flags.leader&&s.outside>=40,req:()=>[],cost:()=>0,p:s=>s.flags.absolute?1:.55,win:s=>(s.flags.royalSouth=s.year,s.end='south',{t:'해외 일정 중 남쪽 대사관 문을 두드렸습니다. 다음 날 전 세계 신문 1면에 내 사진이 실렸습니다.',e:{}}),lose:s=>({t:'공항에서 붙잡혔습니다. 관저로 돌아오는 차 안에서 아무도 말하지 않았습니다.',e:{endNow:'purged'}})},
+ {k:'k_heir',cat:'도전',ko:'후계 경쟁에 뛰어들기',d:'가족 회의에서 다음 자리를 노립니다',once:1,show:s=>s.royal&&!s.flags.absolute&&stageOf(s)==='royal'&&s.age>=25&&!s.flags.heirAsk,req:()=>[],cost:()=>0,open:'heir'},
  {k:'k_car',cat:'도전',ko:'유럽 스포츠카 들여오기',d:'제재 때문에 세 나라를 거쳐야 합니다',once:1,show:s=>s.royal&&stageOf(s)==='royal',req:()=>[],cost:()=>0,open:'car'},
  {k:'k_resort',cat:'도전',ko:'평양 개발 사업 맡기',d:'스키장 · 백화점 · 물놀이장',once:1,show:s=>s.royal&&stageOf(s)==='royal'&&s.age>=20,req:()=>[],cost:()=>0,open:'resort'}];
 const MEET_CTX=['장마당 옆 매대','직장 문화회관 무도회','돌격대 공사장','기차역 대합실','동창 결혼식','정전된 밤 우물가','강둑 빨래터'];
@@ -1685,7 +1724,7 @@ const SHOP=[
  {k:'watch',cat:'백두혈통 전용',ko:'스위스 명품 시계',d:'행복↑ · 인맥↑',p:250000,tier:[T_R],buy:s=>okR('시계를 차고 군 행사에 나갔습니다. 장성들이 그 시계만 쳐다봤습니다.',{joy:4,net:6})},
  {k:'account',cat:'백두혈통 전용',ko:'스위스 비밀 계좌',d:'만약을 대비한 돈 · 망명 준비',p:3000000,tier:[T_R],buy:s=>okR('가명으로 된 계좌 번호를 외웠습니다. 종이에는 적지 않았습니다.',{outside:6,risk:3})},
  {k:'guards',cat:'백두혈통 전용',ko:'전담 경호원 늘리기',d:'위험↓',p:900000,tier:[T_R],yearly:1,buy:s=>okR('경호원이 열 명 늘었습니다. 그만큼 혼자 있는 시간이 줄었습니다.',{risk:-15})},
- {k:'jet',cat:'백두혈통 전용',ko:'전용기로 해외 쇼핑',d:'바깥 소식↑↑ · 행복↑ · 위험↑',p:2000000,tier:[T_R],yearly:1,buy:s=>okR('가명 여권으로 유럽 백화점을 돌았습니다. 아무도 나를 알아보지 못했습니다. 그게 제일 좋았습니다.',{outside:12,joy:10,risk:6})},
+ {k:'jet',cat:'백두혈통 전용',ko:'전용기로 해외 쇼핑',d:'바깥 소식↑↑ · 행복↑ · 위험↑',p:2000000,tier:[T_R],yearly:1,buy:s=>(s.flags.jets=(s.flags.jets||0)+1,0)||okR('가명 여권으로 유럽 백화점을 돌았습니다. 아무도 나를 알아보지 못했습니다. 그게 제일 좋았습니다.',{outside:12,joy:10,risk:6})},
  {k:'charity',cat:'백두혈통 전용',ko:'고향 마을에 쌀 보내기',d:'행복↑ · 바깥이 보입니다 · 위에서 볼 수도',p:300000,tier:[T_R],yearly:1,buy:s=>(s.flags.royalKind=s.flags.royalKind||s.year,chance(.25)?okR('쌀 트럭이 떠났습니다. 위에서 "불필요한 인정"이라는 말이 내려왔습니다.',{joy:4,risk:10}):okR('쌀 트럭 다섯 대가 산골 마을로 갔습니다. 마을 사람들은 누가 보냈는지 끝내 몰랐습니다.',{joy:8}))}];
 
 /* 오늘의 장마당: 해마다 바뀌는 특별한 물건 */
@@ -1739,9 +1778,37 @@ const SECRET_TOLD={pow:'할아버지는 1953년에 집으로 돌아가지 못한
 const E_=(id,cat,t,tone,c,d)=>({id,cat,t,tone,c,d});
 const ENDINGS=[
  /* 백두혈통 */
+ E_('leader_unify_all','백두혈통','두 체제를 하나로 묶은 사람','good',s=>s.flags.leaderUnify&&(s.flags.opened||0)>=2&&(s.flags.foodReform||0)>=1,'장마당을 풀고, 국경을 열고, 굶주림을 줄인 뒤 휴전선을 걷었습니다. 역사책 한 장이 통째로 이 이름입니다.'),
+ E_('leader_unify_fam','백두혈통','이산가족을 집으로 보낸 지도자','good',s=>s.flags.leaderUnify&&(s.flags.reunions||0)>=2,'상봉장을 몇 번이고 열었습니다. 통일이 되던 날, 그 가족들이 가장 먼저 휴전선을 건넜습니다.'),
+ E_('leader_unify','백두혈통','통일을 결정한 지도자','good',s=>s.flags.leaderUnify,'판문점에서 남쪽 대통령과 손을 잡고 휴전선을 함께 넘었습니다. 이 나라의 마지막 최고지도자가 됐습니다.'),
+ E_('leader_retire','백두혈통','스스로 내려온 지도자','good',s=>s.end==='retired','모든 것을 가진 자리에서 스스로 내려왔습니다. 그날 밤 처음으로 경호원 없이 강변을 걸었습니다.'),
+ E_('leader_open','백두혈통','문을 연 지도자','good',s=>s.flags.leader&&(s.flags.opened||0)>=2,'장마당을 풀고 국경을 열었습니다. 역사책이 이 이름을 어떻게 적을지는 아직 모릅니다.'),
+ E_('leader_iron','백두혈통','철권의 지도자','bad',s=>s.flags.leader&&(s.flags.leaderPurges||0)>=3,'반대하는 사람이 하나도 남지 않았습니다. 마지막에는 믿을 사람도 하나 남지 않았습니다.'),
+ E_('leader_mercy','백두혈통','사면을 남발한 지도자','good',s=>s.flags.leader&&(s.flags.amnesty||0)>=3,'교화소 문을 세 번 열었습니다. 수용소 담장 너머 사람들이 이 이름을 다르게 기억합니다.'),
+ E_('leader_coup','백두혈통','새벽의 탱크','bad',s=>s.flags.couped,'개혁이 너무 빨랐습니다. 새벽에 들어온 군인들은 더 이상 고개를 숙이지 않았습니다.'),
+ E_('leader_fled','백두혈통','전용기로 떠난 지도자','neutral',s=>s.flags.leaderFled,'쿠데타의 새벽, 전용기로 빠져나갔습니다. 평양 방송은 아직도 "휴양 중"이라고 합니다.'),
+ E_('leader_handover','백두혈통','권좌를 물려준 사람','neutral',s=>s.end==='handover','내가 받은 자리를 내 아이에게 넘겼습니다. 그 아이가 무엇을 할지는, 이제 그 아이의 이야기입니다.'),
+ E_('leader_food','백두혈통','배고픔을 끝낸 지도자','good',s=>s.flags.leader&&(s.flags.foodReform||0)>=3,'협동농장 땅을 나누고 비료를 들여왔습니다. 이 나라에서 처음으로 "보릿고개"라는 말이 사라졌습니다.'),
+ E_('leader_reunion','백두혈통','상봉장을 연 지도자','good',s=>s.flags.leader&&(s.flags.reunions||0)>=3,'금강산 면회소를 해마다 열었습니다. 수많은 가족이 죽기 전에 서로의 얼굴을 봤습니다.'),
+ E_('leader_tourism','백두혈통','관광객에게 문을 연 지도자','good',s=>s.flags.leader&&s.flags.tourism,'원산 해변에 외국 관광객이 들어왔습니다. 아이들이 처음 보는 사람들에게 손을 흔들었습니다.'),
+ E_('leader_road','백두혈통','현장의 지도자','neutral',s=>s.flags.leader&&(s.flags.tours||0)>=6,'집무실보다 지방 길 위에 더 오래 있었습니다. 미리 칠해 둔 벽 뒤를 끝까지 들여다봤습니다.'),
+ E_('leader_long','백두혈통','삼십 년 권좌','neutral',s=>s.flags.leader&&(s.flags.leaderY||0)>=30,'삼십 년 동안 이 나라의 모든 결정을 내렸습니다. 그 사이 장마당 아이들이 할머니 할아버지가 됐습니다.'),
+ E_('leader_young','백두혈통','젊은 최고지도자','neutral',s=>s.flags.leader&&s.flags.leader-(s.year-s.age)<32,'서른도 되기 전에 가장 높은 자리에 앉았습니다. 회의장 원로들은 모두 아버지뻘이었습니다.'),
+ E_('leader','백두혈통','절대 권력자','neutral',s=>s.flags.leader,'이 나라에서 누구도 내게 반대하지 못했습니다. 그 고요함이 가장 무거웠습니다.'),
+ E_('r_south','백두혈통','서울에 온 백두혈통','good',s=>s.flags.royalSouth,'백두혈통이 서울에 왔다는 뉴스가 전 세계를 덮었습니다. 처음으로 경호원 없이 한강 변을 걸었습니다.'),
+ E_('r_envoy_unify','백두혈통','통일 특사','good',s=>s.flags.envoyUnify,'판문점을 수십 번 오갔습니다. 마지막으로 건넌 날, 휴전선은 더 이상 선이 아니었습니다.'),
  E_('heir','백두혈통','후계자','good',s=>s.flags.heir,'이 나라에서 가장 높은 자리에 앉았습니다. 이제 모두가 나를 지켜보고, 나도 모두를 지켜봅니다.'),
  E_('exile','백두혈통','해외로 사라진 왕족','neutral',s=>s.end==='exile','어느 날 외국 공항에서 사라졌습니다. 그 뒤로 이름은 기사에서만 가끔 나옵니다.'),
  E_('purged','백두혈통','숙청된 왕족','bad',s=>s.end==='purged','가장 높은 피도 지켜 주지 못했습니다.'),
+ E_('r_envoy','백두혈통','판문점을 오간 왕족','good',s=>s.royal&&(s.flags.envoy||0)>=3,'남쪽 대표들과 마주 앉는 게 일이었습니다. 통일은 끝내 못 봤지만, 길은 닦아 놓았습니다.'),
+ E_('r_sib_win','백두혈통','형제를 이긴 왕족','neutral',s=>s.royal&&s.flags.sibWin,'형제의 측근들을 하나씩 지방으로 보냈습니다. 만찬 자리에서 이제 그쪽이 내 눈치를 봅니다.'),
+ E_('r_yield','백두혈통','자리를 양보한 왕족','neutral',s=>s.royal&&s.flags.heirAsk&&!s.flags.heir,'후계 회의에서 한발 물러섰습니다. 덕분에 끝까지 살아남았습니다.'),
+ E_('r_jet','백두혈통','가명 여권의 세계 여행자','good',s=>s.royal&&(s.flags.jets||0)>=3,'가명 여권으로 세계를 돌았습니다. 아무도 나를 알아보지 못하는 거리가 가장 편했습니다.'),
+ E_('r_lux','백두혈통','원산 앞바다의 왕족','neutral',s=>s.royal&&s.own&&s.own.yacht&&s.own.villa,'요트와 별장, 경주마. 세 나라를 거쳐 들어온 것들로 둘러싸여 살았습니다.'),
+ E_('r_scholar','백두혈통','책 속에 산 왕족','good',s=>s.royal&&s.edu>=90,'관저 서재에서 외국 책을 수천 권 읽었습니다. 아는 게 많아질수록 말은 줄었습니다.'),
+ E_('r_stage','백두혈통','무대에 선 백두혈통','good',s=>s.royal&&(s.flags.artPts||0)>=60,'가명으로 예술단 무대에 섰습니다. 박수를 친 사람들은 끝내 내가 누군지 몰랐습니다.'),
+ E_('r_young','백두혈통','일찍 진 꽃','bad',s=>s.royal&&s.end==='dead'&&s.age<30,'모든 걸 가졌지만 시간은 갖지 못했습니다.'),
+ E_('r_old','백두혈통','혁명 가문의 마지막 원로','neutral',s=>s.royal&&s.age>=80,'가문에서 가장 오래 살아남았습니다. 숙청도 쿠데타도 지켜봤습니다.'),
  E_('r_poison','백두혈통','독잔을 비운 왕족','neutral',s=>s.royal&&s.flags.poisoned,'형제가 따른 잔을 비우고도 살아남았습니다. 그 뒤로는 누가 따른 잔도 마시지 않았습니다.'),
  E_('r_kind','백두혈통','커튼을 걷은 왕족','good',s=>s.royal&&s.flags.royalKind,'관저 밖의 굶는 아이들을 끝까지 외면하지 않았습니다. 그게 이 나라에서 할 수 있는 거의 전부였습니다.'),
  E_('r_artwed','백두혈통','가수와 결혼한 왕족','good',s=>s.royal&&s.flags.royalArtWed,'공식 사진 한 장 없는 결혼이었습니다. 그래도 관저 거실에는 늘 노래가 있었습니다.'),
@@ -1958,11 +2025,15 @@ function tickCounters(){const el=(Date.now()-PAGE_T0)/1000;const per=SEC_YR/BIRT
  $('cBorn').textContent=fmt(born);$('cBar').style.width=(frac*100).toFixed(1)+'%';$('cNext').textContent=`다음 아기까지 약 ${Math.ceil(per-el%per)}초`;
  if(born>lastBorn){lastBorn=born;pulseCity($('homeMap'))}
  $('cDied').textContent=fmt(80000+Math.floor(el*DEATHS_YR/SEC_YR))}
-function refreshHome(){const dx=LS.get('nk.dex',{});const found=ENDINGS.filter(e=>dx[e.id]).length;$('dexSub').textContent=`이 브라우저에서 본 결말이 모입니다. ${ENDINGS.length}가지 중 ${found}가지를 봤습니다. 정답은 없습니다.`;
+function royalTickets(){return Math.max(0,Math.floor(LS.get('nk.lives',0)/2)-LS.get('nk.rtUsed',0))}
+function syncRoyalBtn(){const n=royalTickets(),lv=LS.get('nk.lives',0);const b=$('royalBtn');b.disabled=n<1;b.innerHTML=n>0?`👑 백두혈통으로 태어나기 <small>이용권 ${n}장</small>`:`👑 백두혈통으로 태어나기 <small>${2-lv%2}번 더 살면 열림</small>`;
+ $('royalHint').textContent=n>0?'이용권을 쓰면 300분의 1을 건너뛰고 바로 백두혈통으로 태어납니다. 후계 다툼과 숙청 위험은 그대로입니다.':`인생을 두 번 끝까지 살 때마다 백두혈통으로 태어날 수 있는 이용권이 한 장 생깁니다. (지금까지 ${lv}번)`}
+function useRoyalTicket(){if(royalTickets()<1){toast('인생을 두 번 끝까지 살면 열립니다.');return}LS.set('nk.rtUsed',LS.get('nk.rtUsed',0)+1);startLife({royal:true})}
+function refreshHome(){const dx=LS.get('nk.dex',{});syncRoyalBtn();const found=ENDINGS.filter(e=>dx[e.id]).length;$('dexSub').textContent=`이 브라우저에서 본 결말이 모입니다. ${ENDINGS.length}가지 중 ${found}가지를 봤습니다. 정답은 없습니다.`;
  $('dex').innerHTML=END_CATS.map(c=>{const L=ENDINGS.filter(e=>e.cat===c);const f=L.filter(e=>dx[e.id]).length;return`<div class="dcat"><h4>${esc(c)} <small>${f} / ${L.length}</small></h4><div class="dexg">${L.map(e=>`<div class="dx ${dx[e.id]?e.tone:'off'}"><b>${dx[e.id]?esc(e.t):'？？？'}</b><small>${dx[e.id]?`${dx[e.id].n}번 · 최근 ${esc(dx[e.id].last)}`:'아직 못 본 결말'}</small></div>`).join('')}</div></div>`}).join('');
  const cur=LS.get('nk.cur',null),rb=$('resumeBox');if(cur&&!cur.end){rb.hidden=false;rb.className='resume';rb.innerHTML=`<span><b>${esc(cur.name)}</b>의 삶이 이어지고 있어요 · ${cur.age}세</span><button class="btn pri" type="button" id="rbGo">이어서</button><button class="btn" type="button" id="rbDrop">내려놓기</button>`;
   $('rbGo').onclick=()=>{S=migrate(cur);if(!S.q)S.q=[];if(S.yp==null)S.yp=0;if(!S.own)S.own={};if(S.joy==null)S.joy=55;if(!S.hist)S.hist=[];enterGame()};$('rbDrop').onclick=()=>{LS.del('nk.cur');rb.hidden=true}}else rb.hidden=true}
-function startLife(opt){S=newLife(opt&&opt.royal?opt:undefined);S.q=[];S.yp=0;save();birthSeq(S,enterGame)}
+function startLife(opt){S=newLife(opt&&(opt.royal||opt.absolute)?opt:undefined);S.q=[];S.yp=0;save();birthSeq(S,enterGame)}
 function enterGame(){show('game');FLOW.busy=false;FLOW.parked=false;$('parked').hidden=true;buildCtrl();renderAll();startLoop();if(S.age===0)toast(`1년 ≈ ${fmtSec(secPerYear())}초 · 속도는 위에서 바꿀 수 있어요`)}
 const fmtSec=v=>v<3?v.toFixed(1):Math.round(v);
 
@@ -1984,8 +2055,8 @@ function birthSeq(s,done){const old=$('birth');if(old)old.remove();const el=docu
 function sparkle(box,n){if(!box)return;box.innerHTML=Array.from({length:n},()=>`<i style="left:${(rnd()*100).toFixed(1)}%;animation-delay:${(rnd()*1.6).toFixed(2)}s;animation-duration:${(1.6+rnd()*1.6).toFixed(2)}s;--s:${(4+rnd()*8).toFixed(0)}px"></i>`).join('')}
 function cert(el,s,done){const dad=s.fam.find(m=>m.rel==='아버지'),mom=s.fam.find(m=>m.rel==='어머니');const sibs=s.fam.filter(m=>m.sib&&!m.young);
  const sp=secPerYear(),mins=Math.round(70*sp/60);const no=`PRK-${s.year}-${String(hashStr(s.id)%10000000).padStart(7,'0')}`;
- el.classList.add('done');el.innerHTML=`<div class="spark" id="bSpark" aria-hidden="true"></div><div class="cert${s.royal?' gold':''}"><div class="ch"><span>${s.royal?'특별 출생 기록':'출생 신고'}</span><small>No. ${no}</small></div>
-  <div class="cb"><div class="cl"><small>이름</small><h2>${esc(s.name)}${s.royal?' <span class="rbadge">백두혈통</span>':''}</h2><p class="cstory">${esc(s.log[s.log.length-1].t)}</p>
+ el.classList.add('done');el.innerHTML=`<div class="spark" id="bSpark" aria-hidden="true"></div><div class="cert${s.royal?' gold':''}"><div class="ch"><span>${s.flags.absolute?'특별 출생 기록 · 비밀 패스':s.royal?'특별 출생 기록':'출생 신고'}</span><small>No. ${no}</small></div>
+  <div class="cb"><div class="cl"><small>이름</small><h2>${esc(s.name)}${s.royal?` <span class="rbadge">${s.flags.absolute?'절대 권력':'백두혈통'}</span>`:''}</h2><p class="cstory">${esc(s.log[s.log.length-1].t)}</p>
    <p class="cnote">기대수명까지 살면 약 ${mins}분이 걸려요 (지금 속도로 1년 ≈ ${fmtSec(sp)}초). 중간에 닫아도 이 브라우저에 저장돼서, 다시 오면 이어서 살 수 있어요.</p>
    <dl class="cgrid"><div><dt>성별</dt><dd>${s.sex==='F'?'여성':'남성'}</dd></div><div><dt>태어난 곳</dt><dd>${esc(s.place.ko)}</dd></div><div><dt>지역</dt><dd>${esc(PLACES[s.place.type].ko)}</dd></div>
     <div><dt>성분</dt><dd>${s.royal?'백두혈통':SONGBUN[s.songbun].ko} <span class="stars">${starsTxt(realStars(s))}</span></dd></div><div><dt>부모 나이</dt><dd>어머니 ${ageOf(s,mom)}세 · 아버지 ${ageOf(s,dad)}세</dd></div><div><dt>부모님 일</dt><dd>${esc(s.royal?'혁명 가문':`${s.mom} · ${s.dad}`)}</dd></div>
@@ -2017,7 +2088,7 @@ function renderStats(){const s=S;$('statBox').innerHTML=`<h3>상태 <small>0–1
 function renderMoney(){const s=S,L=s.led;const own=SHOP.concat(DEALS).filter(it=>!it.yearly&&!it.inv&&s.own&&s.own[it.k]).map(it=>it.ko);if(s.own&&s.own.wholesale)own.push('도매상');
  $('moneyBox').innerHTML=`<h3>가진 돈 <small>한국 돈으로</small></h3><div class="mbig"><b>${usd(s.money)}</b><em>${krw(s.money)}</em></div>
   ${L&&L.items&&L.items.length?`<div class="mled"><small>지난 1년 ${L.net>=0?'+':''}${usd(L.net)} · ${krw(L.net)}</small>${L.items.slice(0,5).map(i=>`<div><span>${esc(i.k)}</span><b class="${i.v>0?'g':'b'}">${i.v>0?'+':''}${usd(i.v)}</b></div>`).join('')}</div>`:`<p class="sub" style="margin:6px 0 0">${esc(L&&L.note||'아직은 부모님 살림입니다.')}</p>`}
-  <dl class="idl" style="margin-top:8px"><dt>직업</dt><dd>${esc(jobLabel(s))}</dd><dt>가진 것</dt><dd>${own.length?esc(own.join(' · ')):'변변한 게 없음'}</dd></dl>`}
+  <dl class="idl" style="margin-top:8px"><dt>직업</dt><dd>${esc(jobLabel(s))}</dd><dt>가진 것</dt><dd>${own.length?esc(own.join(' · ')):s.royal?'관저의 모든 것':'변변한 게 없음'}</dd></dl>`}
 const FAM_ORDER=m=>m.par?0:m.sib&&!m.young?1:m.sib?2:m.sp?3:m.kid?4:5;
 function famRows(s){return famOf(s).slice().sort((a,b)=>FAM_ORDER(a)-FAM_ORDER(b)||a.by-b.by)}
 function famLi(s,m){const tone=!m.alive||m.gone?'gone':(m.st||m.left)?'warn':'';const lostY=m.left?m.leftY:m.crossed?m.crossedY:null;const ag=!m.alive?'고인':lostY?`${lostY-m.by}세 때 소식 끊김`:`${ageOf(s,m)}세`;
@@ -2081,7 +2152,7 @@ function tabActs(){const s=S,A=actsFor(s);if(!A.length)return`<p class="sub">${s
  const cats=[...new Set(A.map(a=>a.cat))];
  return cats.map(cat=>`<div class="acat"><h4>${cat}</h4>${A.filter(a=>a.cat===cat).map(a=>{const st=actState(s,a);const c=a.cost?Math.round(a.cost(s)):0;const p=a.open?null:pct(a.p(s));
   return`<div class="act${st.ok?'':' no'}"><div class="at"><b>${esc(a.ko)}</b><small>${esc(a.d)}${a.sub?` · ${esc(a.sub(s))}`:''}</small>${(st.rq||[]).length?`<div class="rq">${st.rq.map(r=>`<span class="${r[1]?'ok':'x'}">${r[1]?'✓':'✗'} ${esc(r[0])}</span>`).join('')}</div>`:''}</div>
-  <div class="ab"><button class="btn${st.ok?' pri':''}" type="button" data-act="${a.k}"${st.ok?'':' disabled'}>${a.open?'해 보기':'도전'}</button><small>${c?`${usd(c)} · ${krw(c)}`:'비용 없음'}${p!=null?` · 성공 ${p}%`:''}${st.ok?'':` · ${esc(st.why)}`}</small></div></div>`}).join('')}</div>`).join('')}
+  <div class="ab"><button class="btn${st.ok?' pri':''}" type="button" data-act="${a.k}"${st.ok?'':' disabled'}>${a.cat==='최고지도자 명령'?'명령':a.open?'해 보기':'도전'}</button><small>${c?`${usd(c)} · ${krw(c)}`:'비용 없음'}${p!=null?` · 성공 ${p}%`:''}${st.ok?'':` · ${esc(st.why)}`}</small></div></div>`}).join('')}</div>`).join('')}
 function shopItemH(s,it,deal){const st=shopState(s,it);const p=priceOf(s,it);return`<div class="item ${st}${deal?' deal':''}"><div><b>${esc(it.ko)}</b><small>${esc(it.d)}${it.yearly?' · 한 해에 한 번':''}${it.inv?` · ${it.inv.y}년 뒤 결과`:''}</small></div><button class="btn${st==='ok'?' pri':''}" type="button" data-buy="${it.k}"${st==='ok'?'':' disabled'}>${st==='have'?'있음':st==='done'?(deal?'팔림':'올해 삼'):usd(p)}</button><em>${krw(p)}</em></div>`}
 function tabShop(){const s=S;if(!canShop(s))return`<p class="sub">${s.age<17?'살림은 아직 부모님 몫입니다. 어른이 되면 장마당에서 살 수 있어요.':'지금은 장마당에 갈 수 없습니다.'}</p>`;
  const L=shopList(s),D=refreshDeals(s);const inv=(s.inv||[]).map(v=>{const it=SHOP.find(x=>x.k===v.k);return`${it?it.ko:v.k} (${v.y}년에 결과)`});
@@ -2177,8 +2248,8 @@ function southEpilogue(s){const L=[];L.push(`국정원 조사 몇 주, 하나원
  L.push(pick(['말투 때문에 "연변에서 왔냐"는 소리를 자주 들었습니다.','지하철 노선도를 외우는 데 한 달이 걸렸습니다.','밤에도 꺼지지 않는 불빛이 처음엔 무서웠습니다.','마트 계산대 앞에서 한참 서 있었습니다. 고를 게 너무 많았습니다.']));
  if(famOf(s).some(m=>m.left&&m.alive))L.push('첫 월급의 절반을 브로커 편에 북으로 보냈습니다. 받았다는 소식이 오기까지 석 달이 걸렸습니다.');
  return L}
-function finish(){FLOW.busy=false;closeModal();const s=S,E=endingOf(s);const dx=LS.get('nk.dex',{});if(!s.counted){s.counted=1;dx[E.id]={n:((dx[E.id]||{}).n||0)+1,last:s.name};LS.set('nk.dex',dx)}LS.del('nk.cur');
- const why={south:'남쪽에 닿았습니다',exile:'외국으로 떠났습니다',purged:'숙청됐습니다',heir:'후계자가 됐습니다',unify:'통일을 맞았습니다',dead:s.flags.diedIn==='jail'||s.flags.diedIn==='camp'?'갇힌 채 생을 마쳤습니다':'생을 마쳤습니다'}[s.end]||'';
+function finish(){FLOW.busy=false;closeModal();const s=S,E=endingOf(s);const dx=LS.get('nk.dex',{});if(!s.counted){s.counted=1;LS.set('nk.lives',LS.get('nk.lives',0)+1);if(LS.get('nk.lives',0)%2===0)setTimeout(()=>toast('👑 백두혈통 이용권이 한 장 생겼어요. 첫 화면에서 쓸 수 있어요.'),900);dx[E.id]={n:((dx[E.id]||{}).n||0)+1,last:s.name};LS.set('nk.dex',dx)}LS.del('nk.cur');
+ const why={south:'남쪽에 닿았습니다',exile:'외국으로 떠났습니다',purged:'숙청됐습니다',heir:'후계자가 됐습니다',unify:'통일을 맞았습니다',retired:'스스로 물러났습니다',handover:'권좌를 물려주었습니다',dead:s.flags.diedIn==='jail'||s.flags.diedIn==='camp'?'갇힌 채 생을 마쳤습니다':'생을 마쳤습니다'}[s.end]||'';
  const epi=s.end==='south'?southEpilogue(s):[];const extra=[];if(s.end==='south'){if(s.flags.powAddr)extra.push('할아버지의 고향 마을을 찾아가 그 이름을 불러 봤습니다.');if(s.flags.southAunt)extra.push('남쪽 이모가 공항에 마중 나와 있었습니다.');if(s.flags.eliteDefect)extra.push('평양에 남겨진 가족 소식은 끝내 듣지 못했습니다.')}
  const mom=s.big.slice().sort((a,b)=>Math.abs(b.g)-Math.abs(a.g)).slice(0,7).sort((a,b)=>a.age-b.age);const sp=(s.fam||[]).find(m=>m.sp&&!m.gone);const kn=(s.fam||[]).filter(m=>m.kid&&m.alive).length;
  $('endCard').className='endcard'+(s.royal?' gold':'');
@@ -2193,8 +2264,8 @@ function finish(){FLOW.busy=false;closeModal();const s=S,E=endingOf(s);const dx=
 /* ---------- 연결 ---------- */
 function boot(){applyTheme(LS.get('nk.theme',null));initPWA();refreshHome();mapSVG($('homeMap'),null);tickCounters();renderFacts();setInterval(()=>{if(!$('home').hidden)tickCounters()},1000);
  // 숨은 버튼: 맨 아래 안내문 끝의 마침표를 빠르게 세 번 누르면 최고급 백두혈통으로 태어납니다
- {const taps=[];$('secretDot').onclick=e=>{e.preventDefault();const t=Date.now();taps.push(t);while(taps.length&&t-taps[0]>1500)taps.shift();if(taps.length>=3){taps.length=0;startLife({royal:true})}}}
- $('goBtn').onclick=startLife;$('againBtn').onclick=startLife;$('homeBtn').onclick=()=>{show('home');refreshHome()};$('themeBtn').onclick=toggleTheme;$('themeBtn2').onclick=()=>{toggleTheme();if(S)renderScene()};
+ {const taps=[];$('secretDot').onclick=e=>{e.preventDefault();const t=Date.now();taps.push(t);while(taps.length&&t-taps[0]>1500)taps.shift();if(taps.length>=3){taps.length=0;startLife({absolute:true})}}}
+ $('goBtn').onclick=()=>startLife();$('againBtn').onclick=()=>startLife();$('royalBtn').onclick=useRoyalTicket;$('homeBtn').onclick=()=>{show('home');refreshHome()};$('themeBtn').onclick=toggleTheme;$('themeBtn2').onclick=()=>{toggleTheme();if(S)renderScene()};
  $('quitBtn').onclick=()=>{if(FLOW.cur&&!$('modal').hidden||FLOW.parked&&FLOW.cur){S.q=S.q||[];S.q.unshift({id:FLOW.cur,at:S.yp||0})}FLOW.cur=null;FLOW.parked=false;$('parked').hidden=true;save();closeModal();FLOW.busy=false;show('home');refreshHome()};
  $('flowBtn').onclick=()=>{FLOW.on=!FLOW.on;LS.set('nk.flow3',FLOW.on);syncCtrl()};
  $('spdBox').onclick=e=>{const b=e.target.closest('button');if(!b)return;FLOW.speed=+b.dataset.v;LS.set('nk.spd3',FLOW.speed);if(!FLOW.on){FLOW.on=true;LS.set('nk.flow3',true)}syncCtrl()};
