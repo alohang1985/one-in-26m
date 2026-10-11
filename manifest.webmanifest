@@ -1,0 +1,38 @@
+{
+ "id": "./",
+ "name": "2600만 분의 1 · 북한에서 태어나기",
+ "short_name": "2600만 분의 1",
+ "description": "북한에서 태어납니다. 고를 수 있는 건 아무것도 없습니다.",
+ "lang": "ko",
+ "start_url": "./",
+ "scope": "./",
+ "display": "standalone",
+ "background_color": "#F1ECE2",
+ "theme_color": "#F1ECE2",
+ "icons": [
+  {
+   "src": "icons/icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "icons/icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "icons/maskable-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "maskable"
+  },
+  {
+   "src": "icons/maskable-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ]
+}
