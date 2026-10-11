@@ -237,7 +237,7 @@ b.g{color:var(--good)}b.b{color:var(--bad)}
 .tone{display:inline-block;font-size:12px;font-weight:900;padding:2px 10px;border-radius:999px;background:var(--card2)}.tone.good{color:var(--good)}.tone.bad{color:var(--bad)}
 .endcard h2{font-family:var(--f-disp);font-weight:900;font-size:clamp(30px,5vw,44px);margin:6px 0 2px;line-height:1.15}
 .why{color:var(--ink3);font-size:14px}.desc{font-size:16.5px;color:var(--ink2);margin:16px 0}
-.eg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:18px}.eg div{background:var(--card2);border-radius:10px;padding:10px 12px}.eg small{display:block;font-size:12px;color:var(--ink3)}.eg b{font-size:15px}
+.eg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:18px}.eg div{background:var(--card2);border-radius:10px;padding:10px 12px}.eg small{display:block;font-size:12px;color:var(--ink3)}.eg b{font-size:15px}
 .eh{margin:18px 0 6px;font-size:15px;font-weight:900}
 .moments{margin:0;padding-left:20px}.moments li{margin:4px 0}.ma{font-family:var(--f-num);color:var(--ink3)}
 .endbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
@@ -291,6 +291,19 @@ body.royal .mbig b{color:#c9962a}
  .cgrid{grid-template-columns:1fr 1fr}.ch{padding:10px 14px}.cb{padding:14px}.cf{padding:0 14px 16px}.cf .btn{width:100%}
  .top{flex-wrap:wrap}.eyebrow{flex-basis:100%}
 }
+
+/* 같은 선택, 여러 갈래 */
+.opt.tr{border-color:var(--gold);background:linear-gradient(90deg,rgba(201,162,39,.10),transparent 70%)}
+.opt.tr small{color:var(--gold)}
+.opt.xo small{font-style:normal}
+.tw{font-size:14.5px;line-height:1.5;margin:-2px 0 12px;padding:9px 12px;border-radius:8px;background:var(--card2);border-left:3px solid var(--ink3)}
+.tw b{display:block;font-size:11.5px;letter-spacing:.04em;margin-bottom:2px;color:var(--ink3)}
+.tw.good{border-left-color:var(--good)}.tw.good b{color:var(--good)}.tw.bad{border-left-color:var(--bad)}.tw.bad b{color:var(--bad)}
+.ctch{margin:14px 0 6px;font-size:13px;font-weight:900}.ctch small{font-weight:400;color:var(--ink3);margin-left:4px}
+.ctc{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:5px}
+.ctc li{font-size:13px;border:1px solid var(--rule);border-radius:8px;padding:6px 10px}.ctc li small{display:block;font-size:11.5px;color:var(--ink3)}
+.ctc li.good small{color:var(--good)}.ctc li.bad small{color:var(--bad)}
+.cgrid .wide{grid-column:1/-1}.cgrid .wide small{font-weight:400;color:var(--ink3);font-size:12px}
 </style></head><body><section id="home" class="wrap">
  <div class="top"><span class="eyebrow">무료 인생 시뮬레이션 · 북한편 · 1년이 흘러갑니다</span><span class="topr"><button class="pill" type="button" id="installBtn" hidden>앱 설치</button><a class="pill link" href="https://alohang1985.github.io/debut-gak/">데뷔각 하러 가기 →</a><button class="pill" id="themeBtn" type="button" aria-label="밝은 화면과 어두운 화면 바꾸기">◐</button></span></div>
  <div id="resumeBox" hidden></div>
@@ -639,7 +652,7 @@ function lifeLine(s,pool){if(chance(.45)){const t=famLine(s);if(t)return t}retur
 
 /* ---------- 예전 저장을 새 구조로 ---------- */
 const JOB_FROM={'공장 노동자':'factory','탄광 노동자':'mine','농장원':'farm','협동농장원':'farm','기관 사무원':'clerk','기관 일꾼':'clerk','당 기관 일꾼':'clerk'};
-function migrate(s){if(!s.sur)s.sur=s.name[0];
+function migrate(s){if(!s.sur)s.sur=s.name[0];if(!s.traits)rollTraits(s);
  if(!s.fam){initFamily(s);if(s.married)addSpouse(s,'love');const k=s.kids||0;s.kids=0;for(let i=0;i<k;i++){const m=addKid(s);m.by=s.year-R(0,Math.max(0,Math.min(18,s.age-22)))}}
  if(!s.jobK&&s.age>=17&&!s.royal&&!s.art&&!s.uni&&!s.army&&!s.china)setJob(s,JOB_FROM[s.job]||defaultAsg(s));
  if(s.dir==='trade'&&s.jobK&&JOBS[s.jobK].full&&!s.flags.mig)s.dir='work';s.flags.mig=1;return s}
@@ -683,6 +696,7 @@ function newLife(opt){opt=opt||{};if(opt.absolute)opt.royal=true;const sb=opt.ro
  initFamily(s);if(s.secret==='informer')s.infPar=pick(s.fam.filter(m=>m.par)).id;
  for(const m of s.fam)m.bond=m.par?R(50,68):R(45,62);
  if(opt.absolute){s.flags.absolute=1;s.money=R(30000000,60000000);s.hp=97;s.joy=82;s.luck=2.6;s.net=88;s.loyal=92;s.risk=0;s.edu=35;s.flags.power=40;s.flags.vip=1;s.house='관저 (본관)'}
+ rollTraitsInit(s);s.contacts=[];
  s.peers=makePeers(s);s.tier0=tierOf(s);
  addLog(s,birthStory(s),'mile');return s}
 function birthStory(s){const sib=s.fam.find(m=>m.sib&&!m.young);const mo=s.month;
@@ -777,6 +791,7 @@ function yearTurn(s){const out={events:[],lines:[]};s.age++;s.year++;const st=st
  // 시나리오: 때가 된 다음 장
  if(!s.end&&s.arcs)for(const[id,a]of Object.entries(s.arcs)){if(!a.st||a.y>s.year)continue;const ev=EVS[id+'_'+a.st];if(!ev){a.st=null;continue}if(ev.stage&&!ev.stage.includes(stageOf(s))){a.y=s.year+1;continue}if(out.events.length<3&&!out.events.includes(ev.id)){out.events.push(ev.id);a.st=null}}
  if(!s.end&&s.age%5===0&&s.age<=60)peerNote(s,say);
+ traitYear(s);
  s.hist.push({a:s.age,hp:Math.round(s.hp),r:Math.round(s.risk),j:Math.round(s.joy),m:Math.round(s.money),t:stageOf(s)});if(s.hist.length>120)s.hist.shift();
  // 선택 사건
  if(!s.end&&out.events.length<2){const p=s.age<6?(s.age>=2?.5:0):s.age<17?.36:.44;if(chance(p)){const e=pickEvent(s);if(e&&!out.events.includes(e))out.events.push(e)}}
@@ -881,13 +896,17 @@ function eligible(s,e){if(!e.pool)return false;if(s.royal&&!e.royalOK)return fal
  if(e.stage&&!e.stage.includes(stageOf(s)))return false;if(e.tier&&!e.tier.includes(tierOf(s)))return false;if(e.when&&!e.when(s))return false;return true}
 function pickEvent(s){const L=Object.values(EVS).filter(e=>eligible(s,e));if(!L.length)return null;return wpick(L.map(e=>[e.id,(dv(s,e.w)||1)*(e.tier?1.8:1)]))}
 function prepEvent(s,id){const e=EVS[id];if(!e)return null;if(s.royal&&e.pool&&!e.royalOK)return null;if(e.pool&&((e.when&&!e.when(s))||(e.stage&&!e.stage.includes(stageOf(s)))))return null;s.seen[id]=(s.seen[id]||0)+1;if(e.pre)e.pre(s);const hd=dv(s,e.hide);const h=hd?wpick(Object.entries(hd)):'*';
- return{id,h,kind:e.kind||'갈림길',fact:dv(s,e.fact)||'',title:dv(s,e.title),desc:dv(s,e.desc),opts:e.opts.filter(o=>!o.when||o.when(s)).map(o=>({t:dv(s,o.t),sub:dv(s,o.sub)||'',cost:o.cost?Math.round(dv(s,o.cost)):0,ref:o}))}}
+ return{id,h,kind:e.kind||'갈림길',fact:dv(s,e.fact)||'',title:dv(s,e.title),desc:dv(s,e.desc),opts:e.opts.filter(o=>!o.when||o.when(s)).map(o=>({t:dv(s,o.t),sub:dv(s,o.sub)||'',cost:o.cost?Math.round(dv(s,o.cost)):0,ref:o})).concat(extraOpts(s,id))}}
 function resolveEvent(s,prep,i){const e=EVS[prep.id],o=prep.opts[i];if(o.cost&&o.cost>s.money)return{err:'돈이 모자랍니다.'};if(o.cost)s.money-=o.cost;
+ if(o.ref.trait||o.ref.contact)return resolveExtra(s,prep,o);
  let dist=typeof o.ref.go==='function'?{[o.ref.go(s)]:1}:(o.ref.go[prep.h]||o.ref.go['*']);const used=s.outs[prep.id]||[];
  if(Object.keys(dist).length>1)dist=Object.fromEntries(Object.entries(dist).map(([k,p])=>[k,used.includes(k)?p*.2:p]));
  const key=wpick(Object.entries(dist).map(([k,p])=>[k,p*Math.exp(.45*s.luck*((e.good||{})[k]||0))]));s.outs[prep.id]=used.concat(key);
- const r=e.out[key](s);const chips=applyE(s,r.e);if(o.cost)chips.unshift({v:'-'+usd(o.cost),good:false});const g=(e.good||{})[key]||0;
- addLog(s,`${prep.title} → ${o.t}`,'dec');addLog(s,r.t,g>0?'good':g<0?'bad':'',prep.fact?{fact:prep.fact}:null);if(Math.abs(g)>=2)big(s,r.t,g);return{t:r.t,chips,g,next:r.next}}
+ let g=(e.good||{})[key]||0;const fk=forkPick(s,e,prep.id,key,g);let r;if(fk){r=forkRun(s,prep.id,fk);g=fk.g||0}else r=e.out[key](s);
+ const chips=applyE(s,r.e);if(o.cost)chips.unshift({v:'-'+usd(o.cost),good:false});
+ addLog(s,`${prep.title} → ${o.t}`,'dec');addLog(s,r.t,g>0?'good':g<0?'bad':'',prep.fact?{fact:prep.fact}:null);if(Math.abs(g)>=2)big(s,r.t,g);
+ const tw=fk||r.next?null:twistOf(s,prep.id,g);if(tw){chips.push(...applyE(s,tw.e));addLog(s,tw.t,tw.g>0?'good':tw.g<0?'bad':'')}
+ return{t:r.t,chips,g,next:r.next,tw}}
 const bribeCost=(s,n)=>Math.max(n,Math.round(s.money*.25/10)*10);
 
 /* ---------- 정해진 때 ---------- */
@@ -2413,6 +2432,551 @@ function shopYear(s,add,say){const o=s.own||{};
  s.inv=keep}
 
 /* ================================================================
+   2600만 분의 1 — 같은 선택, 여러 갈래
+   FORK : 같은 선택지도 그때그때 다른 결과로 갈립니다 (계급 · 성격 · 운 · 앞선 선택에 따라)
+   XOPT : 가끔만, 그 사람에게만 나타나는 선택지
+   AFORK: '해 볼 수 있는 일'의 성공 · 실패도 여러 갈래
+   ================================================================ */
+const fv=v=>Array.isArray(v)?Object.assign({t:v[0],e:v[1],g:v[2]||0},v[3]||{}):v;
+const FORK_MISS=[];function FORK(id,map){const e=EVS[id];if(!e){FORK_MISS.push(id);return}e.forks=e.forks||{};for(const[k,L]of Object.entries(map)){if(!e.out[k]){FORK_MISS.push(id+'.'+k);continue}e.forks[k]=(e.forks[k]||[]).concat(L.map(fv))}}
+let XN=0;
+function XOPT(id,L){const e=EVS[id];if(!e){FORK_MISS.push('x:'+id);return}e.good=e.good||{};for(const x of L){const go={};for(const v of x.r){const k='x'+(++XN),V=fv(v);go[k]=V.w||1;e.good[k]=V.g;e.out[k]=s=>forkRun(s,id,V)}
+ e.opts.push({t:x.t,sub:x.sub,cost:x.cost,go:{'*':go},xo:1,when:s=>(!x.c||x.c(s))&&chance(x.p==null?.45:x.p)})}}
+function forkRun(s,id,v){const ee=typeof v.e==='function'?v.e(s):Object.assign({},v.e||{});for(const q in ee)if(typeof ee[q]==='function')ee[q]=ee[q](s);
+ if(v.fx)v.fx(s);const t=typeof v.t==='function'?v.t(s):v.t;let next=v.next;
+ if(v.arc){const i=id.lastIndexOf('_'),aid=id.slice(0,i),first=id.slice(i+1)==='a';const[a,b]=v.arc.split('>');if(b)next=b;
+  if(a[0]==='=')arcEnd(s,aid,a.slice(1));else{const[n,y]=a.split(':');(first?arcStart:arcGo)(s,aid,n,y!=null?+y:undefined)}}
+ return{t,e:ee,next}}
+/* 결과 자리에서 갈래 고르기: 원래 결과 1 + 갈래들(조건이 맞을 때만). 이미 본 갈래는 덜 나옵니다 */
+function forkPick(s,e,id,key,g0){const F=e.forks&&e.forks[key];if(!F)return null;const u=s.outs[id]||(s.outs[id]=[]);
+ const L=[[-1,1]].concat(F.map((v,i)=>[i,v.c&&!v.c(s)?0:(v.w||.9)])).map(([i,w])=>[i,w*(u.includes(key+'~'+i)?.2:1)*Math.exp(.3*s.luck*((i<0?g0:F[i].g)||0))]).filter(x=>x[1]>0);
+ const vi=wpick(L);u.push(key+'~'+vi);return vi<0?null:F[vi]}
+const momHome=s=>(s.fam||[]).some(m=>m.rel==='어머니'&&m.alive&&!m.left&&!m.crossed&&!m.gone);
+const inLaw=s=>s.sex==='F'?'시댁':'처가';
+const FEND_L=[];function FEND(aid,res,t,tone,d,royal){FEND_L.push({id:'s_'+aid+'_'+res,cat:royal?'백두혈통 시나리오':'시나리오',t,tone,royal:!!royal,minor:false,c:s=>s.flags['arc_'+aid]===res,d})}
+
+/* ================= 자주 만나는 갈림길 ================= */
+FORK('move',{
+ stay:[['남기로 했습니다. 그해 가을, 이사 간 이웃 집이 숙박 검열에 걸렸다는 소식이 들려왔습니다. 남은 게 다행이었습니다.',{risk:-4},1],
+  ['남았습니다. 이사 간 이웃이 보낸 편지에 "여기 장마당은 세 배"라고 적혀 있었습니다. 한동안 잠이 오지 않았습니다.',{joy:-4},0]],
+ border:[[s=>{s.place={type:'border',ko:pick(PLACES.border.list)};s.house='하모니카 주택';return`${J(s.place.ko,'으로/로')} 이사했습니다. 집주인이 알고 보니 밀수꾼이었습니다. 첫날 지하실 열쇠를 맡겼습니다.`},{net:4,risk:6},1,{fx:s=>addContact(s,'장마당 도매상','favor')}],
+  [s=>{s.place={type:'border',ko:pick(PLACES.border.list)};s.house='단층 셋집';return`${J(s.place.ko,'으로/로')} 이사했습니다. 국경 경비가 두 배로 늘어난 해였습니다. 밤마다 서치라이트가 창문을 훑습니다.`},{risk:5,joy:-2},0]],
+ city:[[s=>{s.place={type:'city',ko:pick(PLACES.city.list)};s.house='아파트 5층';return`${J(s.place.ko,'으로/로')} 이사했습니다. 5층 아파트인데 물이 1층까지만 올라옵니다. 매일 아침 물동이를 지고 계단을 오릅니다.`},{hp:-3,joy:2},0]],
+ scam:[['돈을 받은 사람이 사라졌습니다. 그런데 한 달 뒤 그 사람이 보안서에 붙잡혀, 압수된 돈 일부가 돌아왔습니다.',{money:s=>R(30,120),joy:-2},-1]]});
+FORK('portrait',{
+ clean:[['열심히 닦다가 액자 유리에 금이 갔습니다. 밤새 장마당을 뒤져 같은 유리를 구했습니다.',{money:-40,joy:-3},-1,{w:.6}],
+  ['닦는 모습을 본 검열원이 "모범 가정" 명단에 올렸습니다. 그해 명절 공급이 한 번 더 나왔습니다.',{loyal:5,hp:3},2,{w:.6}]],
+ fine:[['검열원이 대충 보고 지나가다 부엌의 중국 라면 봉지를 봤습니다. 피식 웃고 그냥 갔습니다.',{risk:3},0]]});
+FORK('b_relief',{
+ bought:[['포대를 샀는데 반이 모래였습니다. 장사꾼은 이미 사라졌습니다.',{money:-20,joy:-3},-1],
+  ['포대째 샀습니다. 바닥에 영어와 한글이 같이 찍힌 종이가 깔려 있었습니다. 쌀은 먹고 종이는 태웠습니다.',{hp:5,outside:4},1]],
+ skip:[['기대하지 않았습니다. 그날 저녁, 간부 집 앞에서 받아 온 이웃이 한 바가지를 나눠 줬습니다.',{hp:3,net:2},1]],
+ nothing:[['문은 끝내 열리지 않았습니다. 돌아오는 길에 같이 기다리던 할머니가 쓰러졌습니다. 업고 집까지 갔습니다.',{hp:-3,net:4},0]]});
+FORK('review',{
+ small:[['"늦잠"을 고백했더니 작업반장이 "그럼 내일부터 새벽 청소 담당"이라고 했습니다.',{hp:-3},0],
+  ['다들 똑같이 "늦잠"을 고백해서 생활총화가 웃음바다가 됐습니다. 그날은 그냥 넘어갔습니다.',{joy:3},1]],
+ honest:[['너무 솔직했는데, 이상하게 간부가 고개를 끄덕였습니다. "이런 동무가 필요하오."',{loyal:6,net:3},2,{w:.6}],
+  ['솔직하게 말한 내용이 그대로 보위부 서류철로 들어갔습니다.',{risk:16},-2,{w:.5}]]});
+FORK('kotjebi',{
+ share:[['빵을 나눠 준 아이가 다음 날 친구 셋을 데려왔습니다. 그 뒤로 역전을 지나면 아이들이 인사를 합니다.',{net:4,hp:-3},1,{fx:s=>{s.flags.kotShare=s.year}}],
+  ['빵을 받은 아이가 빵 대신 내 가방을 낚아채 달아났습니다.',{money:s=>-Math.min(s.money,15),joy:-4},-1,{w:.6}]],
+ pass:[['못 본 척 지나가는데 아이가 따라와 소매를 잡았습니다. 결국 빵을 반 떼어 줬습니다.',{hp:-2,net:1},1,{fx:s=>{s.flags.kotShare=s.year}}],
+  ['지나쳤습니다. 그 얼굴이 꿈에 몇 번 나왔습니다.',{joy:-3},0]]});
+FORK('t_gift',{
+ save:[['아껴 둔 과자를 쥐가 반이나 갉아먹었습니다. 울다 지쳐 잠들었습니다.',{joy:-3},-1],
+  ['아껴 둔 과자를 아버지가 몸져누웠을 때 몰래 드렸습니다. 아버지가 오랜만에 웃었습니다.',{joy:5,net:1},1]],
+ share:[['나눠 준 과자 덕에 그 친구가 소년단 분단장 선거에서 내 편이 됐습니다.',{net:5},1],
+  ['동생이 자기 몫을 다 먹고 내 몫까지 달라고 울었습니다.',{joy:-2},0]],
+ sell:[['장마당 아주머니가 값을 후려쳤습니다. 공책 한 권밖에 못 샀습니다.',{edu:1},0],
+  ['과자를 팔러 간 장마당에서 처음으로 흥정하는 법을 배웠습니다.',{net:3,money:()=>R(3,8)},1]]});
+FORK('t_measles',{med:[['장마당 약이 가짜였습니다. 열이 내리지 않아 할머니가 밤새 찬 수건을 갈았습니다.',{hp:-6,money:s=>-Math.min(s.money,20)},-1],
+  ['중국 약을 구해 온 아저씨가 그해 동네 아이 다섯을 살렸습니다. 우리 집 아이가 첫 번째였습니다.',{hp:3},1]]});
+FORK('t_grandma',{
+ listen:[['할머니가 들려준 건 일본에 두고 온 오빠 이야기였습니다. 이야기 끝에 할머니가 울었습니다.',{outside:3,joy:-1},0],
+  ['다음 날 학교에서 할머니 이야기를 했다가 선생님 표정이 굳었습니다.',{risk:4,outside:2},-1]],
+ loyal:[['할머니가 장군님 이야기를 하다 말고 "그래도 그때 우리는 굶었지" 하고 혼잣말을 했습니다.',{outside:2},0]]});
+FORK('errandbust',{cry:[['울음소리에 단속원이 당황해 상자를 돌려줬습니다.',{joy:3},1],['울어도 소용없었습니다. 상자는 단속원 자전거에 실려 갔습니다.',{hp:-2,joy:-3},-1]]});
+FORK('choco',{no:[['거절했다는 얘기를 그 친구가 담임에게 자랑처럼 했습니다. 칭찬을 받았습니다.',{loyal:4},1],['거절한 초코파이를 그날 밤 꿈에서 먹었습니다.',{outside:1},0]]});
+FORK('raid109',{throw:[['재생기가 아래층 지붕에 걸렸습니다. 단속원이 사다리를 가져왔습니다.',{jail:()=>R(1,2),jailKind:'노동단련대'},-2,{w:.35}]],
+ pass:[['옆집을 잘못 찾아온 거였습니다. 그런데 옆집이 우리 집을 가리켰습니다. "저 집도 봅디다."',{risk:10},-1,{w:.5}]]});
+FORK('lodge',{
+ ok:[['술 한 병에 인민반장 얼굴이 빨개졌습니다. "사촌이면 가족이지." 다음 달에도 술을 기대하는 눈치입니다.',{money:-20},0,{fx:s=>{s.flags.cousinHid=s.year}}],
+  ['인민반장이 술을 받고도 장부에 적었습니다. 사촌은 새벽 기차역에서 붙잡혔습니다.',{risk:12,joy:-6},-2,{w:.45}]],
+ report:[['신고하자 사촌이 "너도 변했구나" 하고 떠났습니다. 그 뒤로 친척들 소식이 끊겼습니다.',{net:-5,joy:-3},-1],
+  ['신고한 덕에, 그 주 숙박 검열에 걸린 다른 집들과 달리 우리 집은 칭찬을 받았습니다.',{loyal:5,risk:-4},1]]});
+FORK('travel',{
+ ok:[['기차가 정전으로 닷새를 섰습니다. 도착했을 때 이모는 이미 땅에 묻혔습니다.',{joy:-6,hp:-3},-1],
+  ['기차에서 만난 장사꾼과 친해져 물건을 떼어 왔습니다. 이모도 털고 일어났습니다.',{money:()=>R(60,200),joy:3},2,{fx:s=>addContact(s,'장마당 도매상','favor')}]],
+ stay:[['가지 않았는데, 몇 달 뒤 이모가 털고 일어나 직접 찾아왔습니다. "보고 싶어서 왔다."',{joy:6},1]]});
+FORK('m_tv',{
+ buy:[['노트텔을 산 날 밤 인민반장이 "검열"이라며 문을 두드렸습니다. 다행히 조선 영화 CD가 꽂혀 있었습니다.',{risk:5,joy:2},0,{fx:s=>{s.own.notetel=s.year}}],
+  ['노트텔 덕에 우리 집이 동네 극장이 됐습니다. 이웃들이 먹을 걸 들고 옵니다.',{net:6,joy:5},2,{fx:s=>{s.own.notetel=s.year}}]],
+ no:[['창문을 닫았는데, 일주일 뒤 옆집이 단속에 걸렸습니다. 우리 집은 무사했습니다.',{risk:-3},1],
+  ['결국 옆집에 건너갔습니다. 커튼 너머의 세상은 생각보다 밝았습니다.',{outside:6,joy:4,risk:4},1]]});
+FORK('c_call',{send:[['보낸 돈의 반을 브로커가 먹었습니다. 그래도 어머니가 "고맙다"고 했습니다.',{joy:3},1],
+  ['돈이 닿기 전에 그 브로커가 붙잡혔습니다. 돈은 사라지고, 가족에게 보위원이 찾아갔습니다.',{joy:-8},-2,{w:.5}]],
+ promise:[['약속한 다음 날부터 하루 두 시간씩 더 일했습니다.',{prep:10,hp:-3},1]]});
+FORK('inherit',{chief:[['인민반장이 봉투를 그대로 보안서에 넘겼습니다. "정직한 인민" 표창장이 나왔습니다.',{loyal:8,net:3},1],
+  ['인민반장이 봉투를 받더니 반을 떼어 내밀었습니다. "우리 둘만 아는 일이오."',{money:()=>R(100,300),risk:4},1]]});
+FORK('j_snitch',{yes:[['밀고한 내용이 거짓이라는 게 들통났습니다. 그날 밤 같은 방 사람들이 이불을 덮어씌웠습니다.',{hp:-10,joy:-6},-2,{w:.6}]],
+ no:[['같은 방 사람들이 내 몫의 일을 나눠서 해 줬습니다. "의리 있는 놈."',{hp:2,net:5},1]]});
+FORK('momcaught',{give:[['그 돈으로 어머니가 새 물건을 떼어 와 일주일 만에 본전을 찾았습니다. "우리 집 첫 동업자"라고 불러 줬습니다.',{joy:5,net:3,money:()=>R(5,20)},2]],
+ sleep:[['배고파 잠이 안 오는 밤, 할머니가 숨겨 둔 누룽지를 꺼냈습니다.',{hp:1,joy:2},1]]});
+FORK('t_dark',{candle:[['초를 켜자 어머니가 벽에 그림자 놀이를 해 줬습니다. 토끼, 개, 비행기.',{joy:4},1]],
+ stars:[['아버지가 별자리를 하나씩 짚어 줬습니다. "저 별은 남쪽에서도 보인단다."',{outside:2,joy:2},1]],
+ sing:[['노래를 부르다 옆집에서 벽을 두드렸습니다. "늦었소!"',{joy:-1},0]]});
+FORK('c_bounty',{quiet:[['남자가 돈을 받고도 그다음 주에 공안을 데려왔습니다. 뒷문으로 겨우 빠져나왔습니다.',{risk:15,money:-30},-2,{w:.6}],
+  ['돈을 받은 남자가 오히려 일자리를 소개해 줬습니다. "나도 사실 조선족이오."',{risk:-15,money:()=>R(50,150)},2,{w:.6}]],
+ move:[['옮긴 동네에서 같은 처지의 북쪽 사람을 만났습니다. 서로 의지하게 됐습니다.',{joy:5,net:3,risk:-12},1]]});
+FORK('c_church',{pass:[['지나쳤는데 그 집 사람이 따라와 작은 책과 전화번호를 쥐여 줬습니다.',{prep:8,outside:4},1]]});
+FORK('j_visit',{half:[['간수가 절반을 떼고도 남은 보따리를 또 뒤졌습니다. 손에 남은 건 떡 두 개였습니다.',{hp:2,joy:2},0],
+  ['떡 사이에 쪽지가 끼워져 있었습니다. "다들 기다린다."',{hp:8,joy:10},2]]});
+FORK('photo1',{hide:[['뒷줄에 숨었는데 사진기자가 나를 앞으로 끌어냈습니다. 그 사진이 노동신문에 실렸습니다.',{loyal:6,net:5},2,{w:.4,fx:s=>{s.flags.photo=s.year}}]]});
+FORK('wrongpkg',{sell:[['휴대폰을 산 사람이 보위부 끄나풀이었습니다. 출처를 캐묻는 사람이 찾아왔습니다.',{money:()=>R(100,200),risk:14},-1],
+  ['팔러 간 장마당에서 진짜 주인이 나타났습니다. 사례금을 받았습니다.',{money:()=>R(80,200),net:3},1]],
+ back:[['돌려보낸 상자의 주인은 브로커였습니다. 몇 달 뒤 "그때 그 정직한 사람"이라며 연락이 왔습니다.',{},1,{fx:s=>addContact(s,'브로커','favor')}]]});
+FORK('camp_food',{bear:[['참는 걸 본 늙은 수감자가 밤에 자기 옥수수 반을 나눠 줬습니다.',{hp:2,joy:3},1]]});
+FORK('b_spring',{
+ roots:[['산에서 캔 풀뿌리 중에 독초가 섞여 있었습니다. 사흘을 앓았습니다.',{hp:-12},-2,{w:.4}],['산에서 더덕 군락을 찾았습니다. 반은 먹고 반은 장마당에 팔았습니다.',{hp:-2,money:()=>R(30,100)},2,{w:.5}]],
+ debt:[['가을에 갚을 날이 오기 전, 돈주가 숙청됐습니다. 장부가 통째로 사라졌습니다.',{hp:2,joy:4},2,{w:.35,fx:s=>{s.flags.debt=0}}]]});
+FORK('c_boss',{bear:[['참고 일한 지 반년, 사장이 갑자기 밀린 월급을 다 줬습니다. 공안 단속이 무서웠던 겁니다.',{money:()=>R(200,500),joy:4},2]],
+ leave:[['떠나는 밤, 같은 식당 언니가 따라 나왔습니다. 둘이 함께 다른 도시로 갔습니다.',{risk:-10,net:4,joy:3},1]]});
+FORK('m_stall',{yield:[['양보한 그 자리에서 옆 매대 아주머니가 한 달 만에 단속에 걸렸습니다. 입구 쪽은 눈에 잘 띄었던 겁니다.',{risk:-3,net:3},1]]});
+FORK('b_street',{stay:[['버티던 사흘째, 담임 선생님이 우리 집 문 앞에 쌀 한 봉지를 두고 갔습니다.',{hp:3,loyal:3},1]]});
+FORK('gadu',{gadu:[['가두여성으로 등록했는데 인민반 동원에 매주 불려 나갔습니다. 장사는 반밖에 못 했습니다.',{job:'gadu',hp:-3},0,{fx:s=>{s.dir='trade'}}]],
+ stay:[['직장에 남았더니 이듬해 작업반장 자리가 내게 왔습니다.',{loyal:3,net:4},1]]});
+FORK('b_cow',{out:[['"나는 모르는 일"이라던 그 말이 조사 때 나를 살렸습니다. 고기를 나눠 먹은 사람들은 다 불려 갔습니다.',{risk:-5,net:-3},1]],
+ report:[['보고했는데 관리위원장도 한통속이었습니다. 오히려 내가 "허위 신고"로 몰렸습니다.',{risk:12,net:-10},-2,{w:.5}]]});
+FORK('b_watch',{yes:[['수첩을 받았지만 거짓 보고만 적었습니다. 보위원은 몇 달 뒤 눈치를 챘습니다.',{risk:8,flag:'informer'},-1]],
+ gift:[['보위원이 담배를 받으며 말했습니다. "다음 달엔 두 보루요."',{risk:-4,money:-20},0]]});
+FORK('muri',{go:[['트럭이 탄광 대신 협동농장으로 갔습니다. 서류가 바뀌었답니다.',{job:'farm',joy:-2,flag:'muri'},0],
+  ['트럭에서 같은 고향 전우가 귀띔했습니다. "탄광 지배인이 우리 삼촌이야." 첫날부터 갱 밖 일을 받았습니다.',{job:'mine',net:6,flag:'muri'},1]]});
+FORK('purge',{low:[['몸을 낮춘 사이 경쟁자가 먼저 숙청됐습니다. 그 자리가 내게 왔습니다.',{rank:1,risk:-6},2,{w:.4,c:s=>s.party}]]});
+FORK('kidsick',{heal:[['중국 항생제가 가짜였습니다. 결국 병원에 업고 갔고, 의사가 어디선가 진짜 약을 구해 줬습니다.',{money:-60,joy:-2},-1,{fx:s=>addContact(s,'의사','favor')}]]});
+FORK('kidschool',{pay:[['장마당에서 사 간 과제가 다른 집 아이 것과 똑같았습니다. 둘 다 혼났습니다.',{joy:-2},0]],
+ shame:[['"못 낸다" 버텼더니 다른 집들도 따라 버텼습니다. 그 과제는 흐지부지됐습니다.',{net:3,joy:2},1]]});
+FORK('e_supply',{feast:[['고깃국 냄새가 계단을 타고 퍼졌습니다. 다음 날 아래층 운전수가 인사를 하지 않았습니다.',{net:-3,hp:4},0]]});
+FORK('m_house',{no:[['넣지 않았습니다. 석 달 뒤, 그 아파트 입사증이 휴지가 됐다는 소식이 들렸습니다.',{joy:3},1],['넣지 않았는데, 넣은 이웃이 두 배를 벌었습니다. 배가 아팠습니다.',{joy:-4},0]]});
+FORK('e_flat',{no:[['남았습니다. 새 아파트는 엘리베이터가 멈춰 30층을 걸어 다닌답니다.',{joy:2},1]]});
+FORK('jobpost',{no:[['남았습니다. 그 자리에 들어간 사람이 반년 뒤 검열에 걸렸습니다.',{risk:-2},1],['남았습니다. 그 자리에 간 동창이 중국 차를 타고 나타났습니다.',{joy:-4},0]]});
+FORK('e_banquet',{dodge:[['다음 날 그 간부가 보위부에 불려 갔습니다. 연회에서 누가 무슨 말을 했는지 물으러 사람이 찾아왔습니다.',{risk:10},-1],
+  ['다음 날 그 간부가 술병을 들고 찾아왔습니다. "어제 일은 잊으시오. 그리고 고맙소."',{net:6},1,{fx:s=>addContact(s,'간부 비서','favor')}]]});
+FORK('b_porter',{no:[['안 했는데, 그날 밤 짐꾼으로 간 이웃이 총에 맞았다는 소식이 들렸습니다.',{joy:-4},0]]});
+FORK('pull',{no:[['문을 닫았는데 그 사람이 사진을 문틈에 끼워 두고 갔습니다.',{outside:5},0]]});
+FORK('lookalike',{change:[['머리를 잘랐더니 오히려 드라마 다음 화의 머리 모양과 똑같아졌습니다. 소문이 더 커졌습니다.',{risk:6,joy:3},0]]});
+FORK('spdrama',{scold:[['그날 밤 배우자가 등을 돌린 채 울었습니다. 다음 날 둘이 아궁이 앞에 앉아 USB가 타는 걸 봤습니다.',{loyal:2,joy:-3},0]],
+ quiet:[['돌아누웠다가 결국 슬쩍 화면을 봤습니다. 둘이 같이 웃었습니다.',{outside:5,joy:5,risk:3},1]]});
+FORK('marry',{
+ good:[[s=>`성분 좋은 집안과 결혼했습니다. 처음 인사 간 날, ${inLaw(s)} 어른이 당원증을 보여 주며 웃었습니다. 생각보다 따뜻한 집이었습니다.`,{marry:'good',net:10,joy:4},2],
+  [s=>`성분 좋은 집안과 결혼했습니다. 잔칫날 ${inLaw(s)} 쪽 친척들이 우리 쪽 친척에게 말 한마디 걸지 않았습니다.`,{marry:'good',net:8,joy:-4},0]],
+ rich:[['장사꾼 집안과 결혼했습니다. 알고 보니 빚이 더 많은 집이었습니다.',{marry:'rich',money:-50,joy:-3},-1,{w:.5}],
+  [s=>`장사꾼 집안과 결혼했습니다. ${inLaw(s)}에서 첫해부터 매대 하나를 떼어 줬습니다.`,{marry:'rich',money:()=>R(300,900),net:5},2]],
+ love:[['좋아하는 사람과 결혼했습니다. 양가 부모가 성분을 따지며 반대했지만, 결국 잔치 국수를 같이 먹었습니다.',{marry:'love',joy:8,net:-3},2],
+  ['좋아하는 사람과 결혼했습니다. 첫 겨울, 둘 다 몸살이 나 서로 죽을 끓여 줬습니다.',{marry:'love',hp:-3,joy:7},1]],
+ no:[['혼자 지내기로 했습니다. 어머니가 한동안 말을 하지 않았습니다.',{joy:-3},0],['혼자 지내기로 했습니다. 그 시간에 장사에 몰두해 동네에서 제일 큰 매대를 잡았습니다.',{money:()=>R(100,300),net:3},1]]});
+FORK('dol',{pen:[['연필을 잡자마자 입에 넣었습니다. 할머니가 "공부를 먹어 버리겠네" 하고 웃었습니다.',{edu:3,joy:3},1]],
+ cash:[['돈을 쥐고 끝까지 놓지 않았습니다. 할아버지가 "이 집안 첫 돈주"라고 했습니다.',{net:2,money:()=>R(1,5)},1]],
+ thread:[['실타래를 풀어 온몸에 감았습니다. 다들 배꼽을 잡았습니다.',{hp:4,joy:3},1]],
+ mic:[['마이크를 잡고 울음을 터뜨렸습니다. "가수는 아니겠다"며 다들 웃었습니다.',{joy:2},0]]});
+FORK('scarf',{calm:[['앞 아이가 넥타이를 잃어버려 울길래 내 것을 먼저 빌려줬습니다. 선생님이 칭찬했습니다.',{loyal:3,net:2},1]]});
+FORK('assign',{
+ ok:[[s=>`${J(JOBS[s.asg].ko,'이/가')} 됐습니다. 가 보니 공장이 반년째 멈춰 있었습니다. 출근부에 도장만 찍고 장마당에 나갑니다.`,{job:s=>s.asg,money:()=>R(10,40)},0,{c:s=>!!JOBS[s.asg]}],
+  [s=>`${J(JOBS[s.asg].ko,'이/가')} 됐습니다. 작업반장이 같은 고향 사람이었습니다. 첫날부터 편한 자리를 줬습니다.`,{job:s=>s.asg,net:5},1,{c:s=>!!JOBS[s.asg]}]],
+ doc:[['병원 의사가 됐습니다. 약이 없어 처방전에 장마당 약 이름을 적어 줍니다.',{job:'doctor',net:3},1]],
+ e83:[['8·3 노동자가 됐는데, 직장에 내는 돈이 장마당 벌이의 절반이었습니다.',{job:'e83',joy:-3},0,{fx:s=>{s.dir='trade'}}]]});
+FORK('escape',{
+ alone:[['떠나기 직전, 어머니가 문 앞에서 옥수수떡 보따리를 내밀었습니다. 아무 말도 하지 않았습니다.',{flag:'leaving',joy:2},0,{next:'river',c:momHome}],
+  ['짐을 싸는데 개가 짖었습니다. 숨을 죽이고 한 시간을 기다렸다가 나섰습니다.',{flag:'leaving',risk:3},0,{next:'river'}]],
+ stay:[['오늘은 아니었습니다. 그날 밤 강가에서 총소리가 났습니다.',{risk:-3},1],['떠나지 않은 다음 날, 그 브로커가 붙잡혔다는 소문이 돌았습니다. 내 이름이 그 사람 수첩에 있었을까요.',{risk:6},0]]});
+FORK('remit',{no:[['돌려보냈는데 브로커가 돈을 그냥 두고 갔습니다. "받든 말든 당신 몫이오."',{money:()=>R(200,600),outside:6},1,{w:.5}]]});
+FORK('mobil',{go:[['돌격대에서 같은 처지 사람들과 친해졌습니다. 다녀오니 장사 동업자가 셋 생겼습니다.',{hp:-6,net:7},1],['돌격대에서 다리를 다쳤습니다. 집에 오니 겨울이었습니다.',{hp:-14},-2,{w:.4}]],
+ skip:[['돈을 내고 빠졌는데 명단에 "불참"으로 남았습니다. 생활총화에서 비판을 받았습니다.',{money:-30,risk:6},-1]]});
+FORK('broker',{none:[['번호를 지웠는데 같은 번호로 또 전화가 왔습니다. "마음 바뀌면 연락하시오."',{outside:3},0,{fx:s=>addContact(s,'브로커','favor')}]]});
+FORK('badge',{confess:[['솔직히 신고했더니 비서가 서랍에서 새 휘장을 꺼내 줬습니다. "잃어버리는 사람 많소."',{loyal:3},1]]});
+FORK('route',{wait:[['한 해 더 숨어 일하는데, 같은 공장 언니가 먼저 떠났습니다. 한국에서 문자가 왔습니다. "길 괜찮아."',{prep:15,outside:5},1]]});
+FORK('radio',{none:[['못 들은 척했는데 아빠가 다가와 이불을 덮어 주며 속삭였습니다. "너도 크면 들어라."',{outside:4},1]]});
+FORK('t_market',{sell:[['신이 나서 단속원 앞에서도 "사 가세요!" 외쳤습니다. 어머니가 내 입을 막았습니다.',{joy:1},0]],
+ sleep:[['자다 깨 보니 옆 좌판 할머니가 내 손에 엿을 쥐여 줬습니다.',{joy:3},1]]});
+FORK('t_out',{brave:[['연탄재 더미에서 미끄러져 무릎이 깨졌습니다. 흉터가 오래 남았습니다.',{hp:-2,joy:-1},0]],
+ shy:[['치맛자락 뒤에서 다 보고 있다가, 저녁에 골목 이야기를 쫑알쫑알 늘어놨습니다.',{edu:2},1]],
+ social:[['옆집 아이에게 다가갔다가 깡통을 뺏겼습니다. 다음 날 또 갔습니다.',{net:2,joy:-1},0]]});
+FORK('fire',{portrait:[['초상화를 안고 나오다 연기를 많이 마셨습니다. 상은 받았지만 한 달을 기침했습니다.',{flag:'firePortrait',loyal:12,net:4,money:s=>-Math.round(s.money*.4),hp:-10},1]]});
+FORK('currency',{saved:[['정말로 화폐 교환이 터졌습니다. 달러를 쥔 우리 집에 동네 사람들이 돈을 빌리러 왔습니다.',{net:5},2]]});
+FORK('drama',{no:[['참았습니다. 일주일 뒤 그 USB를 본 친구 집이 단속에 걸렸습니다.',{risk:-3},1]]});
+FORK('jeans',{ok:[['갈아입는 척 뒷골목으로 들어가 그대로 달아났습니다. 청바지는 무사했습니다.',{joy:3,risk:3},1]]});
+FORK('abroadwork',{stay:[['남았습니다. 3년 뒤 돌아온 이웃은 돈 대신 기침을 달고 왔습니다.',{},1],['남았습니다. 파견 갔던 동창이 러시아 시계를 차고 돌아왔습니다.',{joy:-3},0]]});
+FORK('driverjob',{no:[['하던 일을 계속했습니다. 그 트럭은 석 달 만에 고개에서 굴렀답니다.',{},1]]});
+FORK('meet',{pass:[['지나쳤습니다. 그 얼굴이 며칠 동안 장마당 소음 속에서 떠올랐습니다.',{joy:-1},0]]});
+
+/* ---------- 가끔만 나타나는 선택지 ---------- */
+XOPT('caught',[{t:'옆 사람에게 덮어씌운다',p:.35,r:[['"저 사람 물건이오." 보위원이 옆 사람을 끌고 갔습니다. 끌려가며 돌아본 그 눈빛이 오래 남았습니다.',{risk:-20,joy:-6},1,{fx:s=>addContact(s,'이웃','grudge')}],['거짓말이 들통났습니다. 죄가 하나 더 붙었습니다.',{risk:25},-2]]},
+ {t:'기절한 척 쓰러진다',p:.25,r:[['보위원이 당황해 물을 끼얹었습니다. 그새 일이 흐지부지됐습니다.',{risk:-10},1],['"연기 그만하라." 발길질이 날아왔습니다.',{hp:-8,risk:5},-1]]}]);
+XOPT('raid109',[{t:'단속원 처남의 이름을 댄다',p:.3,r:[['"…그 사람을 아오?" 단속원이 조용히 돌아갔습니다.',{risk:-6},2],['"처남이랑 사이가 나빠서." 일이 더 커졌습니다.',{risk:15},-2]]}]);
+XOPT('review',[{t:'작업반장을 칭찬하는 연설을 한다',p:.4,r:[['작업반장이 흐뭇해하며 다음 달 편한 작업을 줬습니다.',{net:5,hp:2},1],['너무 칭찬해서 다들 웃음을 참았습니다. 작업반장 얼굴이 빨개졌습니다.',{net:-2,joy:2},0]]}]);
+XOPT('b_relief',[{t:'포대에 적힌 글씨를 몰래 베껴 둔다',p:.35,r:[['"대한민국"이라는 네 글자였습니다. 그 글자를 오래 생각했습니다.',{outside:6},1],['베끼는 걸 동네 아이가 봤습니다. 아이가 학교에서 그 얘기를 했습니다.',{risk:10,outside:3},-1]]}]);
+XOPT('kotjebi',[{t:'아이를 고아원에 데려다준다',p:.35,r:[['고아원 원장이 아이를 받아 줬습니다. 몇 해 뒤 그 아이가 서툰 글씨로 편지를 보냈습니다.',{net:3,joy:5},2],['고아원에도 먹을 게 없었습니다. 아이는 그 주에 역전으로 돌아갔습니다.',{joy:-4},-1]]},
+ {t:'매대 일을 시키고 밥을 준다',p:.4,c:s=>s.dir==='trade'||['e83','gadu','trader'].includes(s.jobK),r:[['아이가 매대를 지키며 손님을 불렀습니다. 장사가 더 잘됐습니다.',{money:()=>R(30,100),net:2},2,{fx:s=>{s.flags.kotShare=s.year}}],['사흘째 되는 날 아이가 돈통을 들고 사라졌습니다.',{money:s=>-Math.min(s.money,R(30,80))},-1]]}]);
+XOPT('fire',[{t:'옆집으로 번지기 전에 물부터 길어 온다',p:.4,r:[['동네 사람들과 물동이를 날라 불을 잡았습니다. 옆집 할머니가 두고두고 고마워했습니다.',{net:6,money:s=>-Math.round(s.money*.2),hp:-3},2],['물을 길어 오는 사이 집이 다 탔습니다.',{money:s=>-Math.round(s.money*.5),joy:-6},-2]]}]);
+XOPT('portrait',[{t:'옆집 초상화까지 같이 닦아 준다',p:.3,r:[['옆집 할머니가 감자 한 바가지를 들고 왔습니다.',{net:4,loyal:3},1],['옆집 액자를 닦다 떨어뜨렸습니다. 둘이 같이 하얗게 질렸습니다.',{risk:8,net:-2},-1]]}]);
+XOPT('currency',[{t:'금반지로 바꿔 장롱 밑에 숨긴다',p:.4,r:[[s=>{s.own.gold=s.own.gold||s.year;return'금반지 두 개를 샀습니다. 장롱 밑에 숨겼습니다. 무슨 일이 생겨도 금은 금입니다.'},{money:s=>-Math.round(s.money*.15)},1],[s=>{s.own.gold=s.own.gold||s.year;return'금반지를 샀는데 금방 주인이 "도금"을 섞어 팔았다는 소문이 돌았습니다. 장롱 밑 반지를 볼 때마다 의심스럽습니다.'},{money:s=>-Math.round(s.money*.15),joy:-2},0]]}]);
+XOPT('errandbust',[{t:'옆 좌판에 상자를 밀어 넣는다',p:.35,r:[['옆 좌판 할머니가 치마폭으로 상자를 덮었습니다. 단속원이 그냥 지나갔습니다.',{net:3},1],['옆 좌판 물건까지 같이 실려 갔습니다. 할머니가 나를 노려봤습니다.',{net:-4},-1]]}]);
+XOPT('choco',[{t:'반은 먹고 반은 동생에게 가져간다',p:.4,r:[['동생이 초코파이를 또 반으로 쪼개 엄마에게 줬습니다.',{joy:5,outside:3},1],['집에 가는 길에 주머니 속 초코파이가 다 뭉개졌습니다. 동생이 그래도 핥아 먹었습니다.',{joy:2,outside:2},0]]}]);
+XOPT('marry',[{t:'중국을 오가는 무역일꾼 집',p:.3,c:s=>s.songbun!=='hostile',r:[['무역일꾼 집안과 결혼했습니다. 혼수로 중국 냉장고가 들어왔습니다.',{marry:'rich',money:()=>R(300,900),outside:6},1],[s=>`무역일꾼 집안과 결혼했습니다. 석 달 만에 ${inLaw(s)} 어른이 밀수 혐의로 끌려갔습니다.`,{marry:'rich',risk:10,joy:-4},-1]]},
+ {t:'제대군인 동무',p:.3,r:[['군대에서 막 돌아온 사람과 결혼했습니다. 말수는 적어도 손이 부지런했습니다.',{marry:'good',hp:3,loyal:3},1],['제대군인과 결혼했습니다. 군대 얘기만 나오면 말없이 담배를 피웠습니다.',{marry:'good',joy:-2},0]]}]);
+XOPT('dol',[{t:'아버지 가슴의 초상휘장',p:.3,r:[['아버지 가슴의 휘장을 잡아당겼습니다. 다들 얼어붙었다가, 할아버지가 "충성둥이"라며 크게 웃었습니다.',{loyal:5},1],['휘장을 잡아당겨 바닥에 떨어뜨렸습니다. 잔치가 순식간에 조용해졌습니다.',{risk:4},-1]]},
+ {t:'외삼촌이 가져온 중국 장난감 자동차',p:.3,r:[['자동차를 잡고 붕붕 소리를 냈습니다. "운전수 되겠다."',{net:2,outside:1},1],['자동차 바퀴를 입에 넣다 하나를 삼킬 뻔했습니다. 잔치가 난리가 났습니다.',{hp:-1,joy:1},0]]}]);
+XOPT('t_gift',[{t:'선생님께 드린다',p:.3,r:[['선생님이 과자를 받고 눈시울이 붉어졌습니다. 그 뒤로 나를 더 챙겨 줬습니다.',{edu:3,loyal:2},1],['선생님이 "이런 건 받으면 안 된다"며 반 아이들 앞에서 돌려줬습니다.',{joy:-3},-1]]}]);
+XOPT('lodge',[{t:'사촌을 다락에 숨긴다',p:.4,r:[['인민반장은 다락까지 보지 않았습니다.',{},1,{fx:s=>{s.flags.cousinHid=s.year}}],['다락에서 사촌이 재채기를 했습니다.',{risk:15,money:-30},-2]]}]);
+XOPT('travel',[{t:'증명서 없이 써비차 짐칸에 숨는다',p:.4,r:[['짐칸에 숨어 이틀 만에 도착했습니다. 이모가 내 손을 잡았습니다.',{joy:5,risk:3},1],['검문소에서 걸렸습니다. 노동단련대 한 달.',{risk:10,hp:-6},-2]]}]);
+XOPT('m_tv',[{t:'옆집을 신고한다',p:.25,r:[['옆집 노트텔이 압수됐습니다. 그 집 사람들이 나를 본척만척합니다.',{loyal:6,net:-8},0,{fx:s=>addContact(s,'이웃','grudge')}],['단속원이 그 집에서 돈만 받고 갔습니다. 옆집은 누가 신고했는지 압니다.',{net:-8,risk:4},-2,{fx:s=>addContact(s,'이웃','grudge')}]]}]);
+XOPT('mobil',[{t:'의사 진단서를 산다',p:.4,r:[['"허리 디스크." 진단서 한 장에 쌀 10킬로.',{money:-25},1],['진단서를 써 준 의사가 그 주에 검열에 걸렸습니다. 결국 돌격대에 갔습니다.',{money:-25,hp:-8},-1]]}]);
+XOPT('b_spring',[{t:'장마당에서 국수 장사를 시작한다',p:.35,r:[['국숫집이 잘됐습니다. 보릿고개를 장사로 넘겼습니다.',{money:()=>R(40,150),net:3},2],['국수 사 먹을 돈이 있는 사람이 없었습니다.',{money:-30,hp:-4},-1]]}]);
+XOPT('broker',[{t:'브로커의 신원부터 캐 본다',p:.35,c:s=>s.net>=20,r:[['아는 사람을 통해 알아보니 진짜였습니다. 날짜를 받았습니다.',{prep:25},2],['알아보다 소문이 났습니다. 보위원이 그 번호를 물었습니다.',{risk:15},-1]]}]);
+XOPT('badge',[{t:'친구 휘장을 빌린다',p:.35,r:[['친구가 집에 하나 더 있다며 빌려줬습니다.',{net:2},1],['빌린 휘장이 친구 아버지 것이었습니다. 친구 집이 발칵 뒤집혔습니다.',{net:-3,risk:5},-1]]}]);
+XOPT('remit',[{t:'반만 받고 반은 돌려보낸다',p:.3,r:[['"받은 걸로 하라." 남쪽에서 짧은 답장이 왔습니다.',{money:()=>R(200,600),outside:8},1],['돌려보낸 반을 브로커가 가로챘습니다. 남쪽에서는 내가 다 받은 줄 압니다.',{money:()=>R(150,400),joy:-3},0]]}]);
+XOPT('b_watch',[{t:'"저는 이웃들과 말을 안 합니다"',p:.4,r:[['보위원이 웃었습니다. "그것도 수상하오."',{risk:8},-1],['보위원이 고개를 끄덕였습니다. 그 뒤로 덜 찾아왔습니다.',{risk:-5},1]]}]);
+XOPT('e_banquet',[{t:'맞장구를 친다',p:.3,r:[['그가 술잔을 부딪쳤습니다. 둘만의 비밀이 생겼습니다.',{net:6,risk:8},1,{fx:s=>addContact(s,'간부 비서','favor')}],['다음 날 그가 보위부에 불려 갔고, 내 이름을 댔습니다.',{risk:25},-3]]}]);
+XOPT('t_measles',[{t:'아랫마을 의사 선생님을 모셔 온다',p:.4,r:[['의사 선생님이 밤길을 걸어와 주사를 놔 줬습니다. 사흘 만에 열이 내렸습니다.',{hp:4},1,{fx:s=>addContact(s,'의사','favor')}],['의사 선생님도 약이 없었습니다. 손만 잡아 주고 갔습니다.',{hp:-4},-1]]}]);
+XOPT('t_dark',[{t:'옆집 할아버지 집에 놀러 간다',p:.35,r:[['할아버지가 손전등을 켜고 전쟁 때 이야기를 들려줬습니다.',{outside:2,joy:3},1],['할아버지 집은 더 깜깜했습니다. 둘이 마루에 앉아 개구리 소리만 들었습니다.',{joy:2},0]]}]);
+XOPT('escape',[{t:'떠나기 전에 친구에게만 알린다',p:.3,r:[['친구가 아무 말 없이 돈 봉투를 쥐여 줬습니다.',{flag:'leaving',money:()=>R(30,100)},1,{next:'river'}],['친구가 그날 밤 보위부에 갔습니다.',{risk:30},-3]]}]);
+XOPT('move',[{t:'평양 친척 집에 얹혀산다',p:.25,c:s=>s.songbun!=='hostile'&&s.place.type!=='capital',r:[['평양 친척 집 부엌방에 얹혀 반년을 지냈습니다. 거주증 없이 들킬까 늘 조마조마했습니다.',{joy:4,risk:8,outside:3},0],['평양 친척이 문을 열어 주지 않았습니다. "요즘 검열이 심하다."',{joy:-4},-1]]}]);
+XOPT('jeans',[{t:'"이건 중국 노동복이오" 우긴다',p:.4,r:[['규찰대원이 웃음을 참으며 보내 줬습니다.',{},1],['"노동복을 왜 장마당에서 입나?" 바지를 압수당했습니다.',{risk:6,money:-15},-1]]}]);
+
+/* ================= 시나리오: 같은 선택, 다른 이야기 ================= */
+FORK('gamble_a',{no:[['안 가려 했는데 친구가 억지로 끌고 갔습니다. "구경만 해."',{},0,{arc:'b:1'}]]});
+FORK('gamble_b',{quit:[['손을 털려는데 판주가 내 어깨를 잡았습니다. "이 판, 당신이 맡아 볼 생각 없소?"',{net:5},1,{arc:'=boss'}]]});
+FEND('gamble','boss','뒷골목 판주','neutral','화투판에서 손을 털려다 판을 통째로 넘겨받았습니다. 이제 남의 본전 생각으로 삽니다.');
+FORK('letter_a',{deny:[['돌려보냈는데 이듬해 브로커가 다시 왔습니다. "사촌이 포기하지 않았소."',{outside:3},0,{arc:'b:1'}]],
+ take:[['봉투 안에 사진과 함께 돈이 들어 있었습니다. 브로커가 말했습니다. "답장은 필요 없고, 바로 오라더라."',{outside:8,money:300},1,{arc:'c:1'}]]});
+FORK('letter_b',{write:[['답장을 전한 브로커가 보위부 끄나풀이었습니다.',{risk:20},-2,{w:.4,arc:'=caught'}]]});
+FORK('foster_a',{bread:[['빵을 받은 아이가 다음 날 또 따라왔습니다. 그다음 날도.',{},0,{w:.6,arc:'b:1',fx:s=>{const m=addKid(s);m.by=s.year-R(8,11);m.bond=30;m.foster=1;m.rel+=' (데려온 아이)'}}]]});
+FORK('twin_a',{run:[['피했는데, 그 사람이 우리 집까지 찾아왔습니다. 어머니가 문을 열고 그 자리에 주저앉았습니다.',{joy:-2},0,{arc:'b:1'}]]});
+FORK('church2_a',{burn:[['태우려는 순간 할머니가 손을 붙잡았습니다. "목요일 밤에 같이 가자."',{},0,{w:.5,arc:'b:1'}]]});
+FORK('pyong_a',{no:[['남기로 했는데, 평양 친척이 거주증 서류를 이미 다 꾸며 놓았답니다.',{},0,{w:.5,arc:'b:1'}]]});
+FORK('loan2_a',{no:[['남의 일이라 했는데, 돈 빌리러 온 사람이 장마당 보안원이었습니다. 거절할 수가 없었습니다.',{risk:4},0,{w:.5,arc:'b:1'}]]});
+FORK('build_a',{no:[['안 한다고 했더니 돈주가 다른 방법을 내밀었습니다. "자재 말고 이름만 빌려주시오. 몫은 줍니다."',{money:()=>R(100,300),risk:6},0,{w:.5,arc:'=name'}]]});
+FEND('build','name','이름만 빌려준 건물주','neutral','돈주 건설에 이름만 빌려줬습니다. 그 아파트 입구에 내 이름이 새겨진 돌이 있습니다.');
+FORK('guard2_a',{refuse:[['돌려보냈는데 밀수꾼이 웃으며 말했습니다. "당신 같은 사람을 찾고 있었소. 다음 달에 진짜 손님이 건너오오."',{},0,{w:.5,arc:'b:1'}]]});
+FORK('usb_a',{no:[['노트북을 넣어 두려는데 이웃이 찾아왔습니다. "한 번만 복사해 주게. 쌀 한 자루 주지."',{money:30,risk:3},0,{w:.5,arc:'b:1'}]]});
+FORK('off_a',{no:[['제대를 원했지만 서류는 이미 올라가 있었습니다. 군관 학교 통지서가 왔습니다.',{loyal:3},0,{w:.4,arc:'b:3'}]]});
+FORK('sp_a',{no:[['공부를 하겠다 했는데, 체육단 감독이 집까지 찾아와 부모님을 설득했습니다.',{hp:4},0,{w:.4,arc:'b:3'}]]});
+FORK('broker2_a',{no:[['혼자 떠나려는 날 밤, 그 사람이 가족을 데리고 문 앞에 서 있었습니다.',{},0,{w:.5,arc:'b:1'}]]});
+FORK('twin_b',{ask:[['따져 묻자 어머니가 장롱 깊은 곳에서 출생증 두 장을 꺼냈습니다. 하나에는 다른 성이 적혀 있었습니다.',{outside:4,joy:-3},0,{w:.6,arc:'c:1'}]]});
+FORK('sm_a',{no:[['장사나 하겠다고 했는데, 그 사내들이 내 매대 물건을 다 사 갔습니다. "다음엔 우리 물건을 팔아 주시오."',{money:()=>R(100,300),risk:5},0,{w:.5,arc:'b:1'}]]});
+FORK('dj_a',{no:[['혼자 하겠다고 했는데 화교 상인이 웃었습니다. "그럼 물건만 대겠소. 값은 반값."',{money:()=>R(100,400),net:4},1,{w:.5,arc:'b:2'}]]});
+FORK('chef_a',{no:[['내 국숫집에 남았는데, 그 손님이 다음 해에 또 왔습니다. 이번엔 평양에서 온 차와 함께.',{net:4},0,{w:.4,arc:'b:1'}]]});
+FORK('relay_a',{no:[['너무 위험하다고 했는데, 남쪽에서 온 가족이 직접 전화를 걸어 왔습니다. "한 번만 부탁하오."',{outside:4},0,{w:.5,arc:'b:1'}]]});
+FORK('truck_a',{no:[['남의 트럭을 계속 몰았는데, 그 트럭 주인이 숙청돼 트럭이 그대로 내 손에 남았습니다.',{net:3},1,{w:.4,arc:'b:2'}]]});
+
+/* ================= 해 볼 수 있는 일: 성공 · 실패도 여러 갈래 ================= */
+function AFORK(k,m){const a=ACTS.find(x=>x.k===k);if(!a)return;for(const side of['win','lose']){if(!m[side])continue;const f0=a[side],V=m[side].map(fv);
+ a[side]=s=>{const u=(s.aouts=s.aouts||{})[k]||(s.aouts[k]=[]);const L=[[-1,1]].concat(V.map((v,i)=>[i,v.c&&!v.c(s)?0:(v.w||.8)])).map(([i,w])=>[i,w*(u.includes(side+i)?.25:1)]).filter(x=>x[1]>0);const i=wpick(L);u.push(side+i);
+  if(i<0)return f0(s);return forkRun(s,'act_'+k,V[i])}}}
+AFORK('c_party',{win:[['입당했습니다. 입당식 날 비가 와서, 당원증이 젖을까 품에 안고 뛰었습니다.',{party:1,joy:3},2,{fx:s=>big(s,'입당',2)}],['입당했습니다. 축하하러 온 사람 중 절반은 부탁할 게 있는 사람이었습니다.',{party:1,net:4},2,{fx:s=>big(s,'입당',2)}]],
+ lose:[['명단에서 빠졌습니다. 그 자리는 심사위원 처조카에게 갔다는 소문입니다.',{joy:-4},-1],['떨어졌는데 심사위원 하나가 따로 불렀습니다. "내년엔 확실히 해 주겠소. 대신…" 봉투 하나가 더 필요하답니다.',{joy:-2,net:3},0]]});
+AFORK('c_promo',{win:[['승진했습니다. 그런데 전임자가 남긴 장부에 구멍이 있었습니다.',{rank:1,risk:8},1],['승진했습니다. 부하 직원들이 축하 술상을 차렸습니다.',{rank:1,net:4},2]],
+ lose:[['떨어졌는데, 붙은 사람이 석 달 만에 검열에 걸렸습니다. 그 자리가 다시 비었습니다.',{joy:1},0],['떨어졌습니다. 심사 날 아침 넥타이를 잘못 맨 탓이라고 동료가 놀렸습니다.',{joy:-3},-1]]});
+AFORK('r_look',{lose:[['말을 걸려는데 그 사람 옆에 이미 누가 있었습니다.',{joy:-3},-1],['말은 걸었는데 혀가 꼬였습니다. 그 사람이 웃으며 지나갔습니다. 나쁜 웃음은 아니었습니다.',{joy:1},0]]});
+AFORK('r_date',{lose:[['약속 장소에 정전이 나서 서로를 찾지 못했습니다. 이튿날 서로 원망했습니다.',{joy:-3},-1,{fx:s=>{if(s.date)s.date.bond=clamp(s.date.bond-R(3,6),0,100)}}],
+  ['산책길에 그 사람 어머니와 마주쳤습니다. 위아래로 훑어보는 눈길이 길었습니다.',{joy:-2},-1,{fx:s=>{if(s.date)s.date.bond=clamp(s.date.bond-R(1,4),0,100)}}]]});
+AFORK('r_kid',{win:[[s=>{const a=addKid(s),b=addKid(s);a.bond=b.bond=65;big(s,'쌍둥이 출생',2);return`쌍둥이가 태어났습니다! ${a.name.slice(1)}${P(a.name.slice(1),'과/와')} ${b.name.slice(1)}. 산파가 두 번 놀랐습니다.`},{joy:14},2,{w:.08}]]});
+AFORK('j_whole',{win:[['도매상이 됐습니다. 첫 거래처가 군부대 후방부였습니다.',{net:12,risk:4},2,{fx:s=>{s.own.wholesale=s.year;s.dir='trade'}}]],
+ lose:[['첫 물량이 들어오자마자 화폐 단속이 터졌습니다. 반값에 넘겼습니다.',{money:s=>-Math.min(s.money,300),joy:-4},-1]]});
+AFORK('j_driver',{win:[['써비차 운전수가 됐습니다. 첫 손님이 도 보위부 간부였습니다. 명함을 받았습니다.',{job:'driver',net:6},2,{fx:s=>addContact(s,'보위원','favor')}]],
+ lose:[['등록비를 냈는데 트럭이 다른 사람에게 갔습니다. 그 사람은 기관장의 처남이었습니다.',{joy:-4},-1]]});
+AFORK('j_trader',{win:[['외화벌이 회사원이 됐습니다. 첫 출장지는 신의주 세관이었습니다. 중국 상인 하나가 명함을 내밀었습니다.',{job:'trader',net:4},2,{fx:s=>addContact(s,'중국 상인','favor')}]]});
+AFORK('j_abroad',{win:[['러시아 벌목장에서 3년을 일했습니다. 몰래 모은 루블을 신발 밑창에 넣어 왔습니다.',{money:()=>R(800,2500),outside:20,prep:15,hp:-8,flag:'wentAbroad'},2],
+  ['중국 봉제 공장에서 3년을 일했습니다. 공장 기숙사 텔레비전으로 처음 남쪽 뉴스를 봤습니다.',{money:()=>R(400,1500),outside:28,prep:20,hp:-4,flag:'wentAbroad'},2]]});
+/* ---------- 시나리오 중간 갈림길도 여러 갈래 ---------- */
+FORK('church2_a',{read:[['밤마다 읽다가 아이에게 들켰습니다. "그게 뭐야?" 아이에게 할머니 이야기를 해 줬습니다.',{outside:4,joy:5,risk:4},1,{arc:'b:1'}],
+ ['읽기 시작한 지 사흘째, 책갈피에서 할머니가 쓴 쪽지가 나왔습니다. "목요일, 장마당 끝 집 지하."',{outside:6},1,{arc:'c:1'}]]});
+FORK('church2_b',{no:[['못 들은 척했습니다. 그해 겨울, 그 할머니 집 지하실이 털렸다는 소문이 돌았습니다. 책을 더 깊이 숨겼습니다.',{risk:4},0,{arc:'=hide'}]]});
+FORK('pyong_a',{go:[['평양행 기차 옆자리 승객이 거주증 브로커였습니다. "친척보다 싸게 해 주지." 명함을 받았습니다.',{},0,{arc:'b:1',fx:s=>addContact(s,'간부 비서','favor')}],
+ ['기차가 검문에 걸려 여행증명서를 다시 받느라 한 해가 늦어졌습니다.',{money:-50,joy:-2},0,{arc:'b:2'}]]});
+FORK('pyong_b',{back:[['돌아오는 기차에서 친척이 몰래 쥐여 준 봉투를 열었습니다. 평양 백화점 상품권이었습니다.',{money:150},1,{arc:'=back'}]],
+ fake:[['위조 거주증을 샀는데, 판 사람이 같은 번호로 세 장을 팔았다는 소문이 들렸습니다. 검열이 오기 전에 손을 써야 합니다.',{risk:10},-1,{arc:'c:1',fx:s=>{s.place={type:'capital',ko:'평양'};s.house='평양 아파트 셋방';s.flags.pyFake=1}}]]});
+FORK('loan2_a',{go:[['장부를 샀습니다. 첫 손님은 갚지 않고 사라졌고, 두 번째 손님은 두 배로 갚았습니다.',{money:()=>R(100,600)},1,{arc:'b:1'}]]});
+FORK('loan2_b',{forgive:[['장부 태우는 걸 지켜본 간부가 그날 밤 다른 장부를 들고 왔습니다. "이번엔 내 동생 거요."',{money:s=>-Math.round(s.money*.15),net:6},0,{arc:'c:2'}]],
+ collect:[['끝까지 받아 냈습니다. 간부가 이를 갈며 돈을 내던졌습니다.',{money:800,risk:15},1,{w:.5,arc:'c:1',fx:s=>addContact(s,'간부 비서','grudge')}]],
+ deal:[['보호비 거래가 시작되자 간부가 다른 간부들까지 소개해 줬습니다. 장부에 붉은 도장이 찍힌 이름이 늘었습니다.',{net:12,risk:5},2,{arc:'c:2'}]]});
+FORK('twin_a',{talk:[['말을 걸자 그 사람이 먼저 입을 열었습니다. "당신을 찾고 있었어요. 어머니가 돌아가시기 전에 당신 얘기를 했어요."',{joy:3,outside:2},1,{arc:'b:1'}]]});
+FORK('twin_b',{bond:[['매대를 합쳤는데 손님들이 우리를 한 사람으로 알았습니다. 하나가 매대를 지키는 동안 하나는 국경 장사를 다녔습니다.',{money:600,net:6},2,{arc:'c:2'}]]});
+FORK('twin_c',{go:[['강가로 가는 길, 쌍둥이가 내 손에 종이 한 장을 쥐여 줬습니다. "흩어지면 여기서 만나." 서울 주소였습니다.',{prep:55,flag:'leaving'},2,{arc:'=go>river'}]],
+ stay:[['쌍둥이 혼자 떠났습니다. 몇 해 소식이 없다가, 어느 날 브로커가 돈 봉투를 들고 왔습니다. "형제분이 보냈소."',{money:()=>R(800,2000),outside:8},2,{arc:'=stay'}]]});
+FORK('sp_a',{go:[['체육단에 들어간 첫 달 다리를 다쳤습니다. 감독이 "쉬면서 지켜보라"고 했습니다.',{hp:-6},0,{arc:'b:4'}]]});
+FORK('usb_a',{go:[['복사를 시작한 첫날 노트북이 퍼졌습니다. 부품을 구하느라 한 달을 보냈습니다.',{money:-80},0,{arc:'b:1'}],
+ ['이불 속에서 복사하다 아이가 화면을 봤습니다. 아이가 노래를 따라 부릅니다. 등골이 서늘했습니다.',{risk:6,joy:2,money:()=>R(100,300)},0,{arc:'b:1'}]]});
+FORK('usb_b',{grow:[['판을 키우자 군부대 군관이 대량 주문을 넣었습니다. 손님이 군인이면 단속도 비켜 갑니다.',{money:()=>R(800,2000),outside:6,risk:6,net:6},2,{arc:'c:2'}]],
+ stop:[['멈추려 했는데 거래처 청년이 무릎을 꿇었습니다. "한 달만 더." 결국 판을 접지 못했습니다.',{money:()=>R(200,500),risk:8},0,{w:.5,arc:'c:1'}]]});
+FORK('wit_a',{go:[['처음 찍은 영상은 흔들려서 쓸 수가 없었습니다. 기자가 "괜찮다, 다시 하자"고 했습니다.',{outside:6,risk:5},0,{arc:'b:1'}]],
+ no:[['번호를 지웠는데, 한 달 뒤 기자가 다른 사람을 통해 작은 카메라를 보내왔습니다. "언제든."',{outside:3},0,{w:.5,arc:'b:2'}]]});
+FORK('wit_b',{more:[['세 번째 영상이 유엔 회의장 화면에 걸렸다는 소식이 왔습니다. 손이 떨려 밥을 못 먹었습니다.',{outside:14,risk:20},1,{arc:'c:1'}]]});
+FORK('farm_a',{plan:[['시키는 대로 했는데, 분조원 하나가 몰래 와서 말했습니다. "분조장 동무, 우리끼리 한 뙈기만 따로 해 봅시다."',{risk:4},0,{w:.5,arc:'b:1'}]],
+ split:[['땅을 나눠 맡겼는데 첫해 가뭄이 들었습니다. 그래도 분조원들은 밤마다 물을 길어 날랐습니다.',{risk:8,net:8,hp:-3},1,{arc:'b:1'}]]});
+FORK('farm_b',{hide:[['줄여 보고했는데 관리위원장이 웃으며 말했습니다. "우리 분조도 그렇게 했소." 다들 같은 배를 탔습니다.',{joy:8,risk:3,net:4},2,{arc:'c'}]]});
+FORK('off_a',{go:[['군관 학교 입학 날, 동기 중에 군단장 아들이 있었습니다. 같은 방을 썼습니다.',{loyal:6,net:10},2,{arc:'b:3'}]]});
+FORK('dj_a',{yes:[['손을 잡은 첫해, 화교 상인이 국경에서 붙잡혔습니다. 물건은 끊겼지만 그 사람의 거래처 장부가 내 손에 남았습니다.',{net:8,money:()=>R(100,400)},1,{arc:'b:1'}]]});
+FORK('dj_b',{pay:[['다달이 봉투를 올렸는데, 그 간부가 숙청됐습니다. 새 간부는 봉투를 두 배로 원했습니다.',{risk:-5,money:s=>-Math.round(s.money*.2)},-1,{arc:'c'}]],
+ refuse:[['간부가 웃으며 돌아갔습니다. 다음 달, 그 간부가 숙청됐다는 소식이 들렸습니다. 운이 좋았습니다.',{joy:4},2,{w:.5,arc:'c',fx:s=>{s.flags.djAlone=1}}]]});
+FORK('foster_b',{hug:[['감싸 주자 이웃들의 수군거림이 더 커졌습니다. 아이가 밤에 몰래 쌀값을 메워 놓았습니다. 역전에서 번 돈이었습니다.',{joy:4,net:-3},1,{arc:'c:3'}]],
+ scold:[['크게 혼낸 다음 날, 아이가 사라졌습니다. 사흘 뒤 역전에서 찾아 업고 왔습니다. 아이가 등에서 잠들었습니다.',{joy:2,hp:-2},1,{arc:'c:3'}]]});
+FORK('foster_c',{let:[['아이가 떠나기 전날, 가방 밑바닥에 나를 그린 그림 한 장을 넣는 걸 봤습니다. 모른 척했습니다.',{joy:5,outside:4},2,{arc:'=let'}]],
+ stay:[['아이가 남았습니다. 몇 해 뒤 장마당에 자기 매대를 내고, 첫 장사 돈으로 내 신발을 사 왔습니다.',{joy:12,money:()=>R(50,200)},2,{arc:'=stay'}]]});
+FORK('gold2_a',{dig:[['캐 보니 금이 아니라 황철석이었습니다. 실망했는데, 더 깊은 곳에서 진짜 줄이 나왔습니다.',{money:80,hp:-3},1,{arc:'b:1'}]],
+ report:[['신고하러 가는 길에 광산 당비서가 붙잡았습니다. "신고는 내가 한 걸로 하고, 몫은 나눕시다."',{money:300,risk:6},1,{w:.6,arc:'=report'}]]});
+FORK('chef_a',{go:[['평양 주방 첫날, 주방장이 내 칼을 보더니 말했습니다. "그 칼로 국수를 말았다고?" 주방에서 제일 낡은 칼이 제일 잘 들었습니다.',{net:8},1,{arc:'b:2'}]]});
+FORK('chef_c',{stay:[['평양 주방에 남았습니다. 몇 해 뒤 내 국수를 먹은 외국 대표단이 본국 신문에 내 이름을 썼습니다.',{net:6,outside:4},2,{arc:'=stay'}]]});
+FORK('broker2_a',{go:[['첫 손님은 아이를 업은 여자였습니다. 다음 안전가옥까지 아이를 내가 업고 걸었습니다.',{money:300,net:4,joy:6},2,{arc:'b:1'}]]});
+FORK('guard2_a',{take:[['담배를 받고 눈을 감았습니다. 그날 밤 건넌 건 물건이 아니라 사람 셋이었습니다.',{money:150,risk:8,outside:4},1,{arc:'b:1'}]]});
+FORK('guard2_b',{let:[['"가라." 엄마가 아이들을 데리고 강을 건너다 한 번 돌아봤습니다. 그 모습을 소대장이 망원경으로 보고 있었습니다.',{joy:6,risk:15},0,{w:.5,arc:'c:1'}]],
+ catch:[['소대를 부르려다 목소리가 나오지 않았습니다. 그사이 가족이 갈대밭으로 사라졌습니다.',{joy:3,risk:6},1,{w:.4,arc:'c:1'}]]});
+FORK('painter_a',{no:[['장마당 간판을 그렸는데, 그 간판을 본 외국인 관광객이 사진을 찍고 그림을 사 갔습니다.',{money:300,outside:4},1,{w:.5,arc:'=no'}]],
+ go:[['창작사에 들어갔습니다. 첫 일은 초상화가 아니라 선전화 속 옥수수 그리기였습니다. 3년 동안 옥수수만 그렸습니다.',{net:3,loyal:4},0,{arc:'b:3'}]]});
+FORK('bundle_a',{no:[['초청장을 서랍에 넣었는데 친척이 직접 국경까지 물건을 들고 찾아왔습니다. "그럼 내가 오지."',{money:()=>R(200,500),outside:6},1,{w:.5,arc:'b:1'}]]});
+FORK('siberia_a',{no:[['안 갔습니다. 3년 뒤 돌아온 동창이 손가락 두 개가 없었습니다.',{},1,{arc:'=no'}]]});
+FORK('letter_b',{skip:[['답장을 쓰지 않았는데 이듬해 사촌의 두 번째 편지가 왔습니다. 이번엔 돈과 함께.',{money:600,outside:6},1,{w:.5,arc:'c:0'}]]});
+FORK('letter_c',{stay:[['돈만 받고 남았습니다. 해마다 오는 사촌의 편지 끝에 아이들 사진이 한 장씩 늘었습니다.',{money:900,joy:10,outside:6},2,{arc:'=stay'}]]});
+FORK('build_b',{honest:[['원래대로 지었더니 공사 감독이 다른 돈주들에게 소문을 냈습니다. "저 사람 건물은 무너지지 않소." 주문이 밀려들었습니다.',{net:8,money:800},2,{arc:'c:2'}]]});
+FORK('relay_a',{go:[['첫 통화에서 서울의 아들과 혜산의 아버지가 서로를 못 알아봤습니다. 20년이었습니다.',{money:300,outside:10,risk:8},2,{arc:'b:1'}]]});
+FORK('sm_b',{win:[['오백 대가 무사히 건넜습니다. 그런데 조직 우두머리가 나를 견제하기 시작했습니다.',{money:()=>R(800,2000),net:4,risk:6},1,{arc:'c'}]]});
+
+/* ---------- 남은 외길들 ---------- */
+const fgMark=s=>{const m=tgtOf(s);if(!m)return;m.st='행방불명';m.crossed=1;m.crossedY=s.year;if(m.sp)s.flags.spouseCrossed=s.year;if(m.kid)s.flags.kidCrossed=s.year;bond(m,-20)};
+FORK('fgone',{report:[['신고를 먼저 했습니다. 보위원은 "잘했다"며 돌아갔지만, 그날 밤 인민반장이 우리 집 앞에 오래 서 있었습니다.',{risk:4},0,{fx:fgMark}],
+ ['먼저 신고한 덕에 연좌제는 피했습니다. 동네 사람들은 내가 가족을 팔았다고 수군댔습니다.',{net:-5,risk:-5},0,{fx:fgMark}]]});
+FORK('radio',{tell:[['선생님이 한참 나를 보더니 조용히 말했습니다. "그런 말은 아무한테도 하지 마라. 나한테도." 그날 일은 그걸로 끝이었습니다.',{outside:3},1,{w:.6}]]});
+FORK('t_kinder',{copy:[['옆 아이도 가사를 몰라서 둘이 같이 입만 뻐끔거렸습니다. 끝나고 둘이 배를 잡고 웃었습니다. 첫 단짝이 생겼습니다.',{net:3,joy:3},1]],
+ cry:[['무대에서 울었는데, 객석의 할머니가 따라 울었습니다. 그 바람에 발표회가 웃음바다가 됐습니다.',{joy:2},0]]});
+FORK('escape',{fam:[['아이를 업고 나서는데 배우자가 장롱 밑에서 모아 둔 돈을 전부 꺼냈습니다. "이건 강가에서 쓰자."',{flag:['leaving','withFamily'],prep:8},1,{next:'river'}]]});
+FORK('e_maid',{grateful:[['쌀을 보냈는데, 그 쌀이 가정부 고향 마을에서 "간부 집 쌀"로 소문이 났습니다. 보위원이 출처를 묻고 다녔습니다.',{risk:8,joy:2},0,{w:.6}]]});
+FORK('b_street',{street:[['역전 아이들 우두머리가 나를 감쌌습니다. 석 달 뒤 어머니가 찾으러 왔을 때 우두머리가 내 등을 떠밀었습니다. "가라. 너는 집이 있잖아."',{hp:-6,net:8,edu:-6,outside:3,flag:'wasKotjebi'},0]],
+ grain:[['낟알을 줍다 쌀 장수 아주머니 눈에 띄었습니다. 아주머니가 "가게 앞 좀 쓸어라" 하더니 쌀 한 줌을 줬습니다.',{hp:1,net:3},1]]});
+FORK('c_call',{cry:[['한마디도 못 했는데, 수화기 너머에서 어머니가 노래를 불렀습니다. 어릴 때 자장가였습니다.',{joy:3},1]]});
+FORK('farm_b',{show:[['있는 그대로 보고했더니 도에서 "모범 분조" 견학단이 왔습니다. 땅 나눈 걸 다 보고 갔습니다.',{risk:10,net:6},0,{arc:'c',fx:s=>{s.flags.farmShow=1}}]]});
+FORK('loan2_c',{gold:[['금괴를 묻은 자리 위에 감자를 심었습니다. 해마다 감자가 유난히 잘 열렸습니다.',{joy:4},1,{arc:'=gold'}]],
+ go:[['장부를 아궁이에 넣고 금만 챙겨 나섰습니다. 장부에 이름이 오른 백 명의 빚이 그날 밤 함께 탔습니다.',{prep:55,net:-6},1,{arc:'=go>escape'}]]});
+FORK('chef_c',{think:[['"생각해 보겠소." 다음 날 대표단 버스에 오르기 직전, 경호원이 내 어깨를 잡았습니다. 그냥 칼 가방을 확인한 것이었습니다. 버스가 출발했습니다.',{risk:5},2,{arc:'=abroad>escape'}]]});
+FORK('guard2_b',{join:[['총을 갈대밭에 눕히고 그 가족 뒤를 따랐습니다. 얼음 한가운데서 아이 하나를 내가 업었습니다.',{flag:'leaving',joy:4},2,{arc:'=join>river'}]]});
+FORK('off_c',{report:[['고발장을 쓰려다 펜을 내려놨습니다. 다음 날 그 장성 중 하나가 먼저 나를 불렀습니다. "자네 고발장은 어디 있나?" 시험이었습니다.',{rank:1,loyal:10},1,{w:.5,arc:'=report'}]]});
+FORK('bundle_a',{go:[['단동 시장에서 물건을 고르다 남쪽 상인을 만났습니다. 그 사람이 내 물건 값을 두 배로 쳐줬습니다.',{outside:14,money:600},2,{arc:'b:1',cost:0}]]});
+FORK('broker2_b',{org:[['큰 조직과 손잡기 직전, 조직 사람이 여자 손님만 따로 세는 걸 봤습니다. 그날 밤 손님들을 데리고 사라졌습니다.',{money:400,joy:6,risk:8},1,{w:.5,arc:'c:1'}]],
+ solo:[['혼자 적게 다니다 보니 손님 하나가 나를 공안에 팔아넘기려 했습니다. 다른 손님들이 그 사람을 막았습니다.',{money:600,joy:4,risk:6},1,{arc:'c:1'}]],
+ greed:[['값을 올리자 손님 하나가 내 앞에 무릎을 꿇었습니다. "아이 몫까지는 못 냅니다." 아이 몫은 받지 않았습니다.',{money:1800,joy:2},1,{arc:'c:1'}]]});
+FORK('gold2_b',{team:[['이웃 다섯이 함께 캐다 보니 하나가 금을 빼돌렸습니다. 넷이 그 사람을 갱도 밖으로 쫓아냈습니다.',{money:600,net:2,risk:6},0,{arc:'c:1',fx:s=>addContact(s,'이웃','grudge')}]],
+ solo:[['혼자 캐다 갱도 천장이 내려앉았습니다. 반나절을 갇혀 있다 겨우 기어 나왔습니다. 손에는 금덩이가 쥐여 있었습니다.',{money:900,hp:-14},1,{arc:'c:1'}]],
+ go:[['금 한 주머니를 들고 국경 도시에 가니, 금값이 한 달 새 반으로 떨어져 있었습니다.',{prep:20,joy:-3},0,{arc:'c:0'}]]});
+FORK('gamble_c',{house:[['집을 팔기 직전, 배우자가 집문서를 품에 안고 친정으로 가 버렸습니다. 판주는 다른 걸 원했습니다.',{joy:-6},-1,{w:.5,arc:'=job'}]],
+ report:[['고발하러 간 보안서에 판주가 앉아 있었습니다. 판주가 보안원의 처남이었습니다.',{risk:20,joy:-6},-2,{w:.5,arc:'=caught'}]]});
+FORK('church2_c',{bury:[['책을 묻으러 간 뒷산에서 모임의 다른 사람을 만났습니다. 그 사람도 책을 묻으러 왔습니다. 둘이 같은 구덩이에 묻었습니다.',{joy:4},1,{arc:'=bury'}]],
+ go:[['다섯이 강가로 가는 길에 하나가 돌아섰습니다. "나는 남겠소. 누군가는 목요일을 지켜야지."',{prep:50,joy:-2},1,{arc:'=go>river'}]]});
+FORK('relay_b',{short:[['2분 통화를 이어 가다 보니 말이 짧아졌습니다. "살아 있다." "돈 받았다." 그걸로 충분했습니다.',{money:500,risk:8},1,{arc:'c:1'}]],
+ move:[['산을 바꿔 다니다 다른 중계인과 마주쳤습니다. 서로 모른 척 다른 봉우리로 올라갔습니다.',{money:700,hp:-4,risk:5},1,{arc:'c:1'}]],
+ pause:[['손전화를 묻은 지 석 달, 기다리던 할머니 하나가 끝내 아들 목소리를 듣지 못하고 세상을 떠났습니다.',{joy:-10},-1,{arc:'c:2'}]]});
+FORK('relay_c',{hide:[['손전화를 강에 던지려다 마지막으로 한 통만 더 연결했습니다. 기다리던 할머니가 울며 고맙다고 했습니다.',{risk:-8,joy:6},1,{arc:'=hide'}]]});
+FORK('pyong_b',{real:[['진짜 거주증을 샀습니다. 그런데 배정된 집이 평양 변두리였습니다. "여기도 평양이오."',{joy:4},1,{arc:'c:3',fx:s=>{s.place={type:'capital',ko:'평양'};s.house='평양 변두리 단층집'}}]]});
+FORK('dj_b',{partner:[['간부를 동업자로 끌어들였는데, 그 간부의 정적이 우리 회사를 먼저 검열했습니다.',{risk:15,net:6},0,{arc:'c',fx:s=>{s.flags.djPartner=1}}]]});
+FORK('dj_c',{in:[['평양 매장을 열었는데, 옆 매장 주인이 중앙당 간부 부인이었습니다. 손님을 다 뺏겼습니다.',{money:()=>R(500,2000),net:4},0,{arc:'d:2'}]],
+ stay:[['멈췄습니다. 그 겨울 평양 백화점 돈주 셋이 한꺼번에 사라졌습니다.',{money:()=>R(500,1500),joy:5},2,{arc:'=stay'}]]});
+FORK('guard2_c',{go:[['그날 밤 초소 교대 시간, 망원경 대신 지도를 챙겼습니다. 그 가족이 건넌 바로 그 자리였습니다.',{prep:55,flag:'leaving'},2,{arc:'=join>river'}]]});
+FORK('painter_b',{redo:[['밤새 고친 눈동자가 오히려 너무 살아 있다는 평을 받았습니다. 그 뒤로 초상화 눈동자는 내 몫이 됐습니다.',{hp:-4,loyal:10,net:5},2,{arc:'c:2'}]]});
+FORK('gold2_c',{quit:[['갱도를 무너뜨리던 밤, 마지막 돌무더기 밑에서 금덩이 하나가 굴러 나왔습니다. 그건 챙겼습니다.',{money:900},1,{arc:'=quit'}]]});
+FORK('siberia_a',{go:[['벌목장 감독관이 같은 고향 사람이었습니다. 첫해부터 장부 정리를 맡겼습니다.',{outside:10,net:5},1,{arc:'b:1'}]]});
+FORK('painter_c',{own:[['내 그림이 외국 화랑에 걸리기 전날, 창작사에 보위원이 찾아왔습니다. 그림 속 골목이 어딘지 묻지는 않았습니다.',{outside:12,money:600,risk:10},2,{arc:'=own'}]]});
+FORK('usb_c',{seoul:[['서울 쪽 사람이 말했습니다. "지금은 숨으세요. 꾸러미는 2년 뒤에 보내겠습니다."',{outside:10,risk:-5},1,{arc:'d:2'}]]});
+FORK('usb_d',{quiet:[['USB를 묻다가 하나를 몰래 주머니에 넣었습니다. 밤마다 그 하나를 봅니다.',{money:()=>R(300,800),outside:6},1,{arc:'=small'}]]});
+FORK('sm_a',{join:[['들어간 첫날 밤, 신호를 잘못 읽어 강가에서 반나절을 숨어 있었습니다. 사내들이 낄낄 웃었습니다. "이제 한 식구다."',{risk:6,net:4},0,{arc:'b:1'}]]});
+FORK('rest_a',{go:[['식당에 도착한 첫날, 지배인이 여권을 걷어 갔습니다. 창밖 네온사인이 감옥 창살처럼 보였습니다.',{outside:12,joy:-3},0,{arc:'b:1'}]],
+ no:[['가지 않았는데, 같이 뽑혔던 친구가 몇 해 뒤 남쪽 방송에 나왔습니다.',{outside:4},0,{arc:'=no'}]]});
+FORK('sp_d',{loyal:[['쪽지를 받은 감독이 그 자리에서 찢었습니다. "나는 못 본 거다." 감독 눈가가 붉었습니다.',{joy:4},1,{arc:'=friend'}]]});
+FORK('sec_japan',{no:[['답장을 하지 않았는데, 몇 해 뒤 일본 친척이 관광단에 섞여 평양까지 왔다는 소식이 들렸습니다. 만나지는 못했습니다.',{outside:4},0]]});
+FORK('sec_gold',{skip:[['넘겼는데 그날 밤 꿈에 할아버지가 나와 밤나무를 가리켰습니다. 다음 날 아침, 결국 삽을 들었습니다. 깡통 안엔 쪽지 한 장. "욕심내지 마라."',{joy:3},0,{w:.5}]]});
+FORK('tourist',{safe:[['외운 대로 답했는데, 외국인이 그 문장을 수첩에 받아 적었습니다. 감시원과 나 둘 다 당황했습니다.',{loyal:2,outside:2},0]]});
+FORK('factorystop',{stay:[['매일 출근해 멈춘 기계를 닦다가, 기계를 고칠 방법을 알아냈습니다. 공장이 한 달 동안 다시 돌았습니다.',{loyal:6,net:5},2,{w:.5}]],
+ e83:[['8·3 노동자가 됐는데 장마당 자리 값이 생각보다 비쌌습니다.',{job:'e83',money:-30},0,{fx:s=>{s.dir='trade'}}]]});
+FORK('sec_informer',{burn:[['수첩을 태우는데 맨 마지막 장에 아버지 글씨로 내 이름이 적혀 있었습니다. "이 아이는 지켜 주시오."',{risk:6,joy:-4},0]],
+ take:[['수첩을 물려받았지만 첫 장부터 빈칸으로 냈습니다. 보위원은 한 달 만에 수첩을 거둬 갔습니다.',{risk:-8,loyal:3},0]]});
+FORK('build_a',{in:[['시멘트를 들여왔는데 절반이 굳어 있었습니다. 중국 상인에게 따지러 국경까지 다녀왔습니다.',{net:3,money:-200},0,{arc:'b:1'}]]});
+FORK('wit_b',{hide:[['장비를 묻으러 간 뒷산에서 보위부 탐지 차량 불빛을 봤습니다. 그날 밤 장비를 강에 던졌습니다.',{risk:4},0,{arc:'c:2'}]]});
+
+/* ================= 백두혈통: 같은 명령, 다른 결말 ================= */
+FORK('rk_garden',{water:[['분수 속에서 금빛 잉어를 봤습니다. 다음 날 그 분수에 잉어가 열 마리로 늘어 있었습니다.',{joy:5},1]],
+ guard:[['경호원에게 뛰어가다 넘어졌습니다. 그 경호원은 그날로 바뀌었습니다. 왜인지 몰랐습니다.',{joy:-3},0]],
+ wall:[['담장 너머로 연 하나가 날아 들어왔습니다. 서툰 글씨로 아이 이름이 적혀 있었습니다. 그 아이를 오래 상상했습니다.',{outside:3,joy:2},1]]});
+FORK('rk_toy',{car:[['장난감 자동차가 아버지 집무실 문에 부딪혔습니다. 문이 열리고, 아버지가 웃는 얼굴을 처음 봤습니다.',{joy:6,loyal:3},1]],
+ doll:[['인형이 하는 외국말을 통역관에게 물었습니다. "안녕, 친구"랍니다. 그날 밤 그 말을 혼자 연습했습니다.',{outside:3},1]],
+ globe:[['지구본을 돌리다 남쪽에서 손가락이 멈췄습니다. 유모가 황급히 지구본을 치웠습니다.',{outside:4},0]]});
+FORK('rk_school',{throne:[['맨 앞자리에 앉았는데 뒷자리 아이가 쪽지를 던졌습니다. "너도 숙제 하냐?" 처음으로 웃음이 터졌습니다.',{joy:4,net:2},1]]});
+FORK('rk_sneak',{stay:[['돌아오는 복도에서 늙은 요리사가 장마당 떡 한 조각을 몰래 쥐여 줬습니다. 관저 음식과 맛이 달랐습니다.',{outside:2,joy:3},1]]});
+FORK('rk_photo',{hide:[['얼굴을 돌린 순간 다른 기자가 옆모습을 찍었습니다. 그 사진이 외국 잡지에 실렸습니다.',{outside:4,risk:3},0]],
+ look:[['카메라를 똑바로 봤습니다. 다음 날 그 기자가 내 앞에 무릎을 꿇고 필름을 바쳤습니다. 필름은 내가 가졌습니다.',{loyal:2,joy:2},0]]});
+FORK('rk_scarf',{proud:[['선서 중 한 줄을 빼먹었습니다. 모두가 못 들은 척 박수를 쳤습니다. 그게 더 무서웠습니다.',{joy:-2,outside:2},0]],
+ friend:[['친구 손을 잡고 올라갔는데, 다음 달 그 친구 아버지가 장성이 됐습니다. 사람들이 그 집을 "운 좋은 집"이라 불렀습니다.',{net:4},1]]});
+FORK('rwed',{army:[[s=>{const p=addSpouse(s,'good');p.job='군 원로 집안';p.bond=58;return'성대한 결혼식이었습니다. 잔칫날 밤 군 원로가 내 귀에 속삭였습니다. "이제 군은 당신 편이오."'},{flag:'rwed',net:8},2],
+  [s=>{const p=addSpouse(s,'good');p.job='군 원로 집안';p.bond=35;return'성대한 결혼식이었습니다. 첫날 밤, 배우자가 등을 돌린 채 말했습니다. "우리 집안이 원한 거지, 내가 원한 게 아니에요."'},{flag:'rwed',joy:-6},0]],
+ art:[[s=>{s.flags.royalArtWed=s.year;const p=addSpouse(s,'love');p.job='예술단 가수';p.bond=82;return'예술단 가수와 결혼했습니다. 결혼식 날 밤, 배우자가 나만을 위해 노래를 불렀습니다. 관저 복도가 처음으로 따뜻했습니다.'},{joy:14},2]]});
+FORK('r_guard',{report:[['쪽지를 넘겼는데 보위부가 오히려 그 마을 보고서를 다시 올렸습니다. 다음 달 그 마을에 배급이 나갔습니다. 경호원은 끝내 돌아오지 않았습니다.',{loyal:4,joy:-2},0]],
+ burn:[['쪽지를 태웠는데, 며칠 뒤 같은 경호원이 같은 쪽지를 또 쥐여 줬습니다. 이번엔 마을 사람 이름이 빼곡했습니다.',{outside:3,joy:-3},0]]});
+FORK('r_sibling',{avoid:[['아프다고 했더니 형제가 직접 문병을 왔습니다. 과일 바구니 밑에 "화해하자"는 쪽지가 있었습니다.',{risk:-6,joy:3},1]]});
+FORK('r_famine',{look:[['끝까지 봤습니다. 관저에 돌아와 그 길의 이름을 수첩에 적었습니다. 다음 해 그 길가에 국수 공장이 섰습니다.',{joy:4,outside:4},2,{w:.6}]],
+ close:[['커튼을 닫았는데 틈으로 한 아이와 눈이 마주쳤습니다. 그 아이는 손을 흔들지 않았습니다.',{joy:-4,outside:2},0]]});
+FORK('r_kidheir',{go:[['아이를 보냈습니다. 몇 해 뒤 돌아온 아이가 공항 입국장에서 나를 먼저 안았습니다.',{joy:6,outside:6},2]],
+ stay:[['평양에서 키웠습니다. 아이가 열다섯이 되던 해, 몰래 외국 영화를 보다 들켰습니다. 혼내지 않았습니다.',{outside:4,joy:3},1]]});
+FORK('heir_abs',{calm:[['내 이름이 불렸습니다. 회의가 끝나고 막내가 조용히 다가와 말했습니다. "형님 편에 설게요."',{flag:'heir',risk:-30,loyal:10,net:6},2]],
+ stare:[['형제들을 하나씩 바라보는데, 맏형만 끝까지 눈을 피하지 않았습니다. 내 이름이 불렸을 때도.',{flag:'heir',risk:-22},1,{fx:s=>{s.flags.power=(s.flags.power||0)+20}}]]});
+FORK('leader_rise',{food:[['식량 보고서 숫자가 도마다 달랐습니다. 담당자 셋을 불러 따졌더니, 셋 다 "위에서 숫자를 내려 줬다"고 했습니다.',{outside:6,joy:2},1]],
+ army:[['장성 인사를 하룻밤에 끝냈습니다. 다음 날 아침, 물러난 장성 하나가 보낸 난초 화분이 집무실에 와 있었습니다.',{loyal:8,risk:4},1,{fx:s=>{s.flags.power=(s.flags.power||0)+25}}]],
+ world:[['외국 신문에 실린 우리나라 위성 사진을 봤습니다. 밤의 한반도에서 우리 쪽만 깜깜했습니다.',{outside:18,joy:-3},1]]});
+FORK('rsib_a',{talk:[['형을 찾아가자 형이 먼저 술병을 내밀었습니다. "너도 나도 아버지 장기판의 말이다." 처음으로 마음이 놓였습니다.',{joy:5,risk:-5},1,{arc:'b:1'}]],
+ plant:[['내 사람을 심었는데, 그중 하나가 형의 끄나풀이었습니다.',{risk:10},-1,{arc:'b:1'}]]});
+FORK('rsib_b',{buy:[['별장을 나눠 주는데 원로 하나가 거절했습니다. "나는 돈으로 줄 서지 않소. 그래서 당신 편이오."',{net:8,loyal:4},2,{arc:'c'}]],
+ oath:[['맹세하는 자리에 형도 와 있었습니다. 아버지가 둘을 번갈아 보다 말없이 일어섰습니다.',{risk:5},0,{arc:'c'}]],
+ ally:[['형이 손을 내밀며 조건을 붙였습니다. "군은 내 거다." 고개를 끄덕였습니다.',{net:4,risk:-4},1,{arc:'c'}]]});
+FORK('rsib_c',{exile:[['전용기 대신 화물기 짐칸에 숨어 나갔습니다. 형의 근위대가 공항을 봉쇄하기 십 분 전이었습니다.',{endNow:'exile'},1,{arc:'=exile'}]]});
+FORK('rref_a',{go:[['모임 첫날, 젊은 관료 하나가 서재 책장에서 금서 한 권을 꺼냈습니다. 아버지 책장이었습니다.',{outside:6},1,{arc:'b:2'}]],
+ no:[['돌려보냈는데, 한 달 뒤 그들이 다른 형제를 찾아갔다는 소식이 들렸습니다.',{risk:4},0,{arc:'=no'}]]});
+FORK('rref_b',{wait:[['문서를 금고에 넣었습니다. 몇 해 뒤 금고를 열었을 때, 모임 사람들은 이미 다 지방으로 흩어진 뒤였습니다.',{joy:-3},0,{arc:'c:3'}]]});
+FORK('rref_c',{deny:[['모른다고 했습니다. 아버지가 문서를 서랍에 넣으며 말했습니다. "그럼 이건 내가 쓴 걸로 하지." 다음 해 장마당 단속이 느슨해졌습니다.',{joy:4},2,{w:.4,arc:'=yes'}]]});
+FORK('rbank_a',{go:[['계좌 열두 개를 외우다 하나를 잊었습니다. 그 계좌의 돈이 어디로 갔는지는 지금도 모릅니다.',{risk:3},0,{arc:'b:1'}]],
+ no:[['사양했는데 삼촌이 계좌를 맡은 지 일 년 만에 숙청됐습니다. 그 자리가 다시 내게 왔습니다.',{risk:2},0,{w:.5,arc:'b:1'}]]});
+FORK('rbank_c',{power:[['돈줄을 쥐자 장성들이 찾아왔습니다. 그중 하나가 장부를 몰래 베끼는 걸 봤습니다.',{net:6,risk:8},1,{arc:'=power'}]],
+ gone:[['가명 여권으로 떠나려는데, 공항에서 삼촌의 사람이 나를 알아봤습니다. 고개를 끄덕이고 보내 줬습니다.',{endNow:'exile'},1,{arc:'=gone'}]]});
+FORK('rgov_a',{listen:[['성냥갑을 받았는데, 성냥 하나에 작은 글씨로 날짜가 적혀 있었습니다.',{outside:6,risk:6},0,{arc:'b:1'}]],
+ no:[['문을 닫았는데 그 사람이 문틈에 성냥갑을 끼워 두고 갔습니다.',{outside:3},0,{w:.5,arc:'b:2'}]]});
+FORK('rgov_b',{hide:[['이름을 바꾸고 유럽 작은 도시의 빵집 위층에 살았습니다. 아침마다 빵 냄새로 깹니다.',{endNow:'exile'},2,{arc:'=hide'}]],
+ stay:[['성냥갑을 태우려다 서랍에 넣었습니다. 가끔 꺼내 봅니다.',{outside:2},0,{arc:'=stay'}]]});
+FORK('rdip_a',{yes:[['악수하는 순간 상대가 귓속말을 했습니다. "다음엔 당신 나라 냉면을 먹고 싶소."',{outside:10,net:6},2,{arc:'b:1'}]],
+ no:[['대답하지 않았는데, 상대가 한 번 더 편지를 보냈습니다. 이번엔 손글씨였습니다.',{outside:4},0,{w:.5,arc:'b:2'}]]});
+FORK('rdip_b',{walk:[['판을 깨고 일어서는데, 상대 대표가 문 앞까지 따라 나왔습니다. "다음 달에 다시 봅시다."',{net:3},0,{arc:'c:2'}]]});
+FORK('rdip_c',{zone:[['특구를 열자 첫해 외국 공장이 넷 들어왔습니다. 그중 하나는 남쪽 회사가 이름만 바꾼 곳이었습니다.',{outside:10,money:()=>R(200000,800000)},2,{arc:'=zone'}]]});
+FORK('rkid_a',{force:[['"너는 이 나라의 다음이다." 아이가 한참 말이 없더니 고개를 끄덕였습니다. 그날 밤 아이 방에서 오래 불이 켜져 있었습니다.',{loyal:4},0,{arc:'b:3'}]],
+ free:[['아이가 나를 안더니 말했습니다. "그럼 나 피아노 할래." 관저에 피아노 소리가 났습니다.',{joy:8},2,{arc:'b:4'}]]});
+FORK('rkid_b',{let:[['보내 줬습니다. 몇 해 뒤 외교 행낭에 아이가 보낸 사진 한 장이 들어 있었습니다. 낯선 도시에서 웃고 있었습니다.',{joy:6,outside:8},2,{arc:'=let'}]]});
+FORK('rhealth_b',{sister:[['여동생이 서명을 대신하는 동안, 여동생 이름으로 된 명령 하나가 내가 모르는 사이 나갔습니다.',{risk:10},-1,{arc:'=sister'}]],
+ kid:[['아이를 내세웠는데, 군 행사 단상에서 아이가 원고에 없는 말을 했습니다. "우리 아버지는 곧 일어나십니다." 박수가 쏟아졌습니다.',{joy:6,net:4},2,{arc:'=kid'}]]});
+FORK('rwar_a',{fire:[['반격을 명령했는데 현장 지휘관이 포구를 바다 쪽으로 돌렸습니다. 아무도 죽지 않았습니다. 그 지휘관을 불러 훈장을 줬습니다.',{joy:4,net:4},2,{w:.4,arc:'b:1'}]],
+ call:[['핫라인이 연결되지 않았습니다. 세 번째 시도 끝에 남쪽 국방장관이 받았습니다. "정상은 지금 비행기 안이오."',{risk:6},0,{arc:'b:1'}]],
+ blame:[['현장 지휘관을 문책하려는데, 그 지휘관이 군 원로의 사위였습니다. 원로가 직접 찾아왔습니다.',{risk:8,net:-4},-1,{arc:'b:1'}]]});
+FORK('rwar_b',{peace:[['사격 중지 명령이 내려가는 데 한 시간이 걸렸습니다. 그 한 시간 동안의 일은 보고서에 없습니다.',{joy:2},1,{arc:'=peace'}]],
+ parade:[['열병식 날, 광장의 탱크 하나가 멈춰 섰습니다. 방송은 그 장면을 잘라 냈습니다.',{risk:4},0,{arc:'=parade'}]]});
+FORK('rlove_a',{pick:[['장미를 주웠는데 가시에 손가락이 찔렸습니다. 경호원이 손수건을 내밀었습니다. 그 손수건을 돌려주지 않았습니다.',{joy:6},1,{arc:'b:1'}]],
+ pass:[['못 본 척 지나갔는데, 다음 날 책상 위에 장미가 놓여 있었습니다.',{joy:3},0,{w:.5,arc:'b:1'}]]});
+FORK('rlove_b',{buy:[['비서실장이 쪽지를 태우며 웃었습니다. "저도 젊을 때 그랬습니다." 경호원은 지방 대신 관저 정원 담당이 됐습니다.',{joy:8},2,{w:.5,arc:'c:2'}]],
+ confess:[['고백하자 아버지가 한참 창밖을 보다 말했습니다. "네 어머니도 처음엔 경호원 집안이었다." 경호원은 사라지지 않았습니다.',{joy:12},2,{w:.35,arc:'=blessed'}]]});
+FORK('rlove_c',{wait:[['기다렸습니다. 몇 해 뒤 지방 부대 시찰에서 그 사람을 다시 봤습니다. 서로 경례만 했습니다.',{joy:-2},0,{arc:'=wait'}]]});
+FORK('rcourt_a',{invite:[['그와 농구를 했는데 내가 이겼습니다. 그가 웃으며 말했습니다. "일부러 져 준 거 아니오." 둘 다 웃었습니다.',{joy:6,outside:5},1,{arc:'b:1'}]],
+ no:[['영상으로 봤는데, 그가 영상 끝에 나에게 하는 말을 덧붙였습니다. "언제 한 판 합시다."',{outside:3},0,{w:.5,arc:'b:1'}]]});
+FORK('rclass_a',{yes:[['인터뷰를 하다 옛 담임 선생님 이야기가 나왔습니다. 동창이 울었습니다. 기사엔 그 부분만 빠졌습니다.',{outside:6},1,{arc:'b:1'}]]});
+FORK('raid_a',{send:[['가명으로 보낸 쌀 트럭이 가는 길에 군부대 검문에 걸렸습니다. 검문소장이 트럭 번호를 적고 그냥 보내 줬습니다.',{risk:6,joy:4},1,{arc:'b:1'}]],
+ close:[['보고서를 덮었는데, 다음 날 같은 보고서가 다시 책상에 올라와 있었습니다. 누군가 일부러 올려 둔 겁니다.',{joy:-3},0,{w:.5,arc:'b:1'}]]});
+FORK('rmissile_a',{hold:[['보류했는데 군 원로 하나가 명령을 무시하고 발사를 지시했습니다. 미사일은 바다에 떨어졌고, 그 원로는 다음 날 사라졌습니다.',{risk:6,net:-3},0,{w:.4,arc:'b:1'}]]});
+FORK('rdisguise_a',{go:[['변장하고 나갔는데 국숫집 주인이 나를 알아봤습니다. 주인은 아무 말 없이 국수에 고기를 두 점 더 얹었습니다.',{joy:5,outside:4},1,{arc:'b:1'}]]});
+FORK('rdouble_a',{use:[['대역이 열병식에 나간 날, 대역이 단상에서 원고에 없는 손짓을 했습니다. 다음 날부터 사람들이 그 손짓을 따라 했습니다.',{risk:4,joy:2},0,{arc:'b:2'}]]});
+FORK('rwill_a',{read:[['유언장에 내 이름이 있었습니다. 그런데 그 아래, 다른 형제 이름이 한 번 더 적혀 있었습니다. 같은 필체로.',{risk:6},0,{arc:'b:1'}]]});
+FORK('rspace_a',{go:[['로켓이 2단에서 멈췄습니다. 그런데 외국 관측소가 "궤도 진입 가능성"을 발표했습니다. 방송은 성공이라고 했습니다.',{loyal:6},1,{arc:'=orbit'}]]});
+
+for(const x of FEND_L)SCN_ENDS.push(x);
+
+/* ================================================================
+   2600만 분의 1 — 같은 선택, 다른 갈래
+   ① 타고난 성격 두 가지: 성격에 맞는 선택지가 따로 열립니다
+   ② 뜻밖의 전개: 같은 선택도 대성공 · 꼬임 · 새 인연으로 갈립니다
+   ③ 인연: 만난 사람이 몇 해 뒤 돌아와 돕거나, 앙갚음합니다
+   ================================================================ */
+const TRAITS={talk:{ko:'말솜씨',d:'말로 위기를 넘깁니다'},bold:{ko:'대담함',d:'겁 없이 부딪칩니다'},careful:{ko:'신중함',d:'위험을 먼저 봅니다'},craft:{ko:'손재주',d:'뭐든 고쳐 팔 줄 압니다'},kind:{ko:'인정',d:'사람이 따릅니다'},
+ shrewd:{ko:'계산',d:'숫자에 밝습니다'},grit:{ko:'끈기',d:'끝까지 버팁니다'},sharp:{ko:'눈치',d:'분위기를 먼저 읽습니다'},arty:{ko:'예술 감각',d:'노래와 그림에 끼가 있습니다'},athletic:{ko:'운동 신경',d:'몸이 빠르고 튼튼합니다'}};
+const hasT=(s,k)=>(s.traits||[]).includes(k);
+function rollTraits(s){const K=Object.keys(TRAITS);const a=pick(K);let b=pick(K);while(b===a)b=pick(K);s.traits=[a,b]}
+
+/* 어떤 사건이 어떤 종류인가 */
+const EV_TAGS={caught:'auth',raid109:'auth',inspect:'auth',b_watch:'auth',spcaught:'auth',kiddrama:'auth',badge:'auth',travel:'auth',jeans:'auth',portrait:'auth',lodge:'auth',e_audit:'auth',gongan:'auth',c_bounty:'auth',review:'auth',speech:'auth',errandbust:'auth',b_plotbust:'auth',usb_c:'auth',wit_c:'auth',kot_c:'auth',farm_c:'auth',pyong_c:'auth',bundle_b:'auth',
+ currency:'deal',jobpost:'deal',m_stall:'deal',m_house:'deal',inherit:'deal',wrongpkg:'deal',move:'deal',b_porter:'deal',lookalike:'deal',dj_c:'deal',sm_b:'deal',loan2_b:'deal',truck_b:'deal',gold2_c:'deal',driverjob:'deal',
+ sick:'fam',spsick:'fam',kidsick:'fam',kidschool:'fam',momcaught:'fam',spjob:'fam',t_measles:'fam',b_spring:'fam',foster_b:'fam',
+ b_mine:'danger',fire:'danger',camp_food:'danger',c_traffic:'danger',quake_b:'danger',flood2_a:'danger',siberia_c:'danger',
+ drama:'risk',spdrama:'risk',m_tv:'risk',choco:'risk',radio:'risk',usb_a:'risk',hostel_a:'risk'};
+
+/* 성격 선택지 [성격, 글, 기본 성공률] */
+const TOPT={auth:[['talk','능청스럽게 말로 넘긴다',.7],['shrewd','상대의 약점을 쥐고 흥정한다',.6],['sharp','분위기를 읽고 한발 먼저 움직인다',.65],['bold','눈을 똑바로 보고 버틴다',.5]],
+ deal:[['shrewd','숫자를 따져 판을 키운다',.65],['craft','직접 손봐서 값을 올린다',.7],['bold','가진 걸 다 건다',.45],['talk','말로 값을 깎고 판을 만든다',.6]],
+ fam:[['kind','밤새 곁을 지킨다',.8],['grit','될 때까지 매달린다',.7],['shrewd','가장 싼 방법을 찾아낸다',.65]],
+ danger:[['athletic','몸으로 해결한다',.7],['careful','한 번 더 확인하고 움직인다',.75],['grit','이를 악물고 버틴다',.6]],
+ risk:[['careful','문단속부터 단단히 한다',.8],['sharp','들킬 기미가 보이면 바로 멈춘다',.75],['bold','소리를 키워 끝까지 본다',.5]]};
+const TWIN={
+ 'auth:talk':['말 몇 마디에 상대가 피식 웃었습니다. 일이 흐지부지 끝났습니다.','"그 말솜씨면 장사를 해도 되겠소." 상대가 서류를 덮었습니다.'],'auth:shrewd':['그 사람이 장마당에서 뒷돈 받는 걸 알고 있다고 조용히 말했습니다. 일이 없던 것이 됐습니다.','상대 상관의 이름을 슬쩍 꺼냈습니다. 상대가 계산기를 두드리듯 눈을 굴리더니 물러섰습니다.'],
+ 'auth:sharp':['상대가 입을 열기도 전에 필요한 걸 내밀었습니다. 일이 순식간에 정리됐습니다.','분위기가 틀어지기 직전, 화제를 돌렸습니다. 아무 일도 없었습니다.'],'auth:bold':['끝까지 눈을 피하지 않았습니다. 먼저 눈을 돌린 건 상대였습니다.','"증거를 대시오." 상대가 대답하지 못했습니다.'],
+ 'deal:shrewd':['남들이 못 본 숫자를 봤습니다. 판이 두 배가 됐습니다.','값이 오를 때를 정확히 짚었습니다.'],'deal:craft':['손을 좀 봤더니 값이 세 배가 됐습니다.','낡은 걸 새것처럼 고쳐 팔았습니다. 손님이 줄을 섰습니다.'],'deal:bold':['전부 걸었고, 전부 땄습니다.','다들 말렸지만 밀어붙였습니다. 판이 뒤집혔습니다.'],'deal:talk':['말로 값을 반으로 깎았습니다.','말 몇 마디로 동업자를 셋이나 모았습니다.'],
+ 'fam:kind':['밤새 곁을 지켰습니다. 아침에 그 손이 내 손을 꼭 잡았습니다.','이웃들이 소문을 듣고 쌀이며 약을 들고 찾아왔습니다.'],'fam:grit':['될 때까지 장마당을 돌아 결국 방법을 찾아냈습니다.','사흘 밤을 새웠습니다. 결국 해냈습니다.'],'fam:shrewd':['가장 싼 길을 찾아냈습니다. 돈은 반만 들었습니다.','물건을 바꿔치기해 필요한 걸 얻어 냈습니다.'],
+ 'danger:athletic':['몸이 먼저 움직였습니다. 순식간에 위기를 빠져나왔습니다.','남들보다 두 배 빨리 뛰었습니다. 그게 전부였습니다.'],'danger:careful':['한 번 더 확인한 덕에 무너지기 직전 빠져나왔습니다.','미리 봐 둔 뒷길이 살 길이었습니다.'],'danger:grit':['이를 악물고 버텼습니다. 끝까지 쓰러지지 않았습니다.','다들 포기할 때 한 걸음 더 갔습니다.'],
+ 'risk:careful':['문을 세 번 잠그고, 창을 이불로 막았습니다. 아무도 몰랐습니다.','볼 때마다 다른 집에서 봤습니다. 꼬리가 잡히지 않았습니다.'],'risk:sharp':['골목에서 발소리가 나자마자 멈췄습니다. 단속반이 헛걸음을 했습니다.','낌새를 먼저 챘습니다. 위험한 순간은 비켜 갔습니다.'],'risk:bold':['소리를 키워 끝까지 봤습니다. 이상하게 아무도 오지 않았습니다.','동네 사람들까지 불러 같이 봤습니다. 다들 공범이 됐습니다.']};
+const TFAIL={auth:['말이 길어질수록 상대 얼굴이 굳었습니다. 일이 더 커졌습니다.','수가 읽혔습니다. 상대가 장부에 한 줄을 더 적었습니다.'],deal:['계산이 빗나갔습니다. 손에 남은 게 없습니다.','욕심이 화를 불렀습니다.'],fam:['애를 썼지만 소용이 없었습니다.','몸만 상하고 일은 그대로였습니다.'],danger:['몸이 따라 주지 않았습니다.','한 박자 늦었습니다.'],risk:['바로 그 순간 문이 열렸습니다.','조심한다고 했는데 이웃이 이미 알고 있었습니다.']};
+const TEFF={auth:[{risk:-22},{risk:12,loyal:-3}],deal:[{money:s=>R(200,700)+Math.round(s.money*.08)},{money:s=>-Math.min(s.money,R(100,400))}],fam:[{joy:6,hp:4},{hp:-4,joy:-3}],danger:[{hp:4,joy:3},{hp:-12}],risk:[{outside:8,joy:5},{risk:18,outside:3}]};
+
+/* 인연 */
+const ROLES={auth:['보안원','간부 비서','보위원'],deal:['장마당 도매상','중국 상인'],fam:['의사'],danger:['의사'],risk:['브로커']};
+function addContact(s,role,kind){s.contacts=s.contacts||[];const sx=chance(.5)?'M':'F';const n=pick(SUR)+pick(sx==='F'?GIVEN_F:GIVEN_M);const c={n,role,kind,y:s.year};s.contacts.push(c);if(s.contacts.length>8)s.contacts.shift();return c}
+const contactFor=(s,tag)=>(s.contacts||[]).find(c=>c.kind==='favor'&&!c.used&&(ROLES[tag]||[]).includes(c.role));
+
+/* 사건에 성격 · 인연 선택지 붙이기 */
+function extraOpts(s,id){const tag=EV_TAGS[id];if(!tag||s.royal)return[];const L=[];
+ for(const[k,t,p]of TOPT[tag]||[])if(hasT(s,k))L.push({t:`[${TRAITS[k].ko}] ${t}`,sub:'타고난 성격',cost:0,ref:{trait:k,tag,p}});
+ const c=stageOf(s)==='adult'?contactFor(s,tag):null;if(c)L.push({t:`[인연] ${c.role} ${c.n}에게 연락한다`,sub:`${c.y}년에 맺은 인연`,cost:0,ref:{contact:c,tag,p:.85}});
+ return L.slice(0,2)}
+function resolveExtra(s,prep,o){const{trait,tag,contact}=o.ref;let p=o.ref.p+s.luck*.05;const ok=chance(clamp(p,.05,.95));
+ let t;if(contact){contact.used=s.year;t=ok?`${contact.role} ${contact.n}${P(contact.n,'이/가')} 전화 한 통으로 일을 정리해 줬습니다. "그때 신세 갚은 걸로 합시다."`:`${contact.role} ${contact.n}${P(contact.n,'이/가')} 전화를 받지 않았습니다. 그사이 자리가 바뀌었다고 합니다.`}
+ else t=ok?pick(TWIN[tag+':'+trait]||['잘 풀렸습니다.']):pick(TFAIL[tag]);
+ const E0=TEFF[tag][ok?0:1];const e={};for(const k in E0)e[k]=typeof E0[k]==='function'?E0[k](s):E0[k];
+ const chips=applyE(s,e);addLog(s,`${prep.title} → ${o.t}`,'dec');addLog(s,t,ok?'good':'bad');return{t,chips,g:ok?2:-1,twist:contact?(ok?'인연이 돕다':'끊긴 인연'):(ok?`${TRAITS[trait].ko} 덕분`:'성격이 화를 부르다')}}
+
+/* 뜻밖의 전개: 결과의 결에 맞춰 덧붙습니다 (좋은 결과엔 덤이나 그늘, 나쁜 결과엔 위안이나 설상가상) */
+const TW_UP=[['일이 생각보다 훨씬 잘 풀렸습니다. 소문이 나서 동네 사람들이 먼저 인사를 합니다.',{net:5}],['이 일이 위에 좋게 보고됐습니다.',{loyal:5,risk:-6}],['지나가던 장사꾼이 그 장면을 보고 일거리를 줬습니다.',{money:80,net:3}],['그 일로 식구들이 오랜만에 크게 웃었습니다.',{joy:7}],['걱정했던 일이 오히려 기회가 됐습니다.',{money:50,joy:3}],['그 소식을 들은 옛 동창이 몇 해 만에 찾아왔습니다.',{net:4,joy:3}]];
+const TW_ANY=[['덤으로 쌀 한 자루가 생겼습니다.',{money:30}],['그날 밤 오랜만에 깊이 잤습니다.',{hp:4,joy:4}],['돌아오는 길에 바깥 소식이 실린 중국 신문 한 장을 주웠습니다.',{outside:6}],['그해 겨울은 유난히 전기가 잘 들어왔습니다.',{joy:4}]];
+const TW_SHADE=[['그런데 그 장면을 인민반장이 창문 너머로 봤습니다.',{risk:9}],['돌아오는 길에 빙판에 넘어져 손목을 삐었습니다.',{hp:-6}],['그 일로 동네에 말이 돌기 시작했습니다.',{net:-4,joy:-3}],['그 와중에 주머니에 넣어 둔 돈을 잃어버렸습니다.',{money:-40}],['며칠 뒤 생활총화에서 그 일이 거론됐습니다.',{risk:7,loyal:-3}]];
+const TW_SILVER=[['그래도 그 일 덕분에 사람 보는 눈이 생겼습니다.',{net:3}],['그날 저녁, 식구들이 아무 말 없이 밥상을 차려 줬습니다.',{joy:5}],['옆집 할머니가 소문을 듣고 감자 한 바가지를 두고 갔습니다.',{hp:3,net:2}],['이상하게도 그 일 뒤로 마음이 오히려 단단해졌습니다.',{joy:4}]];
+const TW_WORSE=[['엎친 데 덮친 격으로 그달 배급까지 끊겼습니다.',{hp:-5}],['그 일로 한동안 잠을 설쳤습니다.',{joy:-6,hp:-2}],['그 소문이 직장에까지 퍼졌습니다.',{net:-4,risk:4}]];
+const TW_MEET={auth:['그 일 덕에 {r} {n}{q} 안면을 텄습니다. "필요하면 찾으시오."','그 일을 지켜본 {r} {n}{p} 조용히 다가와 이름을 알려 줬습니다.'],deal:['그 자리에서 {r} {n}{q} 술 한잔을 나눴습니다. "다음엔 같이 해 봅시다."','{r} {n}{p} 명함 대신 담배 한 갑을 쥐여 줬습니다. "찾을 일 있으면 오시오."'],fam:['그 일로 {r} {n}{q} 알게 됐습니다. "급하면 언제든 부르시오."'],danger:['그날 다친 사람을 돌보던 {r} {n}{q} 인사를 나눴습니다.'],risk:['그날 밤 낯선 사람 {n}{p} 다가와 "강 건너 일이라면 나를 찾으라"며 번호를 쥐여 줬습니다.']};
+const TW_GRUDGE=['그 일로 {n}{q} 사이가 틀어졌습니다. 그 눈빛이 오래 남았습니다.','{n}{p} 그 일을 두고두고 앙심을 품었다는 말이 들렸습니다.'];
+const TW_ROYAL_UP=[['아버지가 그 일을 칭찬했다는 말이 들려왔습니다.',{loyal:5,risk:-5}],['군 원로 하나가 그 일 뒤로 내 편에 섰습니다.',{net:6}],['외국 신문이 그 일을 좋게 썼습니다.',{outside:5,joy:4}]];
+const TW_ROYAL_SHADE=[['그 일이 형제 쪽 사람 귀에 들어갔습니다.',{risk:8}],['관저 비서실이 그 일을 따로 적어 두었습니다.',{risk:6}],['그날 밤 경호원 하나가 조용히 바뀌었습니다.',{joy:-4}]];
+const fillC=(t,c)=>t.replace(/\{r\}/g,c.role).replace(/\{n\}/g,c.n).replace(/\{q\}/g,P(c.n,'과/와')).replace(/\{p\}/g,P(c.n,'이/가'));
+function twistOf(s,id,g){const e=EVS[id];if(!e||e.noTwist||e.noAuto||s.end||s.jail||s.camp||s.china)return null;const st=stageOf(s);if(st!=='adult'&&st!=='royal')return null;const tag=EV_TAGS[id];
+ const r=rnd(),pu=.09+s.luck*.03+(hasT(s,'sharp')?.02:0),pd=.07-s.luck*.02+(hasT(s,'bold')?.03:0),pm=tag&&!s.royal?.07+(hasT(s,'kind')||hasT(s,'talk')?.04:0):0;
+ const mk=(L,label,tg)=>{const[t,x]=pick(L);return{t,e:x,label,g:tg}};
+ if(r<pu){if(s.royal)return mk(TW_ROYAL_UP,'뜻밖의 행운',1);return g<0?mk(TW_SILVER,'작은 위안',1):mk(g>0?TW_UP.concat(TW_ANY):TW_ANY,g>0?'대성공':'뜻밖의 행운',1)}
+ if(r<pu+pd){if(s.royal)return mk(TW_ROYAL_SHADE,'뜻밖의 그늘',-1);
+  if(tag&&g>=0&&chance(.35)){const c=addContact(s,pick(['이웃','작업반 동료','장마당 상인','인민반장']),'grudge');return{t:fillC(pick(TW_GRUDGE),c),e:{joy:-2},label:'원한이 생기다',g:-1}}
+  return g<0?mk(TW_WORSE,'설상가상',-1):mk(TW_SHADE,'뜻밖의 꼬임',-1)}
+ if(r<pu+pd+pm){const c=addContact(s,pick(ROLES[tag]),'favor');return{t:fillC(pick(TW_MEET[tag]),c),e:{},label:'새 인연',g:1}}
+ return null}
+
+/* 성격이 해마다 조금씩 삶을 바꿉니다 */
+function traitYear(s){if(!s.traits||s.end)return;const st=stageOf(s);
+ if(hasT(s,'careful')&&s.risk>6&&chance(.6))s.risk-=1;if(hasT(s,'sharp')&&s.risk>6&&chance(.4))s.risk-=1;
+ if(hasT(s,'athletic')&&s.age<50&&s.hp<95&&chance(.5))s.hp+=1;if(hasT(s,'grit')&&s.hp<40)s.hp+=2;
+ if(hasT(s,'kind'))for(const m of famAlive(s))if(m.bond!=null&&m.bond<90&&chance(.3))m.bond+=1;
+ if(hasT(s,'talk')&&s.net<90&&chance(.4))s.net+=1;if(hasT(s,'arty')&&s.age<18)s.flags.artPts=(s.flags.artPts||0)+1;
+ if(st==='adult'){if(hasT(s,'craft')&&!s.royal)s.money+=R(3,12);if(hasT(s,'shrewd')&&s.dir==='trade')s.money+=Math.round(Math.min(s.money,3000)*.015);if(hasT(s,'bold')&&s.outside>30&&s.prep<90&&chance(.3))s.prep+=1}}
+const T_INIT={athletic:{hp:5},grit:{hp:2},talk:{net:2},kind:{net:2},careful:{risk:-2},arty:{art0:5}};
+function rollTraitsInit(s){rollTraits(s);for(const k of s.traits){const x=T_INIT[k]||{};if(x.hp)s.hp=clamp(s.hp+x.hp,0,100);if(x.net)s.net=clamp(s.net+x.net,0,100);if(x.risk)s.risk=clamp(s.risk+x.risk,0,100);if(x.art0)s.flags.artPts=(s.flags.artPts||0)+x.art0}}
+/* '해 볼 수 있는 일'에 성격이 보탬이 됩니다 */
+const T_ACT={사랑:['talk','kind'],일자리:['talk','shrewd'],도전:['grit','sharp'],떠나기:['athletic','careful']};
+const tBonus=(s,a)=>(s.traits||[]).some(k=>(T_ACT[a.cat]||[]).includes(k))?.06:0;
+for(const a of ACTS){const p0=a.p;if(p0)a.p=s=>p0(s)+tBonus(s,a)}
+
+/* 인연이 찾아오는 사건 */
+const favorDue=s=>(s.contacts||[]).find(c=>c.kind==='favor'&&!c.used&&!c.asked&&s.year-c.y>=2);
+const grudgeDue=s=>(s.contacts||[]).find(c=>c.kind==='grudge'&&!c.done&&s.year-c.y>=1);
+EV('favor_call',{pool:1,kind:'뜻밖의 일',max:3,w:1.6,stage:['adult'],when:s=>!!favorDue(s),pre:s=>{s.tmpC=favorDue(s);s.tmpC.asked=s.year},noTwist:1,title:s=>`${s.tmpC.role} ${s.tmpC.n}의 부탁`,
+ desc:s=>`몇 해 전 안면을 튼 ${s.tmpC.role} ${s.tmpC.n}${P(s.tmpC.n,'이/가')} 밤늦게 찾아왔습니다. "이번엔 내가 부탁할 차례요." ${pick(['조카를 며칠만 재워 달랍니다.','급하게 돈이 필요하답니다.','물건 보따리 하나를 맡아 달랍니다. 무엇인지는 묻지 말라고.'])}`,hide:{plain:.7,trap:.3},
+ opts:[{t:'들어준다',go:{plain:{bond:1},trap:{burned:1}}},{t:'정중히 거절한다',go:{'*':{cold:1}}},{t:'조건을 붙여 들어준다',go:{plain:{deal:1},trap:{burned:.5,deal:.5}}}],good:{bond:2,burned:-2,cold:0,deal:1},
+ out:{bond:s=>(s.tmpC.kind='favor',s.tmpC.used=0,s.tmpC.strong=1,{t:`${s.tmpC.n}${P(s.tmpC.n,'이/가')} 내 손을 꽉 잡았습니다. "이 빚은 꼭 갚겠소." 이제 정말 내 사람입니다.`,e:{net:6,money:-Math.min(s.money,R(20,120))}}),burned:s=>(s.tmpC.kind='grudge',{t:'맡아 준 보따리 때문에 보위원이 찾아왔습니다. 그 사람은 이미 사라진 뒤였습니다.',e:{risk:18}}),
+  cold:s=>(s.tmpC.used=s.year,{t:`${s.tmpC.n}${P(s.tmpC.n,'이/가')} 고개를 끄덕이고 돌아갔습니다. 그 뒤로 연락이 없습니다.`,e:{}}),deal:s=>(s.tmpC.strong=1,s.tmpC.used=0,{t:'"좋소, 그 조건이면." 서로 손해 보지 않는 거래였습니다.',e:{money:R(50,250),net:3}})}});
+EV('grudge_hit',{pool:1,kind:'위기',max:3,w:1.4,stage:['adult'],when:s=>!!grudgeDue(s),pre:s=>{s.tmpC=grudgeDue(s);s.tmpC.done=s.year},noTwist:1,title:'투서',
+ desc:s=>`보위부에 나에 대한 투서가 들어갔다는 소문이 돕니다. 글씨체를 본 사람 말로는 ${s.tmpC.n}의 것이랍니다. 몇 해 전 그 일을 아직 잊지 않은 겁니다.`,hide:{weak:.5,strong:.5},
+ opts:[{t:`${'찾아가'} 머리를 숙인다`,cost:s=>Math.max(30,Math.round(s.money*.08)),go:{'*':{peace:.8,still:.2}}},{t:'나도 맞투서를 넣는다',go:{weak:{win:.7,mess:.3},strong:{mess:.7,win:.3}}},{t:'모른 척 버틴다',go:{weak:{pass:1},strong:{hurt:1}}}],good:{peace:2,still:-1,win:1,mess:-2,pass:1,hurt:-2},
+ out:{peace:s=>({t:`${s.tmpC.n}${P(s.tmpC.n,'이/가')} 한참 말이 없다가 투서를 거둬들였습니다. "그때 일은 이걸로 끝이오."`,e:{risk:-8}}),still:s=>({t:'사과는 받았지만 투서는 이미 위로 올라간 뒤였습니다.',e:{risk:12}}),
+  win:s=>({t:`내 투서가 먼저 효과를 봤습니다. ${s.tmpC.n}${P(s.tmpC.n,'이/가')} 노동단련대로 갔습니다.`,e:{joy:-5,risk:-5}}),mess:s=>({t:'투서가 투서를 불렀습니다. 둘 다 장부에 이름이 올랐습니다.',e:{risk:20}}),
+  pass:s=>({t:'투서는 서랍 속에 묻혔습니다.',e:{}}),hurt:s=>({t:'투서가 통했습니다. 직장에서 "사상 검토"를 받았습니다.',e:{risk:18,loyal:-6}})}});
+
+/* ================================================================
    2600만 분의 1 — 결말 (위에서부터 먼저 맞는 것 하나)
    정답은 없습니다. 살아온 길에 따라 112가지로 갈립니다.
    ================================================================ */
@@ -2781,7 +3345,7 @@ function cert(el,s,done){const dad=s.fam.find(m=>m.rel==='아버지'),mom=s.fam.
   <div class="cb"><div class="cl"><small>이름</small><h2>${esc(s.name)}${s.royal?` <span class="rbadge">${s.flags.absolute?'절대 권력':'백두혈통'}</span>`:''}</h2><p class="cstory">${esc(s.log[s.log.length-1].t)}</p>
    <p class="cnote">기대수명까지 살면 약 ${mins}분이 걸려요 (지금 속도로 1년 ≈ ${fmtSec(sp)}초). 중간에 닫아도 이 브라우저에 저장돼서, 다시 오면 이어서 살 수 있어요.</p>
    <dl class="cgrid"><div><dt>성별</dt><dd>${s.sex==='F'?'여성':'남성'}</dd></div><div><dt>태어난 곳</dt><dd>${esc(s.place.ko)}</dd></div><div><dt>지역</dt><dd>${esc(PLACES[s.place.type].ko)}</dd></div>
-    <div><dt>성분</dt><dd>${s.royal?'백두혈통':SONGBUN[s.songbun].ko} <span class="stars">${starsTxt(realStars(s))}</span></dd></div><div><dt>부모 나이</dt><dd>어머니 ${ageOf(s,mom)}세 · 아버지 ${ageOf(s,dad)}세</dd></div><div><dt>부모님 일</dt><dd>${esc(s.royal?'혁명 가문':`${s.mom} · ${s.dad}`)}</dd></div>
+    <div><dt>성분</dt><dd>${s.royal?'백두혈통':SONGBUN[s.songbun].ko} <span class="stars">${starsTxt(realStars(s))}</span></dd></div><div><dt>부모 나이</dt><dd>어머니 ${ageOf(s,mom)}세 · 아버지 ${ageOf(s,dad)}세</dd></div><div><dt>부모님 일</dt><dd>${esc(s.royal?'혁명 가문':`${s.mom} · ${s.dad}`)}</dd></div>${s.traits?`<div class="wide"><dt>타고난 성격</dt><dd>${s.traits.map(k=>`${TRAITS[k].ko} <small>${TRAITS[k].d}</small>`).join(' · ')}</dd></div>`:''}
     <div><dt>사는 집</dt><dd>${esc(s.house)}</dd></div><div><dt>형제자매</dt><dd>${sibs.length?sibs.map(m=>m.rel).join(' · '):'없음 (아직은)'}</dd></div><div><dt>전기 사정</dt><dd>${s.royal?'끊긴 적 없음':s.place.type==='capital'?'저녁에 몇 시간':s.place.type==='rural'?'거의 정전':'하루 두세 시간'}</dd></div>
     <div><dt>기대수명</dt><dd>${NK_FACTS.le}</dd></div><div><dt>5세 전 사망</dt><dd>${NK_FACTS.u5}</dd></div><div><dt>1인당 소득</dt><dd>${NK_FACTS.gni}</dd></div></dl></div>
    <div class="cr"><svg class="nkmap" id="certMap" viewBox="0 0 420 420" aria-label="태어난 곳"></svg><div class="seal">${s.royal?'特':'등록'}</div></div></div>
@@ -2800,7 +3364,7 @@ function renderId(){const s=S,rs=realStars(s);const doc=s.age>=17?'공민 기록
  $('idCard').className='idc'+(s.royal?' gold':'');
  $('idCard').innerHTML=`<div class="idh"><span>${doc} · PRK</span><small>${s.year-s.age}</small></div><div class="idb"><canvas id="meAv" width="32" height="40" aria-label="내 모습"></canvas><div><b class="idn">${esc(s.name)}</b><small>${esc(jobLabel(s))}</small></div></div>
   <dl class="idl"><dt>성별</dt><dd>${s.sex==='F'?'여성':'남성'}</dd><dt>출생</dt><dd>${esc(s.birthPlace||s.place.ko)} · ${s.year-s.age}년 ${s.month||1}월</dd><dt>거주</dt><dd>${esc(s.place.ko)} · ${esc(s.house||'')}</dd>
-  <dt>성분</dt><dd>${s.royal?'백두혈통':SONGBUN[s.songbun].ko} <span class="stars" title="실질 계급 · ${STAR_KO[rs]}">${starsTxt(rs)}</span></dd><dt>사는 세상</dt><dd>${TIER_KO[tierOf(s)]}</dd><dt>학력</dt><dd>${eduTxt(s)}</dd>${s.flags.record?`<dt>전과</dt><dd>${s.flags.record}번</dd>`:''}</dl><div class="mrz">${no}&lt;&lt;${esc(s.sur||'')}&lt;&lt;PRK&lt;&lt;&lt;&lt;&lt;&lt;</div>`;drawAv($('meAv'),s)}
+  <dt>성분</dt><dd>${s.royal?'백두혈통':SONGBUN[s.songbun].ko} <span class="stars" title="실질 계급 · ${STAR_KO[rs]}">${starsTxt(rs)}</span></dd><dt>사는 세상</dt><dd>${TIER_KO[tierOf(s)]}</dd>${s.traits?`<dt>성격</dt><dd>${s.traits.map(k=>TRAITS[k].ko).join(' · ')}</dd>`:''}<dt>학력</dt><dd>${eduTxt(s)}</dd>${s.flags.record?`<dt>전과</dt><dd>${s.flags.record}번</dd>`:''}</dl><div class="mrz">${no}&lt;&lt;${esc(s.sur||'')}&lt;&lt;PRK&lt;&lt;&lt;&lt;&lt;&lt;</div>`;drawAv($('meAv'),s)}
 const bar=(k,v,col,tip)=>`<div class="sb"${tip?` title="${tip}"`:''}><span>${k}</span><i><u style="width:${clamp(v,0,100)}%;background:${col}"></u></i><b>${Math.round(v)}</b></div>`;
 function statBars(s){return bar('건강',s.hp,'var(--good)','0이 되면 세상을 떠납니다')+bar('행복',s.joy,'var(--gold)','가족 · 밥 · 전기 · 자유가 좌우합니다')+bar('위험',s.risk,'var(--bad)','높을수록 단속에 걸리기 쉽습니다')+bar('바깥 소식',s.outside,'var(--blue)','바깥세상을 얼마나 아는지')}
 const EXPLAIN=`<details class="explain"><summary>상태는 무엇을 뜻하나요?</summary><ul><li><b>건강</b> 0이 되면 세상을 떠납니다. 굶거나 갇히면 떨어지고 밥 · 약 · 가족으로 오릅니다.</li><li><b>행복</b> 가족 · 배부름 · 전기 · 자유가 좌우합니다. 인생 지도의 색이 됩니다.</li><li><b>위험</b> 높을수록 단속 · 검열에 걸리기 쉽습니다. 해마다 조금씩 내려갑니다.</li><li><b>바깥 소식</b> 바깥세상을 얼마나 아는지. 높으면 떠날 생각이 듭니다.</li><li><b>충성 · 인맥 · 공부</b> 입당 · 승진 · 대학 · 좋은 자리에 영향을 줍니다.</li><li><b>★ 실질 계급</b> 성분에 당원 · 직장 · 돈 · 사는 곳 · 전과를 더하고 뺀 값. 사는 세상이 달라집니다.</li></ul></details>`;
@@ -2818,8 +3382,11 @@ function famLi(s,m){const tone=!m.alive||m.gone?'gone':(m.st||m.left)?'warn':'';
 function dateLi(s){const d=s.date;if(!d)return'';return`<li class="love"><span class="heart">♥</span><div><b>${esc(d.name)}</b><small>연인 · ${s.year-d.by}세 · ${BOND_KO(d.bond)}</small><em>${esc(d.job)} · ${esc(SB_KO[d.sb]||'')}</em></div></li>`}
 function paintFam(root,s){root.querySelectorAll('canvas[data-f]').forEach(cv=>{const m=s.fam.find(x=>x.id===cv.dataset.f);if(m)drawAv(cv,famAvObj(s,m))})}
 function renderFam(){const s=S,L=famRows(s);const with_=L.filter(m=>m.alive&&!m.gone&&!m.left&&!m.crossed).length;
- $('famBox').innerHTML=`<h3>가족과 삶 <small>${L.length?`살아 있는 가족 ${with_}명`:''}</small></h3><ul class="fam">${L.map(m=>famLi(s,m)).join('')}${dateLi(s)}</ul>`;paintFam($('famBox'),s);
+ $('famBox').innerHTML=`<h3>가족과 삶 <small>${L.length?`살아 있는 가족 ${with_}명`:''}</small></h3><ul class="fam">${L.map(m=>famLi(s,m)).join('')}${dateLi(s)}</ul>${contactsH(s)}`;paintFam($('famBox'),s);
  $('famStrip').innerHTML=`<ul class="fam">${L.filter(m=>m.alive&&!m.gone).map(m=>famLi(s,m)).join('')}${dateLi(s)}</ul>`;paintFam($('famStrip'),s)}
+
+function ctcSt(c){if(c.kind==='grudge')return c.done?['지나간 원한','']:['앙심을 품고 있음','bad'];if(c.strong&&!c.used)return['내 사람 · 위기 때 부를 수 있음','good'];if(c.used)return['한 번 신세를 졌음',''];return['위기 때 부를 수 있음','good']}
+function contactsH(s){const C=(s.contacts||[]).slice().reverse();if(!C.length)return'';return`<h4 class="ctch">인연 <small>살면서 맺은 사람들</small></h4><ul class="ctc">${C.map(c=>{const[t,k]=ctcSt(c);return`<li class="${k}"><b>${esc(c.role)} ${esc(c.n)}</b><small>${c.y}년 · ${t}</small></li>`}).join('')}</ul>`}
 
 /* ---------- 장면 (픽셀) ---------- */
 function pick2(r,a){return a[Math.floor(r()*a.length)]}
@@ -2946,17 +3513,17 @@ function autoRun(label,ms,fn){if(!FLOW.auto)return;stopAuto();const t0=performan
 const KIND_TONE={'시나리오':'big','위기':'bad','중대 결정':'big','집안의 비밀':'sec','비밀':'sec','뜻밖의 일':'odd','사랑':'love','가족':'fam'};
 function openEvent(id){const prep=prepEvent(S,id);if(!prep){FLOW.busy=false;return}FLOW.busy=true;FLOW.cur=id;
  modal(prep.kind,KIND_TONE[prep.kind]||'',prep.title,prep.desc,prep.fact);
- $('mBody').innerHTML=`<div class="opts">${prep.opts.map((o,i)=>{const dis=o.cost&&o.cost>S.money;return`<button type="button" class="opt" data-i="${i}"${dis?' disabled':''}><span class="n">${i+1}</span><span><b>${esc(o.t)}</b>${o.sub||o.cost?`<small>${esc(o.sub)}${o.cost?` ${usd(o.cost)} · ${krw(o.cost)}`:''}${dis?' · 돈이 모자람':''}</small>`:''}</span></button>`}).join('')}</div>`;
- const pickI=i=>{stopAuto();FLOW.cur=null;const r=resolveEvent(S,prep,i);if(r.err){toast(r.err);return}$('mBody').onclick=null;showResult(r.t,r.chips,r.g,()=>{if(r.next&&!S.end)openEvent(r.next);else afterEvent()})};
+ $('mBody').innerHTML=`<div class="opts">${prep.opts.map((o,i)=>{const dis=o.cost&&o.cost>S.money;const tr=o.ref&&(o.ref.trait||o.ref.contact);return`<button type="button" class="opt${tr?' tr':''}${o.ref&&o.ref.xo?' xo':''}" data-i="${i}"${dis?' disabled':''}><span class="n">${i+1}</span><span><b>${esc(o.t)}</b>${o.sub||o.cost?`<small>${esc(o.sub)}${o.cost?` ${usd(o.cost)} · ${krw(o.cost)}`:''}${dis?' · 돈이 모자람':''}</small>`:''}</span></button>`}).join('')}</div>`;
+ const pickI=i=>{stopAuto();FLOW.cur=null;const r=resolveEvent(S,prep,i);if(r.err){toast(r.err);return}$('mBody').onclick=null;showResult(r.t,r.chips,r.g,()=>{if(r.next&&!S.end)openEvent(r.next);else afterEvent()},r.tw)};
  $('mBody').onclick=e=>{const b=e.target.closest('.opt');if(!b||b.disabled)return;pickI(+b.dataset.i)};
  const ok=[...prep.opts.keys()].filter(i=>!(prep.opts[i].cost&&prep.opts[i].cost>S.money)&&!prep.opts[i].ref.big);
  if(FLOW.auto&&ok.length&&!EVS[id].noAuto){const ai=autoPick(prep,ok);const b=$('mBody').querySelector(`.opt[data-i="${ai}"]`);b.classList.add('next');
   autoRun(`잠시 후 '${prep.opts[ai].t}'${P(prep.opts[ai].t,'으로/로')} 넘어가요 · 카드를 누르면 멈춰요`,FLOW.speed>=8?5500:8000,()=>pickI(ai))}}
 // 자동 결정: 인생을 뒤집는 선택지는 피하고, 무난한 쪽을 조금 더 자주 고릅니다
-function autoPick(prep,ok){const G=(EVS[prep.id]||{}).good||{};const ev=i=>{const go=prep.opts[i].ref.go;if(typeof go!=='object')return 0;const d=go[prep.h]||go['*']||Object.values(go)[0]||{};let t=0,w=0;for(const[k,p]of Object.entries(d)){t+=p*(G[k]||0);w+=p}return w?t/w:0};
+function autoPick(prep,ok){const G=(EVS[prep.id]||{}).good||{};const ev=i=>{if(prep.opts[i].ref.trait||prep.opts[i].ref.contact)return 1.2;const go=prep.opts[i].ref.go;if(typeof go!=='object')return 0;const d=go[prep.h]||go['*']||Object.values(go)[0]||{};let t=0,w=0;for(const[k,p]of Object.entries(d)){t+=p*(G[k]||0);w+=p}return w?t/w:0};
  const ws=ok.map(i=>[i,Math.exp(.7*ev(i))*(prep.opts[i].cost?.6:1)]);return wpick(ws)}
-function showResult(t,chips,g,next){$('mK').textContent='결과';$('mK').className='mk res';$('parkBtn').hidden=true;$('mF').hidden=true;
- $('mBody').innerHTML=`<p class="res ${g>0?'good':g<0?'bad':''}">${esc(t)}</p>${chipsH(chips)}`;save();renderAll();
+function showResult(t,chips,g,next,tw){$('mK').textContent='결과';$('mK').className='mk res';$('parkBtn').hidden=true;$('mF').hidden=true;
+ $('mBody').innerHTML=`<p class="res ${g>0?'good':g<0?'bad':''}">${esc(t)}</p>${tw?`<p class="tw ${tw.g>0?'good':'bad'}"><b>${esc(tw.label)}</b>${esc(tw.t)}</p>`:''}${chipsH(chips)}`;save();renderAll();
  const b=document.createElement('button');b.className='btn pri';b.type='button';b.textContent=S.end?'마지막 장으로':'계속';const go=()=>{stopAuto();next()};b.onclick=go;$('mBody').appendChild(b);setTimeout(()=>b.focus({preventScroll:true}),30);
  if(FLOW.auto)autoRun('잠시 후 이어서 흘러가요',3600,go)}
 function afterEvent(){closeModal();FLOW.busy=false;save();renderAll();if(S.end)finish()}
@@ -2978,7 +3545,7 @@ function finish(){FLOW.busy=false;closeModal();const s=S,E=endingOf(s);const dx=
  $('endCard').className='endcard'+(s.royal?' gold':'');
  $('endCard').innerHTML=`<div class="endtop"><canvas id="endAv" width="32" height="40"></canvas><div><span class="tone ${E.tone}">이번 생 · ${esc(E.cat||'')}</span><h2>${esc(E.t)}</h2><div class="why">${esc(s.name)} · ${s.age}세 · ${esc(why)}</div></div></div>
   <p class="desc">${esc(E.d)}${extra.length?' '+esc(extra.join(' ')):''}</p>
-  <div class="eg"><div><small>성분 · 마지막 계급</small><b>${s.royal?'백두혈통':SONGBUN[s.songbun].ko} <span class="stars">${starsTxt(realStars(s))}</span></b></div><div><small>태어난 곳</small><b>${esc(s.birthPlace||s.place.ko)}</b></div><div><small>마지막 모습</small><b>${esc(s.end==='south'?'남쪽 시민':jobLabel(s))}</b></div><div><small>남긴 돈</small><b>${usd(s.money)}</b><small>${krw(s.money)}</small></div><div><small>가족</small><b>${sp?`${esc(sp.rel)} ${esc(sp.name)}`:'혼자'}${kn?` · 아이 ${kn}`:''}</b></div><div><small>살아온 해</small><b>${s.age}년</b></div></div>
+  <div class="eg"><div><small>성분 · 마지막 계급</small><b>${s.royal?'백두혈통':SONGBUN[s.songbun].ko} <span class="stars">${starsTxt(realStars(s))}</span></b></div><div><small>태어난 곳</small><b>${esc(s.birthPlace||s.place.ko)}</b></div><div><small>마지막 모습</small><b>${esc(s.end==='south'?'남쪽 시민':jobLabel(s))}</b></div><div><small>남긴 돈</small><b>${usd(s.money)}</b><small>${krw(s.money)}</small></div><div><small>가족</small><b>${sp?`${esc(sp.rel)} ${esc(sp.name)}`:'혼자'}${kn?` · 아이 ${kn}`:''}</b></div><div><small>살아온 해</small><b>${s.age}년</b></div>${s.traits?`<div><small>타고난 성격</small><b>${s.traits.map(k=>TRAITS[k].ko).join(' · ')}</b></div><div><small>맺은 인연</small><b>${(s.contacts||[]).length?`${s.contacts.length}명`:'없음'}</b>${(s.contacts||[]).filter(c=>c.kind==='grudge').length?`<small>그중 원한 ${s.contacts.filter(c=>c.kind==='grudge').length}명</small>`:''}</div>`:''}</div>
   ${epi.length?`<h3 class="eh">남쪽에서의 첫 해</h3><ul class="epi">${epi.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>`:''}
   <h3 class="eh">인생 지도</h3><div class="lmap" id="endMap"></div>
   <h3 class="eh">기억에 남는 순간</h3><ol class="moments">${(mom.length?mom:[{age:s.age,t:'조용한 나날이었습니다.',g:0}]).map(m=>`<li><span class="ma">${m.age}세</span> · <span style="color:${m.g>0?'var(--good)':m.g<0?'var(--bad)':'inherit'}">${esc(m.t)}</span></li>`).join('')}</ol>`;
