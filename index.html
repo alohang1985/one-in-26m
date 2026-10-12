@@ -384,6 +384,38 @@ body::before{content:"";position:fixed;top:0;left:0;right:0;height:5px;backgroun
 }
 @media (max-width:900px){.ggrid{grid-template-columns:1fr;grid-template-areas:"m" "l" "r";grid-template-rows:auto}}
 @media (min-width:1240px){.srow{display:none}}
+
+/* ================= 휴대폰: 1in8b처럼 ================= */
+.pill .sm,.pill.more,.sr2{display:none}
+.ctlmenu{position:absolute;right:0;top:calc(100% + 6px);z-index:40;background:var(--card);border:1px solid var(--rule);border-radius:12px;box-shadow:var(--shadow);padding:6px;display:flex;flex-direction:column;min-width:200px}
+.ctlmenu[hidden]{display:none!important}.ctlmenu button{border:0;background:none;text-align:left;padding:10px 12px;font-size:14px;border-radius:8px;display:flex;justify-content:space-between;gap:12px}.ctlmenu button:hover{background:var(--card2)}.ctlmenu b{color:var(--red);font-size:12.5px}
+.totop{position:fixed;right:14px;bottom:18px;z-index:28;border:1px solid var(--rule);background:var(--card);color:var(--ink);border-radius:999px;padding:9px 14px;font-size:13px;box-shadow:var(--shadow)}
+.totop[hidden]{display:none!important}
+@media (max-width:900px){
+ .famstrip{display:none!important}
+ #statBox,#famBox{display:block}
+ .main .scene{order:1}.main .srow{order:2}.main .tlp{order:3}.main .tabs{order:4}.main #tipBox{order:0}
+ .side{display:flex;flex-direction:column}#statBox{order:1}#idCard{order:2}#moneyBox{order:3}
+ .side .panel>h3:first-child,.side2 .panel>h3:first-child,.side .panel>.tlh:first-child,.side2 .panel>.tlh:first-child{position:relative;padding-right:34px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+ .side .panel>h3:first-child::after,.side2 .panel>h3:first-child::after,.side .panel>.tlh:first-child::after,.side2 .panel>.tlh:first-child::after{content:'▾';position:absolute;right:0;top:50%;transform:translateY(-50%);width:26px;height:26px;border:1px solid var(--rule);border-radius:50%;display:grid;place-items:center;font-size:12px;color:var(--ink3);background:var(--bg);transition:transform .2s}
+ .panel.fold>h3:first-child::after,.panel.fold>.tlh:first-child::after{transform:translateY(-50%) rotate(-90deg)}
+ .panel.fold>:not(:first-child){display:none!important}.panel.fold>h3:first-child,.panel.fold>.tlh:first-child{margin-bottom:0}
+}
+@media (max-width:600px){
+ .ghead{position:sticky}.gtitle{display:none}.gh1{gap:10px;flex-wrap:nowrap;align-items:baseline}.gage{font-size:34px}
+ .gsub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
+ .yprog{margin:4px 0 6px}
+ .ctrl{position:relative;flex-wrap:nowrap;overflow:visible;gap:4px}
+ .ctrl .pill{padding:6px 8px;font-size:12.5px}.spd{gap:3px}.spd .pill{padding:6px 7px}
+ .pill .lg{display:none}.pill .sm{display:inline}
+ #autoBtn,#themeBtn2,#quitBtn{display:none}.pill.more{display:inline-block;margin-left:auto;padding:6px 11px;font-weight:900}
+ .srow{position:sticky;top:var(--hh,96px);z-index:15;display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:12px;box-shadow:0 8px 16px -14px rgba(0,0,0,.5)}
+ .srow .sr,.srow .fchip{display:none}.sr2{display:flex;flex:1;gap:10px;min-width:0}
+ .sr2 span{flex:1;min-width:0;display:grid;grid-template-columns:auto auto;justify-content:space-between;align-items:baseline;column-gap:4px}
+ .sr2 em{font-style:normal;font-size:11.5px;color:var(--ink3)}.sr2 b{font-family:var(--f-num);font-size:14px}
+ .sr2 i{grid-column:1/-1;height:3px;border-radius:2px;background:var(--card2);overflow:hidden;display:block;margin-top:3px}.sr2 u{display:block;height:100%}
+ .srow .srb{flex:0 0 auto}.srow .srb .pill{padding:6px 10px}
+}
 </style></head><body><section id="home" class="wrap">
  <div class="top"><span class="eyebrow">무료 인생 시뮬레이션 · 북한편 · 1년이 흘러갑니다</span><span class="topr"><button class="pill" type="button" id="installBtn" hidden>앱 설치</button><a class="pill link" href="https://alohang1985.github.io/debut-gak/">데뷔각 하러 가기 →</a><button class="pill" id="themeBtn" type="button" aria-label="밝은 화면과 어두운 화면 바꾸기">◐</button><span class="rating" title="15세 이상 · 수용소 · 죽음 같은 무거운 주제를 다룹니다" aria-label="15세 이상 이용가">15</span></span></div>
  <div class="slogan" aria-hidden="true"><div class="sl-in"><span>★ 고를 수 있는 건 아무것도 없다</span><span>★ 1년이 한 턴, 인생은 단 한 번</span><span>★ 성분은 태어나는 순간 정해진다</span><span>★ 배급표보다 장마당</span><span>★ 2600만 분의 1</span><span>★ 끝까지 살아 낸 사람이 이긴다</span><span>★ 고를 수 있는 건 아무것도 없다</span><span>★ 1년이 한 턴, 인생은 단 한 번</span><span>★ 성분은 태어나는 순간 정해진다</span><span>★ 배급표보다 장마당</span><span>★ 2600만 분의 1</span><span>★ 끝까지 살아 낸 사람이 이긴다</span></div></div>
@@ -415,10 +447,12 @@ body::before{content:"";position:fixed;top:0;left:0;right:0;height:5px;backgroun
   <div class="ctrl" id="ctrl">
    <button class="pill" type="button" id="flowBtn">❚❚ 멈춤</button>
    <span class="spd" id="spdBox"></span>
-   <button class="pill" type="button" id="skipBtn">다음 결정까지 »</button>
+   <button class="pill" type="button" id="skipBtn"><span class="lg">다음 결정까지</span><span class="sm">다음</span> »</button>
    <button class="pill tog" type="button" id="autoBtn" aria-pressed="true">자동 결정</button>
    <button class="pill" type="button" id="themeBtn2" aria-label="밝은 화면과 어두운 화면 바꾸기">◐</button>
    <button class="pill" type="button" id="quitBtn">나가기</button>
+   <button class="pill more" type="button" id="moreCtl" aria-label="더 보기" aria-expanded="false">⋯</button>
+   <div class="ctlmenu" id="ctlMenu" hidden><button type="button" data-ctl="autoBtn">자동 결정 <b id="ctlAuto"></b></button><button type="button" data-ctl="themeBtn2">밝은 화면 · 어두운 화면</button><button type="button" data-ctl="quitBtn">나가기</button></div>
   </div>
  </header>
  <div class="wrap gwrap">
@@ -442,9 +476,9 @@ body::before{content:"";position:fixed;top:0;left:0;right:0;height:5px;backgroun
    <aside class="side2">
     <div class="panel famp" id="famBox"></div>
     <div class="panel" id="peerBox"></div>
-    <div class="panel"><div class="tlh"><h3>인생 지도</h3><small>한 칸 = 1년 · 진할수록 행복했던 해</small></div><div class="lmap" id="lifeMap"></div><p class="tlsub" id="lmNote"></p></div>
-    <div class="panel"><div class="tlh"><h3>생존 곡선</h3><small>같은 해 태어난 사람 중 살아 있는 비율</small></div><svg class="surv" id="surv" viewBox="0 0 300 120" preserveAspectRatio="none" aria-label="생존 곡선"></svg><p class="tlsub" id="survNote"></p></div>
-    <div class="panel"><div class="tlh"><h3>북한</h3><small>근삿값</small></div><dl class="facts2" id="nkFacts"></dl></div>
+    <div class="panel" id="lmBox"><div class="tlh"><h3>인생 지도</h3><small>한 칸 = 1년 · 진할수록 행복했던 해</small></div><div class="lmap" id="lifeMap"></div><p class="tlsub" id="lmNote"></p></div>
+    <div class="panel" id="svBox"><div class="tlh"><h3>생존 곡선</h3><small>같은 해 태어난 사람 중 살아 있는 비율</small></div><svg class="surv" id="surv" viewBox="0 0 300 120" preserveAspectRatio="none" aria-label="생존 곡선"></svg><p class="tlsub" id="survNote"></p></div>
+    <div class="panel" id="fcBox"><div class="tlh"><h3>북한</h3><small>근삿값</small></div><dl class="facts2" id="nkFacts"></dl></div>
    </aside>
   </div>
  </div>
@@ -458,6 +492,7 @@ body::before{content:"";position:fixed;top:0;left:0;right:0;height:5px;backgroun
 
 <div class="mback" id="modal" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="mT"><div class="mh"><span class="mk" id="mK"></span><span class="mw" id="mW"></span><button class="park" type="button" id="parkBtn">잠깐 내려 두기 ▾</button></div><div class="mb"><h2 id="mT"></h2><p class="md" id="mD"></p><div class="fact" id="mF" hidden></div><div id="mBody"></div><div class="auto" id="mAuto" hidden><div class="abar"><i id="mAbar"></i></div><div class="arow"><span id="mAtxt"></span><button class="pill" type="button" id="autoOff">자동 결정 끄기</button></div></div></div></div></div>
 <div class="toast" id="toast" hidden></div>
+<button class="totop" id="toTop" type="button" hidden>↑ 맨 위로</button>
 <script>
 /* ================================================================
    2600만 분의 1 — 북한에서 태어나기 · 데이터
@@ -4090,7 +4125,7 @@ function cert(el,s,done){const dad=s.fam.find(m=>m.rel==='아버지'),mom=s.fam.
 
 /* ---------- 게임: 머리 · 조작 ---------- */
 function buildCtrl(){$('spdBox').innerHTML=SPEEDS.map(v=>`<button class="pill" type="button" data-v="${v}" aria-pressed="${v===FLOW.speed}">${v}×</button>`).join('');syncCtrl()}
-function syncCtrl(){$('flowBtn').textContent=FLOW.on?'❚❚ 멈춤':'▸ 계속';$('flowBtn').classList.toggle('hot',!FLOW.on);for(const b of $('spdBox').children)b.setAttribute('aria-pressed',+b.dataset.v===FLOW.speed);$('autoBtn').setAttribute('aria-pressed',FLOW.auto);renderHead()}
+function syncCtrl(){$('flowBtn').innerHTML=FLOW.on?'<span class="ic">❚❚</span><span class="lg"> 멈춤</span>':'<span class="ic">▸</span><span class="lg"> 계속</span>';if($('ctlAuto'))$('ctlAuto').textContent=FLOW.auto?'켜짐':'꺼짐';$('flowBtn').classList.toggle('hot',!FLOW.on);for(const b of $('spdBox').children)b.setAttribute('aria-pressed',+b.dataset.v===FLOW.speed);$('autoBtn').setAttribute('aria-pressed',FLOW.auto);renderHead()}
 function renderHead(){if(!S)return;const sp=secPerYear();$('gAge').textContent=`${S.age}세`;$('gSub').textContent=`${S.year}년 · ${S.name} · 1년 ≈ ${fmtSec(sp)}초`;$('yBar').style.width=Math.min(100,(S.yp||0)*100)+'%'}
 
 /* ---------- 사이드: 신원 · 상태 · 돈 · 가족 ---------- */
@@ -4105,7 +4140,8 @@ function statBars(s){return bar('건강',s.hp,'var(--good)','0이 되면 세상�
 const EXPLAIN=`<details class="explain"><summary>상태는 무엇을 뜻하나요?</summary><ul><li><b>건강</b> 0이 되면 세상을 떠납니다. 굶거나 갇히면 떨어지고 밥 · 약 · 가족으로 오릅니다.</li><li><b>행복</b> 가족 · 배부름 · 전기 · 자유가 좌우합니다. 인생 지도의 색이 됩니다.</li><li><b>위험</b> 높을수록 단속 · 검열에 걸리기 쉽습니다. 해마다 조금씩 내려갑니다.</li><li><b>바깥 소식</b> 바깥세상을 얼마나 아는지. 높으면 떠날 생각이 듭니다.</li><li><b>충성 · 인맥 · 공부</b> 입당 · 승진 · 대학 · 좋은 자리에 영향을 줍니다.</li><li><b>★ 실질 계급</b> 성분에 당원 · 직장 · 돈 · 사는 곳 · 전과를 더하고 뺀 값. 사는 세상이 달라집니다.</li></ul></details>`;
 const curDirKo=s=>{const d=curDir(s);if(!d)return'버티기';const L=DIRS[stageOf(s)];return L&&L[d]?L[d].ko:'버티기'};
 function renderStats(){const s=S;$('statBox').innerHTML=`<h3>상태 <small>0–100</small></h3>${statBars(s)}<div class="mini"><span>충성 <b>${Math.round(s.loyal)}</b></span><span>인맥 <b>${Math.round(s.net)}</b></span><span>공부 <b>${Math.round(s.edu)}</b></span>${!s.royal&&(s.prep>0||s.china)?`<span>탈북 준비 <b>${s.china?100:Math.round(s.prep)}</b></span>`:''}</div>${EXPLAIN}`;
- $('statRow').innerHTML=`<div class="sr">${statBars(s)}</div><div class="srb"><span class="fchip">초점 · <b>${esc(curDirKo(s))}</b></span><button class="pill" type="button" data-goto="shop">돈 쓰기</button></div>`}
+ const SB=[['건강',s.hp,'var(--good)'],['행복',s.joy,'var(--gold)'],['위험',s.risk,'var(--bad)'],[s.royal?'권력':'바깥',s.royal?Math.min(100,s.flags.power||0):s.outside,'var(--blue)']];
+ $('statRow').innerHTML=`<div class="sr2">${SB.map(([k,v,c])=>`<span><em>${k}</em><b>${Math.round(v)}</b><i><u style="width:${clamp(v,0,100)}%;background:${c}"></u></i></span>`).join('')}</div><div class="sr">${statBars(s)}</div><div class="srb"><span class="fchip">초점 · <b>${esc(curDirKo(s))}</b></span><button class="pill" type="button" data-goto="shop">돈 쓰기</button></div>`}
 function renderMoney(){const s=S,L=s.led;const own=SHOP.concat(DEALS).filter(it=>!it.yearly&&!it.inv&&s.own&&s.own[it.k]).map(it=>it.ko);if(s.own&&s.own.wholesale)own.push('도매상');
  $('moneyBox').innerHTML=`<h3>가진 돈 <small>한국 돈으로</small></h3><div class="mbig"><b>${usd(s.money)}</b><em>${krw(s.money)}</em></div>
   ${L&&L.items&&L.items.length?`<div class="mled"><small>지난 1년 ${L.net>=0?'+':''}${usd(L.net)} · ${krw(L.net)}</small>${L.items.slice(0,5).map(i=>`<div><span>${esc(i.k)}</span><b class="${i.v>0?'g':'b'}">${i.v>0?'+':''}${usd(i.v)}</b></div>`).join('')}</div>`:`<p class="sub" style="margin:6px 0 0">${esc(L&&L.note||'아직은 부모님 살림입니다.')}</p>`}
@@ -4295,7 +4331,19 @@ function finish(){FLOW.busy=false;closeModal();const s=S,E=endingOf(s);const dx=
  show('end');drawAv($('endAv'),s);renderLifeMap($('endMap'));$('endShare').onclick=()=>shareText(endShareText(s))}
 
 /* ---------- 연결 ---------- */
-function boot(){applyTheme(LS.get('nk.theme',null));initPWA();refreshHome();mapSVG($('homeMap'),null);tickCounters();renderFacts();setInterval(()=>{if(!$('home').hidden)tickCounters()},1000);
+const FOLD_IDS=['statBox','moneyBox','famBox','peerBox','lmBox','svBox','fcBox'];
+const isMob=()=>matchMedia('(max-width:900px)').matches;
+function applyFold(){const F=LS.get('nk.fold',[]);for(const id of FOLD_IDS){const el=$(id);if(el)el.classList.toggle('fold',isMob()&&F.includes(id))}}
+function mobileUI(){
+ document.addEventListener('click',e=>{const h=e.target.closest('.side .panel>h3:first-child,.side2 .panel>h3:first-child,.side .panel>.tlh:first-child,.side2 .panel>.tlh:first-child');if(!h||!isMob())return;const p=h.parentElement;if(!FOLD_IDS.includes(p.id))return;
+  const F=new Set(LS.get('nk.fold',[]));p.classList.toggle('fold');if(p.classList.contains('fold'))F.add(p.id);else F.delete(p.id);LS.set('nk.fold',[...F])});
+ const mc=$('moreCtl'),mm=$('ctlMenu');mc.onclick=e=>{e.stopPropagation();mm.hidden=!mm.hidden;mc.setAttribute('aria-expanded',!mm.hidden)};
+ mm.onclick=e=>{const b=e.target.closest('[data-ctl]');if(!b)return;mm.hidden=true;mc.setAttribute('aria-expanded','false');$(b.dataset.ctl).click()};
+ document.addEventListener('click',e=>{if(!mm.hidden&&!e.target.closest('#ctlMenu'))mm.hidden=true});
+ const tt=$('toTop');tt.onclick=()=>window.scrollTo({top:0,behavior:'smooth'});addEventListener('scroll',()=>{tt.hidden=!(isMob()&&!$('game').hidden&&scrollY>700)},{passive:true});
+ const gh=document.querySelector('.ghead');const setH=()=>document.documentElement.style.setProperty('--hh',gh.offsetHeight+'px');if(window.ResizeObserver)new ResizeObserver(setH).observe(gh);setH();
+ addEventListener('resize',applyFold);applyFold()}
+function boot(){applyTheme(LS.get('nk.theme',null));initPWA();refreshHome();mapSVG($('homeMap'),null);tickCounters();renderFacts();mobileUI();setInterval(()=>{if(!$('home').hidden)tickCounters()},1000);
  // 숨은 버튼: 맨 아래 안내문 끝의 마침표를 빠르게 세 번 누르면 최고급 백두혈통으로 태어납니다
  {const taps=[];$('secretDot').onclick=e=>{e.preventDefault();const t=Date.now();taps.push(t);while(taps.length&&t-taps[0]>1500)taps.shift();if(taps.length>=3){taps.length=0;startLife({absolute:true})}}}
  $('goBtn').onclick=()=>startLife();$('againBtn').onclick=()=>startLife();$('royalBtn').onclick=useRoyalTicket;$('homeBtn').onclick=()=>{show('home');refreshHome()};$('themeBtn').onclick=toggleTheme;$('themeBtn2').onclick=()=>{toggleTheme();if(S)renderScene()};
