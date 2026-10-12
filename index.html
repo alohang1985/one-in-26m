@@ -354,6 +354,16 @@ body::before{content:"";position:fixed;top:0;left:0;right:0;height:5px;backgroun
 @media (max-width:600px){.hero::before{inset:-20px 0}}
 
 .mk2{font-family:var(--f-num);font-size:11px;font-weight:500;padding:1px 5px;border-radius:4px;vertical-align:1px}.mk2.up{color:var(--bad);background:var(--red-soft)}.mk2.dn{color:var(--good);background:color-mix(in srgb,var(--good) 14%,transparent)}
+
+.opt .hint{font-style:normal;color:var(--ink3);letter-spacing:.01em}.opt .hint::before{content:'› ';color:var(--red)}
+
+.epcap b{display:inline-block;font-size:11px;color:#fff;background:var(--red);border-radius:4px;padding:1px 7px;margin-right:8px;letter-spacing:.04em}.epcap{animation:rise .3s ease-out}
+.scene canvas{cursor:pointer}
+.tl li.ep .t{color:var(--ink2);font-style:italic}
+
+.tl li.news .t{color:var(--blue)}
+.eggs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}.eggs span{background:var(--red-soft);border:1px solid var(--red);color:var(--red);border-radius:999px;padding:5px 12px;font-weight:700;font-size:13.5px}.eggs small{font-weight:400;color:var(--ink3);margin-left:4px}
+.dx.egg.good{border-color:var(--gold);background:linear-gradient(160deg,var(--card),color-mix(in srgb,var(--gold) 12%,var(--card)))}.dx.egg.good b{color:var(--gold)}
 </style></head><body><section id="home" class="wrap">
  <div class="top"><span class="eyebrow">무료 인생 시뮬레이션 · 북한편 · 1년이 흘러갑니다</span><span class="topr"><button class="pill" type="button" id="installBtn" hidden>앱 설치</button><a class="pill link" href="https://alohang1985.github.io/debut-gak/">데뷔각 하러 가기 →</a><button class="pill" id="themeBtn" type="button" aria-label="밝은 화면과 어두운 화면 바꾸기">◐</button><span class="rating" title="15세 이상 · 수용소 · 죽음 같은 무거운 주제를 다룹니다" aria-label="15세 이상 이용가">15</span></span></div>
  <div class="slogan" aria-hidden="true"><div class="sl-in"><span>★ 고를 수 있는 건 아무것도 없다</span><span>★ 1년이 한 턴, 인생은 단 한 번</span><span>★ 성분은 태어나는 순간 정해진다</span><span>★ 배급표보다 장마당</span><span>★ 2600만 분의 1</span><span>★ 끝까지 살아 낸 사람이 이긴다</span><span>★ 고를 수 있는 건 아무것도 없다</span><span>★ 1년이 한 턴, 인생은 단 한 번</span><span>★ 성분은 태어나는 순간 정해진다</span><span>★ 배급표보다 장마당</span><span>★ 2600만 분의 1</span><span>★ 끝까지 살아 낸 사람이 이긴다</span></div></div>
@@ -842,7 +852,7 @@ function yearTurn(s){const out={events:[],lines:[]};s.age++;s.year++;const st=st
  // 시나리오: 때가 된 다음 장
  if(!s.end&&s.arcs)for(const[id,a]of Object.entries(s.arcs)){if(!a.st||a.y>s.year)continue;const ev=EVS[id+'_'+a.st];if(!ev){a.st=null;continue}if(ev.stage&&!ev.stage.includes(stageOf(s))){a.y=s.year+1;continue}if(out.events.length<3&&!out.events.includes(ev.id)){out.events.push(ev.id);a.st=null}}
  if(!s.end&&s.age%5===0&&s.age<=60)peerNote(s,say);
- traitYear(s);autoYear(s,say);
+ traitYear(s);autoYear(s,say);newsYear(s,say);eggYear(s,say);
  s.hist.push({a:s.age,hp:Math.round(s.hp),r:Math.round(s.risk),j:Math.round(s.joy),m:Math.round(s.money),t:stageOf(s)});if(s.hist.length>120)s.hist.shift();
  // 선택 사건
  if(!s.end&&out.events.length<2){const p=s.age<6?(s.age>=2?.5:0):s.age<17?.36:.44;if(chance(p)){const e=pickEvent(s);if(e&&!out.events.includes(e))out.events.push(e)}}
@@ -3507,6 +3517,78 @@ function pickCrisis(s){const L=Object.values(EVS).filter(e=>e.crisis&&eligible(s
 Object.assign(EV_TAGS,{dr_note:'auth',dr_raidhome:'auth',dr_lodger:'auth',dr_workfire:'auth',dr_debt:'deal',dr_robbed:'deal',dr_demolish:'deal',dr_flood:'danger',dr_cold:'danger',dr_epidemic:'danger',dr_fakemed:'fam',dr_missing:'fam',dr_parent:'fam'});
 
 /* ================================================================
+   2600만 분의 1 — 선택지 힌트
+   결과는 숨기고 방향만: "돈↑ · 위험↑ · 운에 달림"
+   숨은 사정(누가 끄나풀인지 등)은 보지 않고, 겉으로 알 수 있는 평균만 봅니다.
+   ================================================================ */
+const HINT_KO={money:'돈',risk:'위험',joy:'행복',hp:'건강',net:'인맥',outside:'바깥 소식',loyal:'충성',prep:'탈북 준비',edu:'공부'};
+const HINT_W={money:1,risk:1.2,joy:.8,hp:1,net:.8,outside:.9,loyal:.7,prep:1,edu:.8};
+function optOutcomes(e,o,hide){const go=o.ref&&o.ref.go;if(!go||typeof go!=='object')return null;const H=hide&&typeof hide==='object'?Object.entries(hide):[['*',1]];const acc={};
+ for(const[h,ph]of H){const d=go[h]||go['*'];if(!d)continue;const tot=Object.values(d).reduce((a,b)=>a+b,0)||1;for(const[k,p]of Object.entries(d))acc[k]=(acc[k]||0)+ph*p/tot}
+ const tot=Object.values(acc).reduce((a,b)=>a+b,0)||1;return Object.entries(acc).map(([k,p])=>[k,p/tot])}
+function outEffect(s,e,k){try{const c=JSON.parse(JSON.stringify(s));const r=e.out[k](c);const ee=(r&&r.e)||{};const o={};for(const q in ee){const v=typeof ee[q]==='function'?ee[q](c):ee[q];o[q]=v}return o}catch(_){return{}}}
+function optHint(s,prep,i){const o=prep.opts[i];if(!o||o.sub||!o.ref||o.ref.trait||o.ref.contact)return'';const e=EVS[prep.id];if(!e||!e.out)return'';
+ const hide=typeof e.hide==='function'?e.hide(s):e.hide;const L=optOutcomes(e,o,hide);if(!L||!L.length)return'';
+ const G=e.good||{};let pos=0,neg=0;const sum={};let grave=0,away=0,life=0;
+ for(const[k,p]of L){const g=G[k]||0;if(g>0)pos+=p;if(g<0)neg+=p;const ef=outEffect(s,e,k);
+  for(const q in HINT_KO)if(ef[q])sum[q]=(sum[q]||0)+p*ef[q];if(ef.jail||ef.camp||ef.dead||ef.exile)grave+=p;if(ef.china||ef.south||ef.endNow==='exile')away+=p;if(ef.marry||ef.kid||ef.job)life+=p}
+ const scale={money:Math.max(60,s.money*.12)};const tags=Object.entries(sum).map(([q,v])=>[q,v,Math.abs(v)/(scale[q]||5)*HINT_W[q]]).filter(x=>x[2]>=.6).sort((a,b)=>b[2]-a[2]).slice(0,2)
+  .map(([q,v])=>`${HINT_KO[q]}${v>0?'↑':'↓'}`);
+ if(grave>=.15)tags.unshift(grave>=.5?'크게 잘못될 수 있음':'잘못되면 크게 다침');if(away>=.3)tags.unshift('국경 너머로');
+ let mood='';if(L.length===1)mood='';else if(pos>=.25&&neg>=.25)mood='운에 달림';else if(neg>=.6)mood='위험 부담 큼';else if(pos>=.75)mood='무난한 편';
+ if(mood)tags.push(mood);return tags.slice(0,3).join(' · ')}
+
+/* ================================================================
+   2600만 분의 1 — 바깥 소식 · 희귀 기록
+   · 세상 뉴스는 '바깥 소식'이 높은 사람에게만 닿습니다 (라디오 · USB · 중국 신문).
+     나머지는 조선중앙TV가 전하는 것만 압니다.
+   · 희귀 기록: 수천 번 살아야 한 번 볼까 말까 한 일들
+   ================================================================ */
+const WNEWS=[
+ {id:'la28',y:[2028,2028],t:'로스앤젤레스에서 여름 올림픽이 열렸습니다. 남쪽 선수들이 메달을 따는 장면이 중국 위성 방송에 잡혔습니다.'},
+ {id:'wc30',y:[2030,2030],t:'월드컵이 세 대륙에서 함께 열렸습니다. 백 년 전 첫 월드컵을 기념한 대회랍니다.'},
+ {id:'bris32',y:[2032,2032],t:'오스트레일리아 브리즈번에서 올림픽이 열렸습니다. 개막식 불꽃이 바다 위로 쏟아졌답니다.'},
+ {id:'moonbase',y:[2030,2040],p:.25,t:'사람들이 달에 다시 내렸습니다. 이번에는 돌아가지 않고 기지를 짓는답니다.'},
+ {id:'mars',y:[2040,2060],p:.12,t:'사람이 처음으로 화성에 발을 디뎠다는 소식이 라디오 잡음 사이로 들렸습니다.'},
+ {id:'fusion',y:[2038,2060],p:.1,t:'바닷물로 만드는 "핵융합" 전기가 처음으로 도시에 들어갔답니다. 정전이 없는 나라 이야기였습니다.'},
+ {id:'robotaxi',y:[2028,2040],p:.15,t:'운전수 없는 택시가 남쪽 도시들을 돌아다닌답니다. 써비차 운전수들이 그 얘기를 듣고 웃었습니다.'},
+ {id:'translate',y:[2027,2036],p:.18,t:'귀에 꽂으면 외국말이 바로 우리말로 들리는 기계가 나왔답니다.'},
+ {id:'malaria',y:[2028,2045],p:.12,t:'말라리아 백신이 아프리카 아이들에게 널리 퍼졌다는 국제 방송이 나왔습니다.'},
+ {id:'cancer',y:[2035,2060],p:.1,t:'암을 막는 주사가 나왔다는 소식이 들렸습니다. 이 나라 병원에는 아직 오지 않았습니다.'},
+ {id:'arctic',y:[2035,2060],p:.1,t:'여름이면 북극 바다의 얼음이 거의 다 녹는다는 소식이 들렸습니다.'},
+ {id:'pop',y:[2080,2090],p:.25,t:'세계 인구가 더 늘지 않고 줄기 시작했다는 국제 방송이 나왔습니다.'},
+ {id:'spaceh',y:[2030,2050],p:.12,t:'돈만 내면 누구나 우주에 다녀올 수 있는 여행이 시작됐답니다.'},
+ {id:'aircar',y:[2032,2050],p:.12,t:'서울 하늘에 사람을 태운 비행 택시가 날아다닌다는 소식을 들었습니다.'},
+ {id:'longlife',y:[2045,2080],p:.1,t:'바깥 세상에서는 백 살 넘게 사는 사람이 흔해졌답니다.'},
+ {id:'asteroid',y:[2029,2029],t:'커다란 소행성이 지구 아주 가까이 스쳐 지나갔습니다. 하늘을 올려다본 사람들이 많았답니다.'},
+ {id:'eclipse',y:[2035,2035],t:'한반도 위로 개기일식이 지나갔습니다. 대낮에 하늘이 깜깜해지자 장마당이 조용해졌습니다.'},
+ {id:'olympic36',y:[2036,2048],p:.15,t:'남쪽 도시가 또 올림픽을 연다는 소식이 들렸습니다.'},
+ {id:'aipeople',y:[2027,2040],p:.15,t:'바깥에서는 컴퓨터가 사람처럼 말하고 그림도 그린답니다. 장마당 사람들이 믿지 않았습니다.'},
+ {id:'kpopworld',y:[2026,2050],p:.15,t:'남쪽 노래가 세계 곳곳의 무대에서 불린다는 소식이 USB와 함께 들어왔습니다.'}];
+const KCTV=['조선중앙TV가 "위대한 승리"를 전했습니다. 무엇에 대한 승리인지는 끝내 나오지 않았습니다.','조선중앙TV가 "남조선 경제가 무너지기 직전"이라고 전했습니다. 올해도 그렇다고 했습니다.','조선중앙TV에 새로 지은 거리가 나왔습니다. 우리 동네는 아니었습니다.','조선중앙TV가 "세계가 우리를 부러워한다"고 전했습니다.','라디오는 하루 종일 같은 행진곡이었습니다. 바깥 세상에 무슨 일이 있었는지 아무도 몰랐습니다.'];
+function newsYear(s,say){if(s.end)return;const st=stageOf(s);if(!['adult','royal','army','school'].includes(st)||s.age<12)return;s.wnews=s.wnews||[];
+ const hear=s.royal?.6:s.outside>=25?.22+s.outside/300:0;
+ if(hear&&chance(hear)){const L=WNEWS.filter(n=>!s.wnews.includes(n.id)&&s.year>=n.y[0]&&s.year<=n.y[1]&&chance(n.p==null?.9:n.p+(n.y[0]===n.y[1]?0:.1)));if(L.length){const n=pick(L);s.wnews.push(n.id);
+  const via=s.royal?'외국 신문 번역본에서':s.own&&s.own.antenna?'위성 안테나 너머로':s.outside>=50?'몰래 듣는 남쪽 방송에서':pick(['라디오 잡음 사이로','중국 장사꾼에게서','USB 영상 끝자락에서']);say(`바깥 소식 · ${via} 들었습니다. ${n.t}`,'news');return}}
+ if(!s.royal&&s.outside<25&&chance(.08))say(pick(KCTV),'')}
+
+/* ---------- 희귀 기록 ---------- */
+const EGGS=[
+ {k:'e_100',ko:'백 살',d:'이 나라에서 백 번째 생일을 맞았습니다.',c:s=>s.age>=100},
+ {k:'e_gold',ko:'올림픽 금메달',d:'시상대 맨 위에서 국가를 들었습니다.',c:s=>s.flags.spMedal==='금'},
+ {k:'e_math',ko:'국제 수학 올림피아드 금메달',d:'세계 수재들 사이에서 금메달을 걸었습니다.',c:s=>s.flags.olympiad&&!s.eggs.e_math&&chance(.03)},
+ {k:'e_lotto',ko:'중국 복권 1등',d:'"당첨되면 열 배" 복권이 정말 터졌습니다.',c:s=>(s.tried||{}).o_lotto===s.year&&chance(.03),fx:s=>{s.money+=5000;return'중국 복권 1등이었습니다! 환전상이 세 번을 다시 셌습니다.'}},
+ {k:'e_comet',ko:'혜성을 찾은 사람',d:'손수 만든 망원경으로 새 혜성을 찾았습니다.',c:s=>s.age>=20&&s.edu>=60&&s.outside>=30&&chance(.004),fx:()=>'손수 만든 망원경에 처음 보는 빛줄기가 걸렸습니다. 몇 달 뒤 외국 천문대가 그 혜성에 내 이름 비슷한 이름을 붙였다는 소식이 들렸습니다.'},
+ {k:'e_mush',ko:'새 버섯을 찾은 사람',d:'아무도 몰랐던 버섯 종을 산에서 찾았습니다.',c:s=>['rural','border'].includes(s.place.type)&&s.age>=25&&chance(.0006),fx:()=>'산에서 처음 보는 주황색 버섯을 찾았습니다. 평양 농업과학원 연구사가 그 버섯을 들고 한참 떨었습니다.'},
+ {k:'e_triplet',ko:'세쌍둥이',d:'한 번에 세 아이가 태어났습니다.',c:s=>s.married&&s.age>=20&&s.age<=38&&!s.royal&&chance(.0008),fx:s=>{for(let i=0;i<3;i++){const m=addKid(s);m.bond=65}return'세쌍둥이가 태어났습니다! 산파가 세 번 놀랐고, 동네 사람들이 쌀을 한 바가지씩 들고 왔습니다.'}},
+ {k:'e_marathon',ko:'평양 마라톤 우승',d:'외국 선수들을 제치고 김일성광장에 1등으로 들어왔습니다.',c:s=>(s.traits||[]).includes('athletic')&&s.age>=20&&s.age<=34&&s.hp>=70&&chance(.006),fx:()=>'평양 마라톤 결승선을 1등으로 끊었습니다. 외국 선수들이 다가와 어깨를 두드렸습니다.'},
+ {k:'e_film',ko:'해외 영화제 수상',d:'출연한 영화가 외국 영화제에서 상을 받았습니다.',c:s=>s.art>=3&&chance(.02),fx:()=>'출연한 영화가 외국 영화제에서 상을 받았습니다. 시상식에는 다른 사람이 갔지만, 상장에는 내 이름이 있었습니다.'},
+ {k:'e_rich',ko:'장마당 최고 부자',d:'도시 하나에서 가장 돈이 많은 사람이 됐습니다.',c:s=>!s.royal&&s.money>=150000},
+ {k:'e_reunion',ko:'70년 만의 상봉',d:'전쟁 때 헤어진 가족을 만났습니다.',c:s=>s.age>=40&&(s.secret==='southfam'||s.flags.arc_letter==='stay')&&chance(.004),fx:()=>'이산가족 상봉 명단에 이름이 올랐습니다. 금강산 면회소에서 백발의 남쪽 친척이 내 손을 놓지 않았습니다.'},
+ {k:'e_peace',ko:'노벨 평화상',d:'오슬로에서 소식이 날아왔습니다.',c:s=>s.royal&&s.flags.leader&&((s.flags.summits||0)>=3||s.flags.leaderUnify)&&chance(.08),fx:()=>'오슬로에서 소식이 날아왔습니다. 노벨 평화상이었습니다. 평양 방송은 그 소식을 사흘 늦게 전했습니다.'}];
+function eggYear(s,say){if(s.end)return;s.eggs=s.eggs||{};for(const e of EGGS){if(s.eggs[e.k])continue;let ok=false;try{ok=e.c(s)}catch(_){ok=false}if(!ok)continue;s.eggs[e.k]=s.year;const t=e.fx?e.fx(s):e.d;say(`희귀 기록 · ${e.ko} — ${t}`,'mile');big(s,`희귀 기록: ${e.ko}`,3);s.flags.eggNew=e.k}}
+
+/* ================================================================
    2600만 분의 1 — 결말 (위에서부터 먼저 맞는 것 하나)
    정답은 없습니다. 살아온 길에 따라 112가지로 갈립니다.
    ================================================================ */
@@ -3751,6 +3833,99 @@ const END_CATS=[...new Set(ENDINGS.map(e=>e.cat))];
 function endingOf(s){for(const e of ENDINGS){let ok=false;try{ok=e.c(s)}catch(_){ok=false}if(ok)return{id:e.id,t:e.t,tone:e.tone,cat:e.cat,d:typeof e.d==='function'?e.d(s):e.d}}}
 
 /* ================================================================
+   2600만 분의 1 — 픽셀 짧은 장면
+   해와 해 사이, 장면 칸에서 10초 남짓한 일상이 움직입니다. 누르면 건너뜁니다.
+   ================================================================ */
+const EPS=[];const EP=o=>EPS.push(o);
+const epAt=(t,K)=>{if(t<=K[0][0])return K[0][1];for(let i=1;i<K.length;i++)if(t<=K[i][0]){const[a,x0]=K[i-1],[b,x1]=K[i];return x0+(x1-x0)*(t-a)/(b-a)}return K[K.length-1][1]};
+const epMov=(t,K)=>{for(let i=1;i<K.length;i++)if(t>K[i-1][0]&&t<=K[i][0])return K[i][1]!==K[i-1][1];return false};
+const epIn=(t,a,b)=>t>=a&&t<b;
+const myShirt=s=>stageOf(s)==='army'?'#5b6b3a':s.royal?'#1a1a1a':s.age<17?'#ece8df':'#4f6a86';
+const NB=['#7a5a8c','#5d7a5a','#8c6a4a','#4a6a8c','#a0524a','#6a6a72'];
+const okHome=s=>!['jail','camp','china','army'].includes(stageOf(s))&&!s.royal;
+
+/* ---------- 장면들 ---------- */
+EP({id:'dark',title:'정전된 밤',ok:s=>okHome(s)&&s.age>=3,fx:'night',dur:10500,subs:['저녁을 먹다 전기가 나갔습니다.','어머니가 초 한 자루를 켰습니다.'],punch:'벽에 손 그림자로 토끼가 나타났습니다. 정전이 하나도 무섭지 않았습니다.',
+ act:(t,s)=>{const o=[{k:'p',x:112,age:s.age,sex:s.sex,me:1},{k:'p',x:134,age:40,sex:'F',sh:NB[0]}];if(t>2600)o.push({k:'candle',x:126});if(t>5200)o.push({k:'bunny',x:150,y:30+Math.sin(t/300)*2});if(t>6200)o[0].ic='♥';return o}});
+EP({id:'bust',title:'장마당 단속',ok:s=>okHome(s)&&s.age>=9&&(s.dir==='trade'||s.dir==='errand'||(s.own||{}).stall||['e83','gadu'].includes(s.jobK)),dur:9500,subs:['상자를 안고 장마당 골목을 걷는데…','저쪽에서 단속원이 이쪽을 봤습니다.'],punch:'골목 세 개를 꺾어 따돌렸습니다. 숨이 턱까지 찼지만 상자는 무사했습니다.',
+ act:t=>{const M=[[0,70],[2600,100],[4300,100],[6400,210],[8200,250]],O=[[0,-20],[2700,30],[4500,60],[6600,170],[8400,230]];const me={k:'p',x:epAt(t,M),me:1,mv:epMov(t,M),box:1},of={k:'p',x:epAt(t,O),age:40,sex:'M',sh:'#3f5a36',cap:1,mv:epMov(t,O)};
+  if(epIn(t,2600,4300))me.ic='!';if(t>6400)of.ic='?';return[me,of]}});
+EP({id:'kimchi',title:'김장하는 날',ok:s=>okHome(s)&&s.age>=6,dur:10500,subs:['김장하는 날입니다. 골목 사람들이 다 나왔습니다.','배추를 나르고, 절이고, 버무렸습니다.'],punch:'항아리 다섯 개가 마당에 묻혔습니다. 손은 빨갛게 얼었지만 다들 웃었습니다.',
+ act:(t,s)=>{const o=[{k:'pot',x:150},{k:'pot',x:162},{k:'pot',x:174}];for(let i=0;i<3;i++){const K=[[0,20+i*14],[3200+i*300,132-i*18],[3800+i*300,132-i*18],[6800,20+i*14],[9600,132-i*18]];const p=i===0?{k:'p',x:epAt(t,K),me:1,mv:epMov(t,K)}:{k:'p',x:epAt(t,K),age:35+i*12,sex:i===1?'F':'M',sh:NB[i+1],mv:epMov(t,K)};if(epMov(t,K))p.cab=1;if(t>9300)p.ic='♪';o.push(p)}return o}});
+EP({id:'ration',title:'배급소 앞',ok:s=>okHome(s)&&s.age>=8,dur:10000,subs:['새벽부터 배급소 앞에 줄을 섰습니다.','두 시간이 지나자 창구 문이 열렸습니다.'],punch:'"오늘은 없습니다." 줄이 소리 없이 흩어졌습니다.',
+ act:t=>{const o=[{k:'sign',x:66,txt:t>5600?'오늘 없음':'배급소'}];for(let i=0;i<5;i++){const sx=92+i*14,K=[[0,sx],[3000,sx],[3600,sx-4],[6400,sx-4],[8600,sx+(i%2?90:-110)]];const p={k:'p',x:epAt(t,K),age:28+i*9,sex:i%2?'F':'M',sh:NB[i],mv:epMov(t,K)};if(epIn(t,6000,7600))p.ic='…';o.push(p)}
+  const MK=[[0,166],[3000,166],[3600,162],[6400,162],[8800,250]];const me={k:'p',x:epAt(t,MK),me:1,mv:epMov(t,MK)};if(epIn(t,6000,7600))me.ic='…';o.push(me);return o}});
+EP({id:'radio',title:'이불 속 라디오',ok:s=>okHome(s)&&s.outside>=15&&s.age>=10,fx:'night',dur:10000,subs:['이불을 뒤집어쓰고 라디오 다이얼을 돌렸습니다.','잡음 사이로 남쪽 노래가 흘러나왔습니다.'],punch:'골목에서 발소리가 멀어질 때까지 숨을 참았습니다. 노래는 끝까지 들었습니다.',
+ act:t=>{const o=[{k:'blanket',x:118},{k:'radio',x:134}];const quiet=epIn(t,4800,7000);if(t>2200&&!quiet)o.push({k:'note',x:138+((t/90)%14),y:40-((t/60)%18)});if(quiet){o.push({k:'p',x:epAt(t,[[4800,250],[7000,170]]),age:45,sex:'M',sh:'#3f5a36',cap:1,mv:1});o.push({k:'mark',x:124,y:44,txt:'!'})}return o}});
+EP({id:'bike',title:'자전거 배우기',ok:s=>okHome(s)&&s.age>=7&&s.age<=15,dur:10000,subs:['아버지가 자전거 뒤를 잡아 주었습니다.','어느 순간 뒤를 보니 아버지 손이 없었습니다.'],punch:'혼자 골목 끝까지 달렸습니다. 아버지가 뒤에서 손뼉을 쳤습니다.',
+ act:(t,s)=>{const MK=[[0,60],[3200,120],[4200,120],[9500,250]];const fell=epIn(t,3300,4600);const me={k:'p',x:epAt(t,MK),me:1,bike:!fell,fall:fell};if(fell)me.ic='!';if(t>6000)me.ic='♥';
+  const DK=[[0,48],[3000,104],[9500,110]];const dad={k:'p',x:epAt(t,DK),age:42,sex:'M',sh:NB[3],mv:epMov(t,DK)};if(t>6000)dad.ic='♪';return[dad,me]}});
+EP({id:'snow',title:'첫눈',ok:s=>!['jail','camp','china'].includes(stageOf(s))&&s.age>=4&&s.age<=60&&!s.royal,fx:'snow',dur:10000,subs:['밤새 첫눈이 내렸습니다.','골목 아이들이 하나둘 나왔습니다.'],punch:'눈싸움 끝에 다들 볼이 빨개졌습니다. 그날은 배고픈 줄도 몰랐습니다.',
+ act:(t,s)=>{const o=[];for(let i=0;i<3;i++){const K=[[0,250+i*20],[2500+i*500,150+i*20],[10000,150+i*20]];o.push({k:'p',x:epAt(t,K),age:9+i,sex:i%2?'F':'M',sh:NB[i+2],mv:epMov(t,K)})}const me={k:'p',x:110,age:s.age,sex:s.sex,me:1};if(t>4000){const f=(t%1600)/1600;o.push({k:'ball',x:116+f*36,y:50-Math.sin(f*Math.PI)*14})}if(t>7000)me.ic='♥';o.push(me);return o}});
+EP({id:'chicken',title:'달아난 닭',ok:s=>okHome(s)&&s.age>=5&&(s.place.type==='rural'||(s.own||{}).chicken),dur:9000,subs:['닭장 문이 열려 있었습니다.','닭 한 마리가 골목으로 달아났습니다.'],punch:'옆집 할머니가 치마폭으로 닭을 덮쳤습니다. 저녁에 달걀 두 개를 나눠 드렸습니다.',
+ act:t=>{const CK=[[0,90],[1500,90],[5200,190],[6200,190]];const MK=[[0,70],[2400,80],[5600,172]];const o=[{k:'chick',x:epAt(t,CK),gone:t>6200},{k:'p',x:epAt(t,MK),me:1,mv:epMov(t,MK),ic:epIn(t,1500,3200)?'!':''}];
+  o.push({k:'p',x:epAt(t,[[0,250],[4600,250],[6000,196]]),age:70,sex:'F',sh:NB[0],mv:epIn(t,4600,6000),ic:t>6400?'♥':''});return o}});
+EP({id:'tv',title:'노트텔 앞',ok:s=>okHome(s)&&s.age>=10&&((s.own||{}).notetel||(s.own||{}).tv),fx:'night',dur:10500,subs:['노트텔 앞에 동네 사람들이 모였습니다.','화면 속 서울 거리를 다들 숨죽여 봤습니다.'],punch:'문 두드리는 소리에 재빨리 조선 영화로 바꿨습니다. 들어온 인민반장이 같이 앉아 끝까지 봤습니다.',
+ act:t=>{const o=[{k:'tv',x:70,red:t>5600}];for(let i=0;i<4;i++){const p={k:'p',x:96+i*14,age:20+i*12,sex:i%2?'F':'M',sh:NB[i],me:i===1};if(epIn(t,5000,6400))p.ic='!';o.push(p)}if(t>6200)o.push({k:'p',x:epAt(t,[[6200,250],[8200,160]]),age:55,sex:'F',sh:'#8c3a3a',mv:t<8200});return o}});
+EP({id:'rain',title:'장맛비',ok:s=>okHome(s)&&s.age>=5,fx:'rain',dur:9500,subs:['장맛비가 사흘째입니다.','지붕에서 물이 새기 시작했습니다.'],punch:'그릇이란 그릇은 다 꺼내 받쳤습니다. 빗방울 떨어지는 소리가 밤새 음악 같았습니다.',
+ act:(t,s)=>{const o=[];const n=Math.min(4,Math.floor(t/1800));for(let i=0;i<n;i++)o.push({k:'bucket',x:100+i*18,drip:(t+i*400)%900<120});const MK=[[0,96],[1800,100],[3600,118],[5400,136],[7200,154]];o.push({k:'p',x:epAt(t,MK),me:1,mv:epMov(t,MK),ic:t>7600?'♪':''});return o}});
+EP({id:'feast',title:'골목 잔치',ok:s=>okHome(s)&&s.age>=6&&(s.married||famAlive(s).some(m=>m.wed)),dur:10000,subs:['골목에서 잔치가 열렸습니다.','국수 한 그릇씩 돌아가고, 누군가 노래를 시작했습니다.'],punch:'밤늦도록 다 같이 춤을 췄습니다. 그날만큼은 정전도 상관없었습니다.',
+ act:(t,s)=>{const o=[];for(let i=0;i<5;i++){const p={k:'p',x:80+i*20+Math.sin(t/260+i)*3,age:i===2?s.age:22+i*9,sex:i===2?s.sex:i%2?'F':'M',sh:NB[i],me:i===2,jump:t>3500&&(Math.floor(t/300)+i)%2===0};if(t>3500&&i%2===0)p.ic='♪';o.push(p)}return o}});
+EP({id:'march',title:'새벽 구보',ok:s=>stageOf(s)==='army',dur:9500,subs:['새벽 다섯 시, 구보가 시작됐습니다.','나는 맨 뒤에서 숨을 헐떡였습니다.'],punch:'분대장이 뒤로 와서 내 배낭을 대신 메 주었습니다. 아무 말도 하지 않았습니다.',
+ act:(t,s)=>{const o=[];for(let i=0;i<5;i++){const K=[[0,-10-i*14],[9500,250-i*14]];o.push({k:'p',x:epAt(t,K),age:21,sex:'M',sh:'#5b6b3a',mv:1,cap:1})}const MK=[[0,-90],[5000,110],[9500,170]];const me={k:'p',x:epAt(t,MK),me:1,mv:1,ic:t<5000?'…':''};o.push(me);
+  if(t>5000)o.push({k:'p',x:me.x+12,age:26,sex:'M',sh:'#5b6b3a',mv:1,cap:1,ic:'!'});return o}});
+EP({id:'border',title:'강가의 불빛',ok:s=>stageOf(s)==='adult'&&s.place.type==='border'&&!s.royal,fx:'night',dur:9000,subs:['밤에 강가에 나갔습니다.','건너편에서 손전등이 세 번 깜빡였습니다.'],punch:'누구를 부르는 신호였을까요. 대답하지 않고 돌아섰습니다.',
+ act:t=>{const o=[{k:'flash',x:200,y:40,on:[[2600,3000],[3600,4000],[4600,5000]].some(([a,b])=>epIn(t,a,b))}];const MK=[[0,40],[2000,110],[6500,110],[9000,30]];o.push({k:'p',x:epAt(t,MK),me:1,mv:epMov(t,MK),ic:epIn(t,2600,6500)?'?':''});return o}});
+EP({id:'r_garden',title:'관저 정원',ok:s=>s.royal&&s.age>=3&&s.age<=12,dur:9500,subs:['관저 정원을 뛰어다녔습니다.','경호원 셋이 똑같은 거리를 두고 따라왔습니다.'],punch:'갑자기 멈춰 뒤를 돌아봤더니 셋이 동시에 멈췄습니다. 처음으로 깔깔 웃었습니다.',
+ act:(t,s)=>{const MK=[[0,60],[5200,160],[9500,160]];const me={k:'p',x:epAt(t,MK),me:1,mv:epMov(t,MK),ic:t>6200?'♥':''};const o=[{k:'fount',x:200},me];for(let i=0;i<3;i++){const K=MK.map(([a,x])=>[a,x-18-i*14]);o.push({k:'p',x:epAt(t,K),age:32,sex:'M',sh:'#1a1a1a',mv:epMov(t,K),ic:epIn(t,5200,6200)?'!':''})}return o}});
+EP({id:'r_car',title:'텅 빈 새벽 거리',ok:s=>s.royal&&stageOf(s)==='royal'&&s.age>=18,dur:8500,subs:['새벽, 텅 빈 평양 거리로 차를 몰았습니다.','교차로마다 신호등이 미리 초록불로 바뀌었습니다.'],punch:'창문을 내리자 찬 바람이 들어왔습니다. 거리에는 아무도 없었습니다.',
+ act:t=>{const cx=epAt(t,[[0,-50],[8500,260]]);return[{k:'light',x:90,on:cx>40},{k:'light',x:170,on:cx>120},{k:'car',x:cx}]}});
+EP({id:'r_clap',title:'단상 위에서',ok:s=>s.royal&&stageOf(s)==='royal'&&s.age>=16,dur:9500,subs:['연회장 단상에 섰습니다.','한마디 할 때마다 박수가 쏟아졌습니다.'],punch:'하품을 참지 못했는데, 그것에도 박수가 나왔습니다.',
+ act:(t,s)=>{const yawn=epIn(t,5200,6600);const o=[{k:'p',x:60,me:1,ic:yawn?'z':''}];for(let i=0;i<6;i++)o.push({k:'p',x:100+i*20,age:55+i*3,sex:'M',sh:'#2b2b2b',ic:(t>2500&&(Math.floor(t/400)+i)%3===0)||t>6800?'♪':'',jump:t>2500&&(Math.floor(t/250)+i)%2===0});return o}});
+
+/* ---------- 그리기 ---------- */
+let EPX=null;
+function epDraw(c,o,t,s,r){const R0=(x,y,w,h,col)=>{c.fillStyle=col;c.fillRect(x|0,y|0,w|0,h|0)};const B=63;
+ const mark=(x,y,txt,col)=>{c.font='bold 8px monospace';c.fillStyle=col||'#c0261c';c.fillText(txt,x|0,y|0)};
+ switch(o.k){
+  case'p':{const p={me:o.me,age:o.me?s.age:o.age,sex:o.me?s.sex:o.sex,shirt:o.me?myShirt(s):o.sh||'#6a6a72'};const bob=(o.mv&&Math.floor(t/140)%2)||(o.jump?2:0);
+   if(o.fall){c.save();c.translate(o.x+4,B);c.rotate(-1.4);fig(c,-4,0,p,seeded(hashStr((o.me?'me':o.age)+'f')));c.restore()}else fig(c,o.x,B-bob,p,seeded(hashStr((o.me?'me':o.age+o.sex)+'ep')));
+   const ch=p.age<13,h=p.age<3?11:ch?12:17,top=B-h-bob;
+   if(o.cap){R0(o.x,top-1,8,2,'#3f5a36');R0(o.x+3,top-2,2,1,'#c0261c')}if(o.box)R0(o.x+6,B-11-bob,7,6,'#a8804e');if(o.cab){R0(o.x+6,B-12-bob,6,5,'#8fbf5a');R0(o.x+7,B-13-bob,4,2,'#cfe8a8')}
+   if(o.bike){R0(o.x-4,B-2,5,5,'#333');R0(o.x+8,B-2,5,5,'#333');R0(o.x-1,B-4,12,1,'#c0261c')}
+   if(o.ic)mark(o.x+1,top-(o.me?8:3),o.ic,o.ic==='♥'?'#e0607a':o.ic==='♪'?'#d9a93a':o.ic==='…'||o.ic==='z'?'#6a6a72':'#c0261c');break}
+  case'candle':{const f=Math.sin(t/90)*.5+.5;c.fillStyle=`rgba(255,210,120,${.18+.06*f})`;c.beginPath();c.arc(o.x+1,B-12,26,0,7);c.fill();R0(o.x,B-8,3,8,'#efe6cf');R0(o.x+1,B-11-f,1,3,'#f6b23a');break}
+  case'bunny':{const y=o.y;R0(o.x,y,10,6,'rgba(20,20,30,.75)');R0(o.x+1,y-6,2,6,'rgba(20,20,30,.75)');R0(o.x+5,y-6,2,6,'rgba(20,20,30,.75)');R0(o.x+9,y+2,3,2,'rgba(20,20,30,.75)');break}
+  case'pot':R0(o.x,B-9,10,9,'#6b4a32');R0(o.x+1,B-10,8,2,'#8a6040');break;
+  case'sign':R0(o.x,B-26,30,12,'#efe6cf');R0(o.x+14,B-14,2,14,'#6b5c4a');c.font='bold 7px sans-serif';c.fillStyle=o.txt==='오늘 없음'?'#c0261c':'#333';c.fillText(o.txt,o.x+2,B-17);break;
+  case'blanket':R0(o.x,B-8,22,8,'#c66a4a');R0(o.x,B-9,22,2,'#d98a6a');R0(o.x+18,B-11,5,4,'#f1cfae');break;
+  case'radio':R0(o.x,B-7,10,7,'#3a3530');R0(o.x+2,B-5,3,3,'#9a9184');R0(o.x+7,B-11,1,4,'#9a9184');break;
+  case'note':mark(o.x,o.y,'♪','#d9a93a');break;
+  case'mark':mark(o.x,o.y,o.txt);break;
+  case'ball':R0(o.x,o.y,3,3,'#ffffff');break;
+  case'chick':if(!o.gone){const b=Math.floor(t/110)%2;R0(o.x,B-6-b,6,5,'#f3efe4');R0(o.x+5,B-8-b,3,3,'#f3efe4');R0(o.x+7,B-7-b,2,1,'#e8a23a');R0(o.x+5,B-9-b,2,1,'#d33c2c')}break;
+  case'tv':R0(o.x,B-18,18,14,'#2a2a2a');R0(o.x+2,B-16,14,10,o.red?'#b5150c':(Math.floor(t/400)%2?'#7fb2d9':'#9cc8e6'));R0(o.x+7,B-4,4,4,'#2a2a2a');break;
+  case'bucket':R0(o.x,B-6,7,6,'#8b8f96');R0(o.x+1,B-7,5,1,'#b7bcc4');if(o.drip)R0(o.x+3,B-20,1,3,'#7fb2d9');break;
+  case'flash':if(o.on){c.fillStyle='rgba(255,240,170,.35)';c.beginPath();c.arc(o.x,o.y,10,0,7);c.fill();R0(o.x-1,o.y-1,3,3,'#fff6c8')}break;
+  case'fount':R0(o.x-10,B-6,24,6,'#cfd8dc');R0(o.x,B-18,4,12,'#cfd8dc');for(let i=0;i<5;i++)R0(o.x-6+i*4,B-22+((t/80+i*3)%10),1,2,'#8fc7ea');break;
+  case'light':R0(o.x,B-30,2,30,'#3a3a3a');R0(o.x-2,B-36,6,7,'#222');R0(o.x-1,B-35,4,2,o.on?'#2a2a2a':'#c0261c');R0(o.x-1,B-32,4,2,o.on?'#3bd16f':'#2a2a2a');break;
+  case'car':R0(o.x,B-9,28,6,'#c9ccd1');R0(o.x+6,B-14,14,6,'#aab0b8');R0(o.x+8,B-13,4,4,'#4a5a6a');R0(o.x+14,B-13,4,4,'#4a5a6a');R0(o.x+3,B-3,5,3,'#222');R0(o.x+20,B-3,5,3,'#222');R0(o.x+27,B-8,2,2,'#ffe9a0');break}}
+function epFrame(){if(!EPX)return;const{ep,t0,bg,s}=EPX;const t=performance.now()-t0;const cv=$('scene'),c=cv.getContext('2d');c.drawImage(bg,0,0);
+ if(ep.fx==='night'){c.fillStyle='rgba(8,10,28,.55)';c.fillRect(0,0,240,84)}
+ if(ep.fx==='snow'){c.fillStyle='rgba(255,255,255,.9)';for(let i=0;i<60;i++){const x=(i*37+t/40*(1+i%3))%240,y=(i*23+t/25*(1+i%2))%84;c.fillRect(x|0,y|0,1,1)}}
+ if(ep.fx==='rain'){c.fillStyle='rgba(150,190,230,.75)';for(let i=0;i<70;i++){const x=(i*29+t/8)%240,y=(i*17+t/4)%84;c.fillRect(x|0,y|0,1,3)}}
+ const r=seeded(1);for(const o of ep.act(t,s))epDraw(c,o,t,s,r);
+ const cap=$('sceneCap');const k=t<ep.dur*.38?0:t<ep.dur*.7?1:2;if(EPX.k!==k){EPX.k=k;cap.innerHTML=`<span class="epcap"><b>${esc(ep.title)}</b>${esc(k<2?ep.subs[k]:ep.punch)}</span>`}
+ if(t>=ep.dur+1400)return epEnd();EPX.raf=requestAnimationFrame(epFrame)}
+function epEnd(){if(!EPX)return;cancelAnimationFrame(EPX.raf);const{ep,s}=EPX;EPX=null;if(S===s&&!s.end){addLog(s,`${ep.title} · ${ep.punch}`,'ep');save();renderTL&&renderTL()}renderScene()}
+function epPlay(ep){if(EPX)epEnd();const s=S;const bg=document.createElement('canvas');bg.width=240;bg.height=84;drawScene(bg,s,true);
+ s.eps=(s.eps||[]).concat(ep.id).slice(-12);EPX={ep,s,bg,t0:performance.now(),k:-1};EPX.raf=requestAnimationFrame(epFrame)}
+function maybeEp(){if(EPX||!S||S.end||FLOW.busy||!$('modal').hidden||FLOW.speed>=8||document.hidden)return;if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+ if(!chance(.24))return;const st=stageOf(S);const seen=S.eps||[];const L=EPS.filter(e=>!seen.includes(e.id)&&e.ok(S,st));if(!L.length)return;epPlay(pick(L))}
+
+document.getElementById('scene')&&document.getElementById('scene').addEventListener('click',()=>{if(EPX)epEnd()});
+
+/* ================================================================
    2600만 분의 1 — install as an app (home screen / desktop) & offline cache
    ================================================================ */
 const PWA={evt:null};
@@ -3852,7 +4027,8 @@ function syncRoyalBtn(){const n=royalTickets(),lv=LS.get('nk.lives',0);const b=$
  $('royalHint').textContent=n>0?'이용권을 쓰면 300분의 1을 건너뛰고 바로 백두혈통으로 태어납니다. 후계 다툼과 숙청 위험은 그대로입니다.':`인생을 두 번 끝까지 살 때마다 백두혈통으로 태어날 수 있는 이용권이 한 장 생깁니다. (지금까지 ${lv}번)`}
 function useRoyalTicket(){if(royalTickets()<1){toast('인생을 두 번 끝까지 살면 열립니다.');return}LS.set('nk.rtUsed',LS.get('nk.rtUsed',0)+1);startLife({royal:true})}
 function refreshHome(){const dx=LS.get('nk.dex',{});syncRoyalBtn();const found=ENDINGS.filter(e=>dx[e.id]).length;$('dexSub').textContent=`이 브라우저에서 본 결말이 모입니다. ${ENDINGS.length}가지 중 ${found}가지를 봤습니다. 정답은 없습니다.`;
- $('dex').innerHTML=END_CATS.map(c=>{const L=ENDINGS.filter(e=>e.cat===c);const f=L.filter(e=>dx[e.id]).length;return`<div class="dcat"><h4>${esc(c)} <small>${f} / ${L.length}</small></h4><div class="dexg">${L.map(e=>`<div class="dx ${dx[e.id]?e.tone:'off'}"><b>${dx[e.id]?esc(e.t):'？？？'}</b><small>${dx[e.id]?`${dx[e.id].n}번 · 최근 ${esc(dx[e.id].last)}`:'아직 못 본 결말'}</small></div>`).join('')}</div></div>`}).join('');
+ const eg=LS.get('nk.eggs',{});const egH=`<div class="dcat"><h4>희귀 기록 <small>${EGGS.filter(e=>eg[e.k]).length} / ${EGGS.length}</small></h4><div class="dexg">${EGGS.map(e=>`<div class="dx egg ${eg[e.k]?'good':'off'}"><b>${eg[e.k]?'🏅 '+esc(e.ko):'？？？'}</b><small>${eg[e.k]?`${esc(eg[e.k].last)} · ${esc(e.d)}`:'수천 번에 한 번'}</small></div>`).join('')}</div></div>`;
+ $('dex').innerHTML=egH+END_CATS.map(c=>{const L=ENDINGS.filter(e=>e.cat===c);const f=L.filter(e=>dx[e.id]).length;return`<div class="dcat"><h4>${esc(c)} <small>${f} / ${L.length}</small></h4><div class="dexg">${L.map(e=>`<div class="dx ${dx[e.id]?e.tone:'off'}"><b>${dx[e.id]?esc(e.t):'？？？'}</b><small>${dx[e.id]?`${dx[e.id].n}번 · 최근 ${esc(dx[e.id].last)}`:'아직 못 본 결말'}</small></div>`).join('')}</div></div>`}).join('');
  const cur=LS.get('nk.cur',null),rb=$('resumeBox');if(cur&&!cur.end){rb.hidden=false;rb.className='resume';rb.innerHTML=`<span><b>${esc(cur.name)}</b>의 삶이 이어지고 있어요 · ${cur.age}세</span><button class="btn pri" type="button" id="rbGo">이어서</button><button class="btn" type="button" id="rbDrop">내려놓기</button>`;
   $('rbGo').onclick=()=>{S=migrate(cur);if(!S.q)S.q=[];if(S.yp==null)S.yp=0;if(!S.own)S.own={};if(S.joy==null)S.joy=55;if(!S.hist)S.hist=[];enterGame()};$('rbDrop').onclick=()=>{LS.del('nk.cur');rb.hidden=true}}else rb.hidden=true}
 function startLife(opt){S=newLife(opt&&(opt.royal||opt.absolute)?opt:undefined);S.q=[];S.yp=0;save();birthSeq(S,enterGame)}
@@ -3934,7 +4110,7 @@ function fig(c,x,base,p,r){const R0=(xx,y,w,h,col)=>{c.fillStyle=col;c.fillRect(
  if(p.me){R0(x+w/2-1,top-5,3,3,'#c0261c');R0(x+w/2,top-2,1,1,'#c0261c')}
  if(p.heart){R0(x+w/2-1,top-5,1,1,'#e0607a');R0(x+w/2+1,top-5,1,1,'#e0607a');R0(x+w/2-1,top-4,3,1,'#e0607a');R0(x+w/2,top-3,1,1,'#e0607a')}
  return w}
-function drawScene(cv,s){const c=cv.getContext('2d');const W=240;const R0=(x,y,w,h,col)=>{c.fillStyle=col;c.fillRect(x|0,y|0,w|0,h|0)};const r=seeded(hashStr(s.id+'scene'));
+function drawScene(cv,s,bare){const c=cv.getContext('2d');const W=240;const R0=(x,y,w,h,col)=>{c.fillStyle=col;c.fillRect(x|0,y|0,w|0,h|0)};const r=seeded(hashStr(s.id+'scene'));
  const st=stageOf(s),pt=s.place.type,dark=document.documentElement.dataset.theme==='dark'||(!document.documentElement.dataset.theme&&matchMedia('(prefers-color-scheme: dark)').matches);
  const roy=s.royal&&!['jail','camp','china'].includes(st);const night=s.power==='off'&&!roy;
  for(let y=0;y<62;y++){const t=y/62;const a=night?[38,44,72]:dark?[70,96,130]:[150,200,226],b=night?[70,72,96]:dark?[120,140,150]:[226,238,232];R0(0,y,W,1,`rgb(${a.map((v,i)=>Math.round(v+(b[i]-v)*t)).join(',')})`)}
@@ -3955,12 +4131,13 @@ function drawScene(cv,s){const c=cv.getContext('2d');const W=240;const R0=(x,y,w
   else if(/하모니카/.test(h)){R0(6,44,78,20,'#d8cdb6');R0(4,40,82,5,'#8c5a3c');for(let k=0;k<5;k++){R0(10+k*15,52,5,12,'#6b5c4a');R0(17+k*15,49,4,4,win)}}
   else{R0(16,42,44,22,'#e2d6bd');c.fillStyle='#a34a32';c.beginPath();c.moveTo(10,43);c.lineTo(38,28);c.lineTo(66,43);c.fill();R0(34,52,8,12,'#6b5c4a');R0(22,48,6,6,win);R0(48,48,6,6,win)}
   if(s.own&&s.own.solar)R0(20,38,12,3,'#2d4f7c')}
+ if(bare)return;
  const people=[{me:1,age:s.age,sex:s.sex,shirt:st==='army'?'#5b6b3a':st==='jail'||st==='camp'?'#8a877f':s.royal?'#1a1a1a':s.age<17?'#ece8df':'#4f6a86',scarf:s.age>=11&&s.age<17&&st==='school'}];
  if(!['jail','camp','army'].includes(st))for(const m of famRows(s))if(m.alive&&!m.gone&&!m.left&&!m.crossed&&!(m.armyTo&&ageOf(s,m)>=17)&&!(m.wed&&!m.sp))people.push({age:ageOf(s,m),sex:m.sex,shirt:pick2(r,['#7a5a8c','#5d7a5a','#8c6a4a','#4a6a8c','#a0524a','#6a6a72'])});
  if(s.date&&!['jail','camp'].includes(st))people.push({age:s.year-s.date.by,sex:s.date.sex,shirt:'#c0566e',heart:1});
  let x=['jail','camp','army'].includes(st)?60:96;for(const p of people.slice(0,8)){const w=fig(c,x,63,p,r);x+=w+5}
  if(s.royal)for(let i=0;i<10;i++)R0(r()*W,r()*60,1,1,'#ffe9a0')}
-function renderScene(){const s=S;drawScene($('scene'),s);const st=stageOf(s);const L=famRows(s).filter(m=>m.alive&&!m.gone&&!m.left&&!m.crossed&&!(m.wed&&!m.sp));
+function renderScene(){if(typeof EPX!=='undefined'&&EPX)return;const s=S;drawScene($('scene'),s);const st=stageOf(s);const L=famRows(s).filter(m=>m.alive&&!m.gone&&!m.left&&!m.crossed&&!(m.wed&&!m.sp));
  const who=L.length?(L.length>3?`식구 ${L.length}명과 함께`:L.map(m=>m.rel).join(' · ')+'와 함께'):'혼자';
  const pw={on:'전기가 꽤 들어옴',some:'전기 하루 두세 시간',off:'거의 정전'}[s.power]||'';
  $('sceneCap').innerHTML=st==='jail'?`${esc(s.jailKind||'수감')} · 나갈 날을 셉니다`:st==='camp'?'정치범수용소 · 바깥은 이 이야기를 모릅니다':st==='china'?'중국 · 이름도 서류도 없이':st==='army'?`${esc(jobLabel(s))} · 부대 생활`:
@@ -4036,8 +4213,9 @@ function loop(ts){FLOW.raf=requestAnimationFrame(loop);const dt=FLOW.last?Math.m
  S.yp=(S.yp||0)+dt*FLOW.speed/YEAR_BASE;const nx=S.q&&S.q[0];
  if(nx&&S.yp>=nx.at){S.q.shift();openEvent(nx.id);return}
  if(S.yp>=1&&!(S.q&&S.q.length))newYear();else $('yBar').style.width=Math.min(100,S.yp*100)+'%'}
-function newYear(quiet){const out=yearTurn(S);S.yp=0;S.q=out.events.map((id,i)=>({id,at:Math.min(.92,.18+i*.3+rnd()*.12)}));save();
- if(S.end){renderAll();FLOW.busy=true;setTimeout(finish,quiet?0:1300);return}if(!quiet)renderAll()}
+function newYear(quiet){if(typeof EPX!=='undefined'&&EPX)epEnd();const out=yearTurn(S);S.yp=0;S.q=out.events.map((id,i)=>({id,at:Math.min(.92,.18+i*.3+rnd()*.12)}));save();
+ if(S.end){renderAll();FLOW.busy=true;setTimeout(finish,quiet?0:1300);return}if(S.flags.eggNew){const e=EGGS.find(x=>x.k===S.flags.eggNew);delete S.flags.eggNew;if(e){const eg=LS.get('nk.eggs',{});eg[e.k]={last:S.name,y:S.year};LS.set('nk.eggs',eg);if(!quiet)toast(`🏅 희귀 기록 · ${e.ko}`)}}
+ if(!quiet){renderAll();if(!S.q.length||S.q[0].at>.4)maybeEp()}}
 function skipToDecision(){if(FLOW.busy||!S||S.end||!$('modal').hidden)return;let n=0;while(!(S.q&&S.q.length)&&!S.end&&n<40){newYear(true);n++}
  if(S.end)return;renderAll();if(S.q&&S.q.length){const e=S.q.shift();S.yp=e.at;openEvent(e.id)}}
 
@@ -4052,7 +4230,7 @@ function autoRun(label,ms,fn){if(!FLOW.auto)return;stopAuto();const t0=performan
 const KIND_TONE={'시나리오':'big','위기':'bad','중대 결정':'big','집안의 비밀':'sec','비밀':'sec','뜻밖의 일':'odd','사랑':'love','가족':'fam'};
 function openEvent(id){const prep=prepEvent(S,id);if(!prep){FLOW.busy=false;return}FLOW.busy=true;FLOW.cur=id;
  modal(prep.kind,KIND_TONE[prep.kind]||'',prep.title,prep.desc,prep.fact);
- $('mBody').innerHTML=`<div class="opts">${prep.opts.map((o,i)=>{const dis=o.cost&&o.cost>S.money;const tr=o.ref&&(o.ref.trait||o.ref.contact);return`<button type="button" class="opt${tr?' tr':''}${o.ref&&o.ref.xo?' xo':''}" data-i="${i}"${dis?' disabled':''}><span class="n">${i+1}</span><span><b>${esc(o.t)}</b>${o.sub||o.cost?`<small>${esc(o.sub)}${o.cost?` ${usd(o.cost)} · ${krw(o.cost)}`:''}${dis?' · 돈이 모자람':''}</small>`:''}</span></button>`}).join('')}</div>`;
+ $('mBody').innerHTML=`<div class="opts">${prep.opts.map((o,i)=>{const dis=o.cost&&o.cost>S.money;const tr=o.ref&&(o.ref.trait||o.ref.contact);const hn=o.sub?'':optHint(S,prep,i);return`<button type="button" class="opt${tr?' tr':''}${o.ref&&o.ref.xo?' xo':''}" data-i="${i}"${dis?' disabled':''}><span class="n">${i+1}</span><span><b>${esc(o.t)}</b>${o.sub||o.cost||hn?`<small>${esc(o.sub||'')}${hn?`<i class="hint">${esc(hn)}</i>`:''}${o.cost?` ${usd(o.cost)} · ${krw(o.cost)}`:''}${dis?' · 돈이 모자람':''}</small>`:''}</span></button>`}).join('')}</div>`;
  const pickI=i=>{stopAuto();FLOW.cur=null;const r=resolveEvent(S,prep,i);if(r.err){toast(r.err);return}$('mBody').onclick=null;showResult(r.t,r.chips,r.g,()=>{if(r.next&&!S.end)openEvent(r.next);else afterEvent()},r.tw)};
  $('mBody').onclick=e=>{const b=e.target.closest('.opt');if(!b||b.disabled)return;pickI(+b.dataset.i)};
  const ok=[...prep.opts.keys()].filter(i=>!(prep.opts[i].cost&&prep.opts[i].cost>S.money)&&!prep.opts[i].ref.big);
@@ -4085,6 +4263,7 @@ function finish(){FLOW.busy=false;closeModal();const s=S,E=endingOf(s);const dx=
  $('endCard').innerHTML=`<div class="endtop"><canvas id="endAv" width="32" height="40"></canvas><div><span class="tone ${E.tone}">이번 생 · ${esc(E.cat||'')}</span><h2>${esc(E.t)}</h2><div class="why">${esc(s.name)} · ${s.age}세 · ${esc(why)}</div></div></div>
   <p class="desc">${esc(E.d)}${extra.length?' '+esc(extra.join(' ')):''}</p>
   <div class="eg"><div><small>성분 · 마지막 계급</small><b>${s.royal?'백두혈통':SONGBUN[s.songbun].ko} <span class="stars">${starsTxt(realStars(s))}</span></b></div><div><small>태어난 곳</small><b>${esc(s.birthPlace||s.place.ko)}</b></div><div><small>마지막 모습</small><b>${esc(s.end==='south'?'남쪽 시민':jobLabel(s))}</b></div><div><small>남긴 돈</small><b>${usd(s.money)}</b><small>${krw(s.money)}</small></div><div><small>가족</small><b>${sp?`${esc(sp.rel)} ${esc(sp.name)}`:'혼자'}${kn?` · 아이 ${kn}`:''}</b></div><div><small>살아온 해</small><b>${s.age}년</b></div>${s.traits?`<div><small>타고난 성격</small><b>${s.traits.map(k=>TRAITS[k].ko).join(' · ')}</b></div><div><small>맺은 인연</small><b>${(s.contacts||[]).length?`${s.contacts.length}명`:'없음'}</b>${(s.contacts||[]).filter(c=>c.kind==='grudge').length?`<small>그중 원한 ${s.contacts.filter(c=>c.kind==='grudge').length}명</small>`:''}</div>`:''}</div>
+  ${Object.keys(s.eggs||{}).length?`<h3 class="eh">희귀 기록</h3><div class="eggs">${EGGS.filter(e=>(s.eggs||{})[e.k]).map(e=>`<span>🏅 ${esc(e.ko)} <small>${s.eggs[e.k]}년</small></span>`).join('')}</div>`:''}
   ${epi.length?`<h3 class="eh">남쪽에서의 첫 해</h3><ul class="epi">${epi.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>`:''}
   <h3 class="eh">인생 지도</h3><div class="lmap" id="endMap"></div>
   <h3 class="eh">기억에 남는 순간</h3><ol class="moments">${(mom.length?mom:[{age:s.age,t:'조용한 나날이었습니다.',g:0}]).map(m=>`<li><span class="ma">${m.age}세</span> · <span style="color:${m.g>0?'var(--good)':m.g<0?'var(--bad)':'inherit'}">${esc(m.t)}</span></li>`).join('')}</ol>`;
