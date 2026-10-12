@@ -419,6 +419,27 @@ body::before{content:"";position:fixed;top:0;left:0;right:0;height:5px;backgroun
 
 .live.lp{color:var(--ink)}.live.lp b{color:var(--red)}
 .live2{color:var(--good);margin-bottom:4px}
+
+/* 인생 기록: 해마다 한 칸 */
+.tl li.yr{display:grid;grid-template-columns:48px minmax(0,1fr);gap:10px;padding:10px 6px;border-bottom:1px solid var(--rule)}
+.tl li.yr .a{font-family:var(--f-num);font-size:12.5px;color:var(--ink3);padding-top:3px}
+.tl li.yr.now{background:color-mix(in srgb,var(--red-soft) 55%,transparent);box-shadow:inset 3px 0 0 var(--red)}
+.tl li.yr.big .a{color:var(--red);font-weight:700}
+.ys{display:flex;flex-direction:column;gap:5px;min-width:0}
+.tln{font-size:14.5px;line-height:1.55}.tln.mile{font-weight:900}.tln.good{color:var(--good)}.tln.bad{color:var(--bad)}.tln.news{color:var(--blue)}.tln.ep{color:var(--ink2);font-style:italic}
+.tln.dec{font-size:12.5px;color:var(--ink3)}.tln.dec::before{content:'› ';color:var(--red)}
+.tln.peer>b{display:block;font-size:12.5px;color:var(--ink3);font-weight:400}
+.tl details.src{margin-top:4px;font-size:12px;color:var(--fact-ink)}.tl details.src summary{cursor:pointer;display:inline-block;background:var(--fact);border-radius:5px;padding:1px 8px;font-weight:700;list-style:none}.tl details.src summary::-webkit-details-marker{display:none}
+.tl details.src[open]{background:var(--fact);border-radius:6px;padding:5px 9px}.tl details.src[open] summary{padding:0;margin-right:6px}
+.tlf{display:inline-flex;gap:4px}.tlf button{border:1px solid var(--rule);background:var(--bg);border-radius:999px;padding:2px 10px;font-size:12px;color:var(--ink3)}.tlf button[aria-pressed="true"]{border-color:var(--red);color:var(--red);background:var(--red-soft);font-weight:700}
+
+/* 손맛: 새해 · 숫자 변화 */
+.gage.pop{animation:agepop .6s cubic-bezier(.2,1.6,.4,1)}@keyframes agepop{0%{transform:scale(1)}35%{transform:scale(1.28);color:var(--gold)}100%{transform:scale(1)}}
+.sb,.sr2 span{position:relative}
+.dlt{position:absolute;right:-2px;top:-12px;font-style:normal;font-family:var(--f-num);font-size:11.5px;font-weight:700;pointer-events:none;animation:dltup 1.6s ease-out forwards}.dlt.g{color:var(--good)}.dlt.b{color:var(--bad)}
+@keyframes dltup{0%{opacity:0;transform:translateY(6px)}15%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0;transform:translateY(-8px)}}
+.mbig b.flash{animation:mflash 1s ease-out}.mbig b.flash.up{--fc:var(--good)}.mbig b.flash.dn{--fc:var(--bad)}@keyframes mflash{0%{color:var(--fc)}100%{}}
+@media (prefers-reduced-motion:reduce){.gage.pop,.dlt,.mbig b.flash{animation:none}.dlt{display:none}}
 </style></head><body><section id="home" class="wrap">
  <div class="top"><span class="eyebrow">무료 인생 시뮬레이션 · 북한편 · 1년이 흘러갑니다</span><span class="topr"><button class="pill" type="button" id="installBtn" hidden>앱 설치</button><a class="pill link" href="https://alohang1985.github.io/debut-gak/">데뷔각 하러 가기 →</a><button class="pill" id="themeBtn" type="button" aria-label="밝은 화면과 어두운 화면 바꾸기">◐</button><span class="rating" title="15세 이상 · 수용소 · 죽음 같은 무거운 주제를 다룹니다" aria-label="15세 이상 이용가">15</span></span></div>
  <div class="slogan" aria-hidden="true"><div class="sl-in"><span>★ 고를 수 있는 건 아무것도 없다</span><span>★ 1년이 한 턴, 인생은 단 한 번</span><span>★ 성분은 태어나는 순간 정해진다</span><span>★ 배급표보다 장마당</span><span>★ 2600만 분의 1</span><span>★ 끝까지 살아 낸 사람이 이긴다</span><span>★ 고를 수 있는 건 아무것도 없다</span><span>★ 1년이 한 턴, 인생은 단 한 번</span><span>★ 성분은 태어나는 순간 정해진다</span><span>★ 배급표보다 장마당</span><span>★ 2600만 분의 1</span><span>★ 끝까지 살아 낸 사람이 이긴다</span></div></div>
@@ -475,7 +496,7 @@ body::before{content:"";position:fixed;top:0;left:0;right:0;height:5px;backgroun
      <div class="tabh" role="tablist"><button type="button" role="tab" data-tab="focus" aria-selected="true">올해의 초점</button><button type="button" role="tab" data-tab="acts">해 볼 수 있는 일 <span class="badge" id="actBadge"></span></button><button type="button" role="tab" data-tab="shop">돈 쓰기</button><button type="button" role="tab" data-tab="led">올해 살림</button></div>
      <div class="tabb" id="tabBody"></div>
     </div>
-    <div class="panel tlp"><div class="tlh"><h3>인생 기록</h3><small>최근 순</small></div><p class="tlsub live2" id="liveLine" hidden></p><p class="tlsub" id="tlSub"></p><ol class="tl" id="timeline"></ol><button class="more" type="button" id="moreBtn" hidden>지난 기록 더 보기</button></div>
+    <div class="panel tlp"><div class="tlh"><h3>인생 기록</h3><span class="tlf" id="tlF"></span></div><p class="tlsub live2" id="liveLine" hidden></p><p class="tlsub" id="tlSub"></p><ol class="tl" id="timeline"></ol><button class="more" type="button" id="moreBtn" hidden>지난 기록 더 보기</button></div>
    </main>
    <aside class="side2">
     <div class="panel famp" id="famBox"></div>
@@ -4112,7 +4133,7 @@ function refreshHome(){const dx=LS.get('nk.dex',{});syncRoyalBtn();const found=E
  const cur=LS.get('nk.cur',null),rb=$('resumeBox');if(cur&&!cur.end){rb.hidden=false;rb.className='resume';rb.innerHTML=`<span><b>${esc(cur.name)}</b>의 삶이 이어지고 있어요 · ${cur.age}세</span><button class="btn pri" type="button" id="rbGo">이어서</button><button class="btn" type="button" id="rbDrop">내려놓기</button>`;
   $('rbGo').onclick=()=>{S=migrate(cur);if(!S.q)S.q=[];if(S.yp==null)S.yp=0;if(!S.own)S.own={};if(S.joy==null)S.joy=55;if(!S.hist)S.hist=[];enterGame()};$('rbDrop').onclick=()=>{LS.del('nk.cur');rb.hidden=true}}else rb.hidden=true}
 function startLife(opt){S=newLife(opt&&(opt.royal||opt.absolute)?opt:undefined);S.q=[];S.yp=0;save();birthSeq(S,enterGame);liveSend('born',{r:S.royal?1:0})}
-function enterGame(){show('game');FLOW.busy=false;FLOW.parked=false;$('parked').hidden=true;buildCtrl();renderAll();startLoop();if(S.age===0)toast(`1년 ≈ ${fmtSec(secPerYear())}초 · 속도는 위에서 바꿀 수 있어요`)}
+function enterGame(){TL_N=6;TL_F='all';show('game');FLOW.busy=false;FLOW.parked=false;$('parked').hidden=true;buildCtrl();renderAll();startLoop();if(S.age===0)toast(`1년 ≈ ${fmtSec(secPerYear())}초 · 속도는 위에서 바꿀 수 있어요`)}
 const fmtSec=v=>v<3?v.toFixed(1):Math.round(v);
 
 /* ---------- 출생: 장소 → 성분 → 출생 신고 ---------- */
@@ -4148,7 +4169,8 @@ function cert(el,s,done){const dad=s.fam.find(m=>m.rel==='아버지'),mom=s.fam.
 /* ---------- 게임: 머리 · 조작 ---------- */
 function buildCtrl(){$('spdBox').innerHTML=SPEEDS.map(v=>`<button class="pill" type="button" data-v="${v}" aria-pressed="${v===FLOW.speed}">${v}×</button>`).join('');syncCtrl()}
 function syncCtrl(){$('flowBtn').innerHTML=FLOW.on?'<span class="ic">❚❚</span><span class="lg"> 멈춤</span>':'<span class="ic">▸</span><span class="lg"> 계속</span>';if($('ctlAuto'))$('ctlAuto').textContent=FLOW.auto?'켜짐':'꺼짐';$('flowBtn').classList.toggle('hot',!FLOW.on);for(const b of $('spdBox').children)b.setAttribute('aria-pressed',+b.dataset.v===FLOW.speed);$('autoBtn').setAttribute('aria-pressed',FLOW.auto);renderHead()}
-function renderHead(){if(!S)return;const sp=secPerYear();$('gAge').textContent=`${S.age}세`;$('gSub').textContent=`${S.year}년 · ${S.name} · 1년 ≈ ${fmtSec(sp)}초`;$('yBar').style.width=Math.min(100,(S.yp||0)*100)+'%'}
+let LAST_AGE=null,LAST_ST=null;
+function renderHead(){if(!S)return;const sp=secPerYear();if(LAST_AGE!==null&&S.age!==LAST_AGE){const g=$('gAge');g.classList.remove('pop');void g.offsetWidth;g.classList.add('pop')}LAST_AGE=S.age;$('gAge').textContent=`${S.age}세`;$('gSub').textContent=`${S.year}년 · ${S.name} · 1년 ≈ ${fmtSec(sp)}초`;$('yBar').style.width=Math.min(100,(S.yp||0)*100)+'%'}
 
 /* ---------- 사이드: 신원 · 상태 · 돈 · 가족 ---------- */
 function eduTxt(s){if(s.flags.uniDone)return'대학 졸업';if(s.uni>0)return'대학 재학';if(s.age>=16)return s.flags.school1?'제1중학교 졸업':'고급중학교 졸업';if(s.age>=7)return s.flags.school1?'제1중학교 재학':s.age<11?'소학교 재학':s.age<14?'초급중학교 재학':'고급중학교 재학';return'아직 학교 전'}
@@ -4161,6 +4183,10 @@ const bar=(k,v,col,tip)=>`<div class="sb"${tip?` title="${tip}"`:''}><span>${k}<
 function statBars(s){return bar('건강',s.hp,'var(--good)','0이 되면 세상을 떠납니다')+bar('행복',s.joy,'var(--gold)','가족 · 밥 · 전기 · 자유가 좌우합니다')+bar('위험',s.risk,'var(--bad)','높을수록 단속에 걸리기 쉽습니다')+bar('바깥 소식',s.outside,'var(--blue)','바깥세상을 얼마나 아는지')}
 const EXPLAIN=`<details class="explain"><summary>상태는 무엇을 뜻하나요?</summary><ul><li><b>건강</b> 0이 되면 세상을 떠납니다. 굶거나 갇히면 떨어지고 밥 · 약 · 가족으로 오릅니다.</li><li><b>행복</b> 가족 · 배부름 · 전기 · 자유가 좌우합니다. 인생 지도의 색이 됩니다.</li><li><b>위험</b> 높을수록 단속 · 검열에 걸리기 쉽습니다. 해마다 조금씩 내려갑니다.</li><li><b>바깥 소식</b> 바깥세상을 얼마나 아는지. 높으면 떠날 생각이 듭니다.</li><li><b>충성 · 인맥 · 공부</b> 입당 · 승진 · 대학 · 좋은 자리에 영향을 줍니다.</li><li><b>★ 실질 계급</b> 성분에 당원 · 직장 · 돈 · 사는 곳 · 전과를 더하고 뺀 값. 사는 세상이 달라집니다.</li></ul></details>`;
 const curDirKo=s=>{const d=curDir(s);if(!d)return'버티기';const L=DIRS[stageOf(s)];return L&&L[d]?L[d].ko:'버티기'};
+function statDelta(){const s=S,cur={hp:s.hp,joy:s.joy,risk:s.risk,outside:s.royal?Math.min(100,s.flags.power||0):s.outside,money:s.money};const P=LAST_ST;LAST_ST=cur;if(!P||P.id!==s.id){LAST_ST.id=s.id;return}LAST_ST.id=s.id;
+ const spans=$('statRow').querySelectorAll('.sr2 span');['hp','joy','risk','outside'].forEach((k,i)=>{const d=Math.round(cur[k]-P[k]);if(!d||!spans[i])return;const good=k==='risk'?d<0:d>0;const f=document.createElement('em');f.className='dlt '+(good?'g':'b');f.textContent=(d>0?'+':'')+d;spans[i].appendChild(f);setTimeout(()=>f.remove(),1600)});
+ const bars=$('statBox').querySelectorAll('.sb');['hp','joy','risk','outside'].forEach((k,i)=>{const d=Math.round(cur[k]-P[k]);if(!d||!bars[i])return;const good=k==='risk'?d<0:d>0;const f=document.createElement('em');f.className='dlt '+(good?'g':'b');f.textContent=(d>0?'+':'')+d;bars[i].appendChild(f);setTimeout(()=>f.remove(),1600)});
+ if(Math.round(cur.money)!==Math.round(P.money)){const m=$('moneyBox').querySelector('.mbig b');if(m){m.classList.remove('flash','up','dn');void m.offsetWidth;m.classList.add('flash',cur.money>P.money?'up':'dn')}}}
 function renderStats(){const s=S;$('statBox').innerHTML=`<h3>상태 <small>0–100</small></h3>${statBars(s)}<div class="mini"><span>충성 <b>${Math.round(s.loyal)}</b></span><span>인맥 <b>${Math.round(s.net)}</b></span><span>공부 <b>${Math.round(s.edu)}</b></span>${!s.royal&&(s.prep>0||s.china)?`<span>탈북 준비 <b>${s.china?100:Math.round(s.prep)}</b></span>`:''}</div>${EXPLAIN}`;
  const SB=[['건강',s.hp,'var(--good)'],['행복',s.joy,'var(--gold)'],['위험',s.risk,'var(--bad)'],[s.royal?'권력':'바깥',s.royal?Math.min(100,s.flags.power||0):s.outside,'var(--blue)']];
  $('statRow').innerHTML=`<div class="sr2">${SB.map(([k,v,c])=>`<span><em>${k}</em><b>${Math.round(v)}</b><i><u style="width:${clamp(v,0,100)}%;background:${c}"></u></i></span>`).join('')}</div><div class="sr">${statBars(s)}</div><div class="srb"><span class="fchip">초점 · <b>${esc(curDirKo(s))}</b></span><button class="pill" type="button" data-goto="shop">돈 쓰기</button></div>`}
@@ -4258,10 +4284,15 @@ function renderTabs(){for(const b of document.querySelectorAll('.tabh button'))b
  $('tabBody').innerHTML=TAB==='acts'?tabActs():TAB==='shop'?tabShop():TAB==='led'?tabLed():tabFocus()}
 
 /* ---------- 인생 기록 · 지도 · 자료 ---------- */
-let TL_ALL=false;
-function tlItem(l){if(l.c==='peer'&&Array.isArray(l.x))return`<li class="peer"><span class="a">${l.age}세</span><span class="t"><b>같은 해에 태어난 사람들</b><span class="pl">${l.x.map(p=>`<span><b>${esc(p.n)}</b> ${esc(p.ko)} · ${esc(p.st)}</span>`).join('')}</span></span></li>`;
- return`<li class="${l.c}${l.age===S.age?' now':''}"><span class="a">${l.age}세</span><span class="t">${esc(l.t)}${l.x&&l.x.fact?`<small class="src">자료 · ${esc(l.x.fact)}</small>`:''}</span></li>`}
-function renderTL(){const n=TL_ALL?400:40;$('timeline').innerHTML=S.log.slice(0,n).map(tlItem).join('');$('moreBtn').hidden=TL_ALL||S.log.length<=40;
+let TL_ALL=false,TL_N=6,TL_F='all';
+const TL_KEY=['mile','good','bad','news','peer','ep'];
+function tlLine(l,open){if(l.c==='peer'&&Array.isArray(l.x))return`<div class="tln peer"><b>같은 해에 태어난 사람들</b><span class="pl">${l.x.map(p=>`<span><b>${esc(p.n)}</b> ${esc(p.ko)} · ${esc(p.st)}</span>`).join('')}</span></div>`;
+ const f=l.x&&l.x.fact;return`<div class="tln ${l.c}">${esc(l.t)}${f?`<details class="src"${open?' open':''}><summary>자료</summary>${esc(f)}</details>`:''}</div>`}
+function tlItem(l){return`<li class="yr ${l.c}"><span class="a">${l.age}세</span><div class="ys">${tlLine(l,false)}</div></li>`}
+function renderTL(){const L=S.log.filter(l=>TL_F==='all'?true:TL_KEY.includes(l.c));const G=[];for(const l of L){const g=G[G.length-1];if(g&&g.age===l.age)g.items.push(l);else G.push({age:l.age,items:[l]})}
+ const n=TL_ALL?G.length:TL_N;$('timeline').innerHTML=G.slice(0,n).map((g,gi)=>`<li class="yr${g.age===S.age?' now':''}${g.items.some(l=>l.c==='mile')?' big':''}"><span class="a">${g.age}세</span><div class="ys">${g.items.slice().reverse().map(l=>tlLine(l,gi===0)).join('')}</div></li>`).join('')||'<li class="yr"><span class="a"></span><div class="ys"><div class="tln dec">아직 적을 게 없어요.</div></div></li>';
+ const left=G.length-n;$('moreBtn').hidden=left<=0;$('moreBtn').textContent=`지난 기록 더 보기 · ${left}해`;
+ $('tlF').innerHTML=`<button type="button" data-tlf="all" aria-pressed="${TL_F==='all'}">전체</button><button type="button" data-tlf="key" aria-pressed="${TL_F==='key'}">중요한 것만</button>`;
  $('tlSub').textContent=`한 해 북한에서 태어나는 아기 약 ${fmt(BIRTHS_YR)}명 · 그중 한 명의 기록입니다`}
 const STL={school:'학',army:'군',jail:'감',camp:'수',china:'중',royal:'★'};
 function renderLifeMap(el,note){const s=S,h=s.hist||[];const by={};for(const x of h)by[x.a]=x;const max=Math.max(72,s.age+1);let html='';
@@ -4277,7 +4308,7 @@ function renderSurv(el,note){if(!el)return;const s=S,me=s.sex==='F'?'nkF':'nkM',
  el.innerHTML=`<line x1="0" y1="${H}" x2="${W}" y2="${H}" class="ax"/><line x1="0" y1="${Y(.5)}" x2="${W}" y2="${Y(.5)}" class="mid"/><path d="${path(K)}" class="sk"/><path d="${path(L)}" class="nk"/><circle cx="${X(a)}" cy="${Y(v)}" r="4" class="me"/><text x="${W-2}" y="${Y(.5)-4}" class="lb" text-anchor="end">50%</text>`;
  if(note)note.innerHTML=`<span class="k nk"></span>북한 ${s.sex==='F'?'여성':'남성'} <span class="k sk"></span>한국 ${s.sex==='F'?'여성':'남성'} · 지금 ${a}세: 같은 해 북한에서 태어난 ${s.sex==='F'?'여자':'남자'}아이 중 약 ${Math.round(v*100)}%가 살아 있습니다 (한국은 ${Math.round(K[a]*100)}%).`}
 function renderFacts(){$('nkFacts').innerHTML=`<div><dt>인구</dt><dd>${NK_FACTS.pop}</dd></div><div><dt>한 해 출생아</dt><dd>${NK_FACTS.births}</dd></div><div><dt>기대수명</dt><dd>${NK_FACTS.le}</dd></div><div><dt>5세 미만 사망률</dt><dd>${NK_FACTS.u5}</dd></div><div><dt>1인당 국민소득</dt><dd>${NK_FACTS.gni}</dd></div><div><dt>전력</dt><dd>${NK_FACTS.power}</dd></div><div><dt>한국에 온 탈북민</dt><dd>${NK_FACTS.defect}</dd></div><p class="src">${NK_FACTS.src}</p>`}
-function renderAll(){if(!S)return;renderHead();renderId();renderStats();renderMoney();renderFam();renderScene();renderTabs();renderTL();renderLifeMap($('lifeMap'),$('lmNote'));renderSurv($('surv'),$('survNote'));renderPeers();renderTip();document.body.classList.toggle('royal',!!S.royal)}
+function renderAll(){if(!S)return;renderHead();renderId();renderStats();renderMoney();renderFam();renderScene();renderTabs();renderTL();renderLifeMap($('lifeMap'),$('lmNote'));renderSurv($('surv'),$('survNote'));renderPeers();renderTip();statDelta();document.body.classList.toggle('royal',!!S.royal)}
 
 function renderTip(){const el=$('tipBox');if(!el)return;if(LS.get('nk.tip',false)){el.hidden=true;return}el.hidden=false;
  el.innerHTML=`<b>처음이라면</b><ol><li><b>시간</b>은 저절로 흐릅니다. 위에서 멈추거나 빠르게 할 수 있어요.</li><li><b>올해의 초점</b>을 고르면 그쪽으로 한 해가 흘러갑니다.</li><li><b>해 볼 수 있는 일</b>에서 직업 · 시험 · 입당 · 청혼에 직접 도전하세요.</li><li><b>결정 카드</b>는 가만두면 무난한 쪽으로 알아서 골라요.</li></ol><button class="btn" type="button" id="tipOk">알겠어요</button>`;
@@ -4390,7 +4421,7 @@ function boot(){applyTheme(LS.get('nk.theme',null));initPWA();refreshHome();mapS
   if(cbu||cse){if(FLOW.busy||!$('modal').hidden)return;const r=cbu?coinBuy(S,cbu.dataset.cbuy,.1):coinSell(S,cse.dataset.csell);if(r.err){toast(r.err);return}FLOW.busy=true;modal('코인','odd',cbu?'코인 사기':'코인 팔기','');$('mBody').innerHTML='';showResult(r.t,r.ch,0,afterEvent);return}
   if(bu){if(FLOW.busy||!$('modal').hidden)return;const r=buy(S,bu.dataset.buy);if(r.err){toast(r.err);return}FLOW.busy=true;modal('장마당','odd',r.title,'');$('mBody').innerHTML='';showResult(r.t||'샀습니다.',r.ch,0,afterEvent,r.tw)}
   const se=e.target.closest('[data-sell]');if(se){if(FLOW.busy||!$('modal').hidden)return;const r=sellItem(S,se.dataset.sell);if(r.err){toast(r.err);return}FLOW.busy=true;modal('장마당','odd','되팔기','');$('mBody').innerHTML='';showResult(r.t,r.ch,1,afterEvent)}};
- $('moreBtn').onclick=()=>{TL_ALL=true;renderTL()};
+ $('moreBtn').onclick=()=>{TL_N+=10;renderTL()};$('tlF').onclick=e=>{const b=e.target.closest('[data-tlf]');if(!b)return;TL_F=b.dataset.tlf;TL_N=6;renderTL()};
  addEventListener('keydown',e=>{if($('modal').hidden)return;if(/^[1-4]$/.test(e.key)){const b=$('mBody').querySelectorAll('.opt')[+e.key-1];if(b&&!b.disabled){e.preventDefault();b.click()}}})}
 boot();
 
