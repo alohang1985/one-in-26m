@@ -2594,6 +2594,109 @@ function sellItem(s,k){const it=SHOP.find(x=>x.k===k);if(!it||!(s.own||{})[k])re
  addLog(s,`${it.ko}${P(it.ko,'을/를')} ${usd(v)}에 팔았습니다.`,'dec');return{ok:1,t:`${it.ko}${P(it.ko,'을/를')} 팔았습니다. ${t}`,ch:[{v:`+${usd(v)} (${krw(v).replace('약 ','')})`,good:true}],title:'되팔기'}}
 
 /* ================================================================
+   2600만 분의 1 — 올해만의 기회 · 오늘의 관저 목록
+   해마다 다른 일거리 2~3개가 나타났다 사라집니다. 백두혈통은 해마다 다른 경매 · 한정판.
+   ================================================================ */
+const OPS=[];
+/* w: 성공 장면 여러 개 [글, 효과] · l: 실패 장면 여러 개 */
+function OP(o){o.cat=o.royal?'관저의 기회':'올해만의 기회';o.show=s=>oppToday(s).includes(o.k);o.req=o.req||(()=>[]);o.cost=o.cost||(()=>0);
+ const W=o.w,L=o.l,res=(s,[t,e])=>{const ee=typeof e==='function'?e(s):Object.assign({},e);for(const q in ee)if(typeof ee[q]==='function')ee[q]=ee[q](s);return{t,e:ee}};
+ o.win=s=>res(s,pick(W));o.lose=s=>res(s,pick(L));OPS.push(o)}
+function oppToday(s){if(s.end)return[];const st=stageOf(s);const L=OPS.filter(o=>(o.royal?st==='royal'&&s.age>=18:st==='adult')&&(!o.when||o.when(s)));if(!L.length)return[];
+ if(!s.opps||s.opps.y!==s.year){const n=2+((hsh(s.id+'#'+s.year)%3)===0?1:0);const keys=[],pool=L.slice();while(keys.length<n&&pool.length){const i=hsh(s.id+'@'+s.year+'@'+keys.length)%pool.length;keys.push(pool.splice(i,1)[0].k)}s.opps={y:s.year,keys}}
+ return s.opps.keys}
+/* ---------- 일반: 올해만의 기회 ---------- */
+OP({k:'o_cnvisit',ko:'중국 친척 방문증 추첨',d:'뽑히면 한 달 동안 중국에 다녀옵니다',cost:()=>80,p:s=>.35+s.net/300,
+ w:[['추첨에 뽑혔습니다. 단동 시장에서 물건을 고르고, 처음으로 밤새 불 켜진 거리를 걸었습니다.',{outside:12,money:()=>R(150,500)}],['뽑혔습니다. 친척 집 텔레비전에서 남쪽 방송이 나왔습니다. 채널을 돌리지 못했습니다.',{outside:16,joy:5}],['뽑혔는데 친척이 일자리까지 알아봐 줬습니다. 한 달 일한 품삯이 1년 월급보다 많았습니다.',{money:()=>R(300,700),outside:8}]],
+ l:[['명단에 이름이 없었습니다. 추첨함이 열리기도 전에 정해져 있었다는 소문입니다.',{joy:-3}],['뽑혔다가 출발 전날 취소됐습니다. 이유는 "사정상"이었습니다.',{joy:-5}]]});
+OP({k:'o_dolgyeok',ko:'건설장 품삯 일',d:'석 달 고된 일 · 품삯은 현금',p:()=>.8,
+ w:[['석 달 동안 벽돌을 날랐습니다. 손바닥이 갈라졌지만 품삯 봉투가 두툼했습니다.',{money:()=>R(80,200),hp:-4}],['공사장 반장이 일 잘한다며 다음 공사에도 불렀습니다.',{money:()=>R(60,150),net:3,hp:-3}]],
+ l:[['공사가 중간에 멈췄습니다. 품삯은 절반만 받았습니다.',{money:()=>R(20,60),hp:-4}],['비계에서 미끄러져 발목을 다쳤습니다. 품삯보다 약값이 더 들었습니다.',{hp:-10}]]});
+OP({k:'o_stallbid',ko:'장마당 명당 매대 경매',d:'입구 쪽 자리 · 이기면 해마다 벌이',when:s=>!s.own.stall,cost:()=>250,p:s=>.45+s.net/250,
+ w:[['입구 쪽 명당을 따냈습니다. 첫날부터 손님이 줄을 섰습니다.',s=>(s.own.stall=s.year,{net:4})],['경쟁자가 마지막에 손을 내렸습니다. 자리가 내 것이 됐습니다.',s=>(s.own.stall=s.year,{joy:4})]],
+ l:[['간부 친척이 웃돈을 얹었습니다. 입찰금은 돌려받지 못했습니다.',{joy:-4}],['경매가 끝나고 보니 처음부터 주인이 정해진 자리였습니다.',{joy:-3}]]});
+OP({k:'o_tutor',ko:'간부 집 아이 과외',d:'공부 40 이상 · 돈과 인맥',req:s=>[['공부 40 이상',s.edu>=40]],p:s=>.5+s.edu/200,
+ w:[['간부 집 아이가 시험에서 1등을 했습니다. 그 집 어머니가 쌀 한 가마니를 보내왔습니다.',{money:()=>R(100,250),net:5}],['과외를 하다 그 집 서재에서 외국 잡지를 봤습니다. 아무 말도 하지 않았습니다.',{money:()=>R(80,180),outside:5}]],
+ l:[['아이 성적이 떨어지자 과외가 끊겼습니다. 그 집 문지기가 나를 못 본 척했습니다.',{joy:-3,net:-2}],['그 집 아이가 내 말투를 흉내 내며 놀렸습니다. 한 달 만에 그만뒀습니다.',{joy:-4}]]});
+OP({k:'o_feast',ko:'돈주 집 잔치 일손',d:'하루 일 · 남은 음식',p:()=>.85,
+ w:[['잔칫상을 차리고 남은 음식을 한 보따리 싸 왔습니다. 식구들이 오랜만에 고기를 먹었습니다.',{hp:4,joy:5,money:()=>R(20,50)}],['잔치에 온 장사꾼과 말이 통했습니다. 다음 달 물건을 같이 떼기로 했습니다.',{net:4,money:()=>R(20,40)}]],
+ l:[['접시를 하나 깼습니다. 품삯에서 깠습니다.',{money:()=>R(0,10),joy:-2}],['잔치가 단속에 걸려 중간에 흩어졌습니다.',{risk:3}]]});
+OP({k:'o_songi',ko:'송이버섯 따러 산에',d:'가을 한철 · 큰돈 · 산이 험합니다',when:s=>['rural','border'].includes(s.place.type),p:()=>.6,
+ w:[['바위 틈에서 송이 군락을 찾았습니다. 중국 상인이 그 자리에서 달러를 셌습니다.',{money:()=>R(200,600),hp:-3}],['송이 한 바구니를 수매소 대신 장마당에 넘겼습니다. 값이 세 배였습니다.',{money:()=>R(150,450),risk:3}]],
+ l:[['이틀을 헤맸는데 빈손이었습니다. 다른 사람들이 먼저 다 훑고 갔습니다.',{hp:-5,joy:-3}],['산에서 길을 잃어 하룻밤을 바위 밑에서 잤습니다.',{hp:-10}]]});
+OP({k:'o_squid',ko:'오징어잡이 배 타기',d:'한 철 바다 · 몫은 잡은 만큼',p:()=>.55,
+ w:[['그물이 무거웠습니다. 몫으로 받은 오징어를 말려 장마당에 팔았습니다.',{money:()=>R(150,450),hp:-4}],['선장이 내 손이 빠르다며 몫을 더 줬습니다.',{money:()=>R(200,500),net:3,hp:-3}]],
+ l:[['배가 바람에 갇혀 사흘을 떠 있었습니다. 빈 그물로 돌아왔습니다.',{hp:-8,joy:-3}],['고깃배 기름값을 나눠 내고 나니 손에 남은 게 없었습니다.',{money:()=>-R(10,40),joy:-2}]]});
+OP({k:'o_lotto',ko:'"당첨되면 열 배" 중국 복권',d:'싸지만 거의 꽝',cost:()=>10,p:()=>.12,
+ w:[['당첨이었습니다! 장마당 환전상이 고개를 갸웃거리며 돈을 내줬습니다.',{money:()=>R(80,200),joy:8}],['작은 상에 걸렸습니다. 복권값의 다섯 배였습니다.',{money:()=>R(40,60),joy:4}]],
+ l:[['꽝이었습니다.',{}],['꽝이었습니다. 옆 사람은 당첨됐습니다. 배가 아팠습니다.',{joy:-2}],['꽝. 알고 보니 추첨일이 이미 지난 복권이었습니다.',{joy:-3}]]});
+OP({k:'o_repair',ko:'라디오 · 손전화 수리 배우기',d:'손재주가 늘면 해마다 부수입',when:s=>!s.flags.repairSkill,cost:()=>40,p:s=>.55+((s.traits||[]).includes('craft')?.25:0),
+ w:[['석 달 만에 고장 난 손전화를 살려 냈습니다. 동네에 소문이 났습니다.',s=>(s.flags.repairSkill=s.year,{net:3,edu:3})],['수리를 배우다 라디오 안의 주파수 다이얼을 알게 됐습니다. 그건 비밀로 했습니다.',s=>(s.flags.repairSkill=s.year,{outside:4,edu:3})]],
+ l:[['배우다 남의 손전화를 아예 망가뜨렸습니다. 물어 줬습니다.',{money:()=>-R(20,50),joy:-3}],['가르쳐 주던 사람이 갑자기 국경 쪽으로 떠났습니다.',{joy:-2}]]});
+OP({k:'o_contest',ko:'직장 기능 경연대회',d:'이기면 상과 이름',when:s=>!!s.jobK,p:s=>.35+s.edu/300+s.loyal/400,
+ w:[['1등을 했습니다. 상장과 함께 텔레비전 한 대를 받았습니다.',s=>(s.own.tv=s.own.tv||s.year,{loyal:5,joy:6})],['2등이었습니다. 그래도 직장 신문에 이름이 실렸습니다.',{loyal:4,net:3}]],
+ l:[['결승에서 실수를 했습니다. 반장이 어깨를 두드렸습니다.',{joy:-3}],['1등은 처음부터 정해져 있었습니다. 지배인 조카였습니다.',{joy:-4}]]});
+OP({k:'o_exchange',ko:'환전상 일 거들기',d:'돈은 되지만 단속 위험',p:()=>.65,
+ w:[['한 달 동안 환전상 옆에서 돈을 셌습니다. 수수료 몫이 쏠쏠했습니다.',{money:()=>R(100,300),risk:5}],['환율이 출렁이는 날 제때 바꿔 큰 몫을 챙겼습니다.',{money:()=>R(200,500),risk:6}]],
+ l:[['단속반이 들이닥쳐 환전상과 함께 도망쳤습니다. 몫은 바닥에 떨어졌습니다.',{risk:10}],['환율을 거꾸로 읽었습니다. 몫을 다 물어 줬습니다.',{money:()=>-R(30,80)}]]});
+OP({k:'o_goldpan',ko:'강가 사금 채취',d:'물이 차고 허리가 아프지만',when:s=>['rural','border'].includes(s.place.type),p:()=>.5,
+ w:[['체에 금빛 알갱이가 남았습니다. 장마당에서 쌀 몇 가마니 값을 받았습니다.',{money:()=>R(100,350),hp:-4}],['보름 만에 손톱만 한 덩어리가 나왔습니다. 동네가 들썩였습니다.',{money:()=>R(300,700),hp:-5,risk:3}]],
+ l:[['보름 동안 강물에 발을 담갔는데 모래뿐이었습니다.',{hp:-6,joy:-3}],['사금 자리를 두고 다툼이 붙어 쫓겨났습니다.',{hp:-3,joy:-3}]]});
+OP({k:'o_stage',ko:'직장 예술 소조 공연',d:'노래 한 곡 · 박수와 인맥',p:s=>.5+(s.flags.artPts||0)/150+((s.traits||[]).includes('arty')?.2:0),
+ w:[['노래가 끝나자 박수가 오래 이어졌습니다. 다음 날부터 사람들이 먼저 인사를 했습니다.',{joy:6,net:4}],['공연을 본 시 예술단 사람이 연락처를 남기고 갔습니다.',s=>(s.flags.artPts=(s.flags.artPts||0)+8,{joy:5})]],
+ l:[['가사를 잊었습니다. 객석이 조용했습니다.',{joy:-4}],['공연 중에 전기가 나갔습니다. 촛불 아래서 끝까지 불렀습니다.',{joy:1}]]});
+OP({k:'o_trip',ko:'평양 출장 자리',d:'인맥 · 바깥 소식 · 평양 물건',when:s=>s.place.type!=='capital',cost:()=>40,p:s=>.45+s.net/250,
+ w:[['평양에서 처음으로 지하철을 탔습니다. 돌아올 때 가방에 평양 과자를 가득 채웠습니다.',{outside:5,net:4,joy:4}],['출장 간 김에 평양 백화점에서 물건을 떼어 와 동네에서 두 배에 팔았습니다.',{money:()=>R(100,300),net:3}]],
+ l:[['출장 명단에서 마지막 날 빠졌습니다. 대신 간 사람은 과장 처남이었습니다.',{joy:-4}],['기차가 정전으로 멈춰 일정이 다 틀어졌습니다. 평양은 역 앞만 보고 왔습니다.',{joy:-2}]]});
+/* ---------- 백두혈통: 관저의 기회 ---------- */
+OP({k:'ro_games',royal:1,ko:'국제 경기 대회 유치',d:'세계의 눈이 평양으로',cost:()=>3000000,p:s=>.55+s.net/300,
+ w:[['대회가 열렸습니다. 외국 선수단이 평양 거리를 걸었습니다. 개막식 카메라가 처음으로 내 얼굴을 길게 비췄습니다.',{outside:10,net:8,joy:6}],['남북 단일팀이 결승에 올랐습니다. 관중석 양쪽에서 같은 노래가 나왔습니다.',s=>(s.flags.unifyPts=(s.flags.unifyPts||0)+8,{outside:8,joy:8})]],
+ l:[['개최 직전 몇 나라가 불참을 선언했습니다. 텅 빈 관중석이 외국 방송에 나갔습니다.',{joy:-5,outside:3}],['대회 준비가 늦어져 개막이 두 번 미뤄졌습니다. 원로들이 혀를 찼습니다.',{net:-3}]]});
+OP({k:'ro_tourfair',royal:1,ko:'해외 관광 박람회 참가',d:'원산 · 마식령을 세계에 판다',cost:()=>1500000,p:()=>.6,
+ w:[['박람회 부스에 외국 여행사가 줄을 섰습니다. 그해 관광 외화가 두 배가 됐습니다.',{money:()=>R(4000000,9000000),outside:6}],['외국 유명 여행 작가가 원산 해변을 극찬하는 글을 썼습니다.',{money:()=>R(2000000,5000000),outside:8,joy:4}]],
+ l:[['부스 앞에서 시위대가 팻말을 들었습니다. 사진만 실컷 찍히고 돌아왔습니다.',{outside:5,joy:-4}],['계약서에 서명한 여행사가 제재 때문에 한 달 만에 손을 뗐습니다.',{joy:-3}]]});
+OP({k:'ro_invest',royal:1,ko:'외국 투자 설명회',d:'공장 · 항구 · 광산',cost:()=>2000000,p:s=>.5+s.outside/300,
+ w:[['투자 계약 세 건에 서명했습니다. 항구에 크레인이 들어섰습니다.',{money:()=>R(5000000,12000000),net:5}],['한 회사가 평양에 지사를 냈습니다. 간판에 외국 글자가 걸렸습니다.',{money:()=>R(3000000,8000000),outside:6}]],
+ l:[['설명회장에 기자만 가득했습니다. 투자자는 오지 않았습니다.',{joy:-4}],['계약 직전에 제재 목록이 바뀌었습니다. 서명은 없던 일이 됐습니다.',{joy:-3}]]});
+OP({k:'ro_concert',royal:1,ko:'남북 합동 공연 기획',d:'같은 무대, 같은 노래',cost:()=>1000000,p:s=>.55+s.outside/400,
+ w:[['평양 대극장에서 남쪽 가수가 노래했습니다. 관객석에서 우는 사람이 많았습니다.',s=>(s.flags.unifyPts=(s.flags.unifyPts||0)+6,{outside:8,joy:7})],['합동 공연 영상이 양쪽 방송에 동시에 나갔습니다. 처음 있는 일이었습니다.',s=>(s.flags.unifyPts=(s.flags.unifyPts||0)+8,{outside:6,net:4})]],
+ l:[['공연 사흘 전 남쪽 정부가 바뀌었습니다. 공연은 무기한 연기됐습니다.',{joy:-4}],['리허설에서 곡 선정을 두고 다투다 판이 깨졌습니다.',{joy:-3}]]});
+OP({k:'ro_auction',royal:1,ko:'유럽 경매 대리 응찰',d:'가명으로 · 이기면 진귀한 물건',cost:()=>4000000,p:()=>.5,
+ w:[['가명 대리인이 마지막 호가에서 이겼습니다. 백 년 된 바이올린이 관저에 들어왔습니다.',{joy:7,outside:3}],['경매에서 이긴 그림이 다음 해 값이 두 배가 됐다는 소식이 왔습니다.',{money:()=>R(4000000,9000000),joy:4}]],
+ l:[['마지막 호가에서 졌습니다. 이긴 사람은 중동의 왕자였답니다.',{joy:-3}],['경매가 끝나고 대리인이 제재 위반으로 조사를 받았습니다. 물건은 압류됐습니다.',{joy:-4,risk:3}]]});
+OP({k:'ro_school',royal:1,ko:'관저 장학 사업',d:'지방 수재들을 평양으로',cost:()=>800000,p:()=>.75,
+ w:[['함경도 산골 아이 열 명이 평양 제1중학교에 들어왔습니다. 그중 하나가 감사 편지를 보냈습니다.',{joy:7,net:4}],['장학생 하나가 국제 수학 올림피아드에서 메달을 땄습니다.',{joy:6,outside:3,net:3}]],
+ l:[['뽑힌 아이들 명단이 모두 간부 자녀였습니다. 보고서를 집어 던졌습니다.',{joy:-4}],['장학금이 중간에서 절반이 사라졌습니다. 누구 주머니인지는 다들 압니다.',{joy:-3}]]});
+OP({k:'ro_hospital',royal:1,ko:'평양 병원 현대화',d:'외국 장비 · 의사 연수',cost:()=>3000000,p:()=>.65,
+ w:[['새 수술실이 문을 열었습니다. 첫 수술을 받은 아이가 걸어서 퇴원했습니다.',{joy:7,hp:3}],['외국 의사들이 연수를 왔다가 의료진과 오래 이야기를 나눴습니다.',{outside:6,joy:4}]],
+ l:[['장비는 들어왔는데 전기가 부족해 절반은 켜지지 않았습니다.',{joy:-3}],['장비가 제재 품목으로 세관에 묶였습니다.',{joy:-3}]]});
+OP({k:'ro_film',royal:1,ko:'영화 제작 지휘',d:'내 이름 없는 내 영화',cost:()=>1200000,p:s=>.5+(s.flags.artPts||0)/200,
+ w:[['영화가 개봉했습니다. 극장마다 사람들이 줄을 섰습니다. 감독 자리에 다른 이름이 적혀 있었습니다.',s=>(s.flags.artPts=(s.flags.artPts||0)+10,{joy:8})],['외국 영화제에 초청됐습니다. 관객석에서 기립 박수가 나왔다는 보고가 왔습니다.',{outside:8,joy:6}]],
+ l:[['검열 위원회가 마지막 장면을 잘라 냈습니다. 내가 가장 아끼던 장면이었습니다.',{joy:-5}],['주연 배우가 촬영 중에 쓰러졌습니다. 영화는 창고에 들어갔습니다.',{joy:-4}]]});
+OP({k:'ro_football',royal:1,ko:'프로 축구 구단 창단',d:'평양 경기장에 함성',cost:()=>2500000,p:()=>.6,
+ w:[['창단 첫 시즌에 우승했습니다. 경기장 함성이 관저까지 들렸습니다.',{joy:8,net:5}],['외국 감독을 데려왔습니다. 선수들이 처음으로 "전술"이라는 걸 배웠습니다.',{outside:5,joy:5}]],
+ l:[['첫 경기에서 0대 5로 졌습니다. 다음 날 신문에는 경기 결과가 실리지 않았습니다.',{joy:-4}],['주전 선수 둘이 해외 원정 경기에서 돌아오지 않았습니다.',{joy:-3,outside:4}]]});
+OP({k:'ro_fashion',royal:1,ko:'평양 패션쇼',d:'새 옷 · 새 바람',cost:()=>600000,p:()=>.65,
+ w:[['패션쇼 다음 날, 평양 거리에 짧은 치마가 늘었습니다. 단속반이 손을 놓았습니다.',{joy:6,outside:4}],['외국 잡지가 "평양의 봄"이라는 기사를 실었습니다.',{outside:6,net:3}]],
+ l:[['원로 부인들이 항의했습니다. 쇼는 두 번째 무대에서 중단됐습니다.',{joy:-4,net:-2}],['디자이너가 고른 옷감이 전부 남쪽 제품이었다는 게 들통났습니다.',{risk:4,joy:-2}]]});
+for(const o of OPS)ACTS.push(o);
+
+/* ---------- 오늘의 관저 목록 (백두혈통 · 해마다 바뀜) ---------- */
+const RDEALS=[
+ {k:'d_r_watch',ko:'경매에 나온 한정판 시계',d:'세계에 열두 개 · 오늘만',p:900000,buy:s=>okR(pick(['열두 개 중 하나가 관저에 왔습니다. 손목에 차자 비서가 시계 이야기만 사흘을 했습니다.','시계 뒷면에 원래 주인의 이니셜이 새겨져 있었습니다. 유럽 어느 왕실 사람이었습니다.']),{joy:5,net:2})},
+ {k:'d_r_wine',ko:'1945년산 와인 한 상자',d:'연회의 주인공',p:400000,buy:s=>okR(pick(['연회에서 와인을 따자 원로들이 동시에 잔을 들었습니다.','와인을 따 보니 절반은 식초가 돼 있었습니다. 그래도 아무도 말하지 않았습니다.']),{joy:3,net:3})},
+ {k:'d_r_classic',ko:'클래식 자동차',d:'1960년대 유럽 차 · 반짝이는 은색',p:1800000,buy:s=>okR(pick(['은색 자동차가 관저 차고에 들어왔습니다. 정비사가 밤새 광을 냈습니다.','시동을 걸자 오래된 엔진 소리가 관저를 울렸습니다. 경호원들이 처음으로 웃었습니다.']),{joy:7})},
+ {k:'d_r_island',ko:'남쪽 바다 섬 별장 1년 임대',d:'가명으로 · 경호선 넷',p:2500000,buy:s=>okR(pick(['가명으로 빌린 섬에서 한 달을 지냈습니다. 아무도 나를 몰랐습니다.','섬 주민 하나가 내 얼굴을 보고 고개를 갸웃했습니다. 그날 바로 떠났습니다.']),{joy:8,outside:6})},
+ {k:'d_r_piano',ko:'명장이 만든 그랜드 피아노',d:'관저 연회장에',p:700000,buy:s=>(s.flags.artPts=(s.flags.artPts||0)+5,okR('피아노가 연회장에 들어왔습니다. 첫 건반을 누르자 관저 전체가 조용해졌습니다.',{joy:6}))},
+ {k:'d_r_tiger',ko:'백두산 호랑이 한 쌍 (관저 동물원)',d:'행복↑ · 사육사 셋',p:1200000,buy:s=>okR('관저 동물원에 호랑이 한 쌍이 왔습니다. 수컷 이름은 내가 지었습니다.',{joy:7})},
+ {k:'d_r_chef',ko:'외국 일류 요리사 한 철 초빙',d:'석 달 동안 관저 주방에',p:800000,buy:s=>okR(pick(['석 달 동안 매일 다른 나라 음식이 올라왔습니다.','요리사가 떠나는 날, 관저 요리사들에게 비법 노트를 남겼습니다.']),{joy:6,hp:2,outside:2})},
+ {k:'d_r_sneakers',ko:'외국 한정판 운동화 백 켤레',d:'신어 보지 못할 수도',p:300000,buy:s=>okR('운동화 상자가 방 한쪽 벽을 채웠습니다. 다섯 켤레만 신어 봤습니다.',{joy:4})},
+ {k:'d_r_drone',ko:'촬영용 대형 드론',d:'하늘에서 본 평양',p:500000,buy:s=>okR('드론 화면 속 평양은 밤에 생각보다 어두웠습니다.',{joy:4,outside:4})},
+ {k:'d_r_library',ko:'외국 고서 수천 권',d:'관저 서재를 채운다',p:1000000,buy:s=>okR('외국 고서들이 서재를 채웠습니다. 몇 권은 금서 목록에 있던 책이었습니다.',{edu:6,outside:6})}];
+for(const d of RDEALS){d.tier=[T_R];DEALS.push(d)}
+{const rd0=refreshDeals;refreshDeals=function(s){if(!s.royal)return rd0(s);if(!s.deals||s.deals.y!==s.year){const L=RDEALS.slice(),keys=[];while(keys.length<3&&L.length){const i=hsh(s.id+'$'+s.year+'$'+keys.length)%L.length;keys.push(L.splice(i,1)[0].k)}s.deals={y:s.year,keys,sold:[]}}return s.deals.keys.map(k=>DEALS.find(d=>d.k===k)).filter(Boolean)}}
+
+/* ================================================================
    2600만 분의 1 — 귀찮은 건 알아서
    · 해마다 사는 물건은 '매년 자동'으로 · 지도자 명령도 '매년 자동'으로
    · 고른 초점(장사 · 직장…)은 학생 → 군대 → 어른이 돼도 이어집니다
@@ -3737,7 +3840,7 @@ function tabFocus(){const s=S,st=stageOf(s),L=dirsOf(s),cur=curDir(s);const[h,hi
  return`${arcs.length?`<div class="arcs"><small>진행 중인 이야기</small>${arcs.map(([k,a])=>`<span>〈${esc(ARC_NAMES[k]||k)}〉 ${a.n||1}장 · 다음 장 ${a.st?`${a.y}년쯤`:'곧'}</span>`).join('')}</div>`:''}<div class="th"><b>${h}</b><small>${esc(hint)} · ${esc(jobLabel(s))} · ${esc(s.place.ko)} · ${TIER_KO[tierOf(s)].split(' · ')[0]}</small></div><div class="dgrid">${g||`<p class="sub" style="margin:0">${st==='baby'?'먹고, 자고, 자랍니다.':'할 수 있는 게 없습니다.'}</p>`}</div>`}
 function tabActs(){const s=S,A=actsFor(s);if(!A.length)return`<p class="sub">${stageOf(s)==='baby'?'아직은 너무 어립니다.':'지금은 해 볼 수 있는 일이 없습니다.'}</p>`;
  const cats=[...new Set(A.map(a=>a.cat))];
- return cats.map(cat=>`<div class="acat"><h4>${cat}</h4>${A.filter(a=>a.cat===cat).map(a=>{const st=actState(s,a);const c=a.cost?Math.round(a.cost(s)):0;const p=a.open?null:pct(a.p(s));
+ return cats.map(cat=>`<div class="acat"><h4>${cat}</h4>${A.filter(a=>a.cat===cat).map(a=>{const st=actState(s,a);const c=a.cost?Math.round(a.cost(s)):0;const p=a.open?null:pct(s.flags.absolute?1:a.p(s));
   return`<div class="act${st.ok?'':' no'}"><div class="at"><b>${esc(a.ko)}</b><small>${esc(a.d)}${a.sub?` · ${esc(a.sub(s))}`:''}</small>${(st.rq||[]).length?`<div class="rq">${st.rq.map(r=>`<span class="${r[1]?'ok':'x'}">${r[1]?'✓':'✗'} ${esc(r[0])}</span>`).join('')}</div>`:''}</div>
   <div class="ab"><button class="btn${st.ok?' pri':''}" type="button" data-act="${a.k}"${st.ok?'':' disabled'}>${a.cat==='최고지도자 명령'?'명령':a.open?'해 보기':'도전'}</button><small>${c?`${usd(c)} · ${krw(c)}`:'비용 없음'}${p!=null?` · 성공 ${p}%`:''}${st.ok?'':` · ${esc(st.why)}`}</small>${autoable(a)?`<button class="auto${(s.autoCmd||{})[a.k]?' on':''}" type="button" data-autocmd="${a.k}" aria-pressed="${!!(s.autoCmd||{})[a.k]}">${(s.autoCmd||{})[a.k]?'✓ 매년 자동':'매년 자동'}</button>`:''}</div></div>`}).join('')}</div>`).join('')}
 function shopItemH(s,it,deal){const st=shopState(s,it);const p=priceOf(s,it);const mm=mktMul(s,it),mv=Math.round((mm-1)*100);return`<div class="item ${st}${deal?' deal':''}"><div><b>${esc(it.ko)}${!deal&&Math.abs(mv)>=8?` <span class="mk2 ${mv>0?'up':'dn'}">${mv>0?'▲':'▼'}${Math.abs(mv)}%</span>`:''}</b><small>${esc(it.d)}${it.yearly?' · 한 해에 한 번':''}${it.inv?` · ${it.inv.y}년 뒤 결과`:''}</small></div><button class="btn${st==='ok'?' pri':''}" type="button" data-buy="${it.k}"${st==='ok'?'':' disabled'}>${st==='have'?'있음':st==='done'?(deal?'팔림':'올해 삼'):usd(p)}</button><em>${krw(p)}</em>${it.yearly&&!deal?`<button class="auto${(s.autoBuy||{})[it.k]?' on':''}" type="button" data-autobuy="${it.k}" aria-pressed="${!!(s.autoBuy||{})[it.k]}">${(s.autoBuy||{})[it.k]?'✓ 매년 자동':'매년 자동'}</button>`:''}</div>`}
@@ -3747,7 +3850,7 @@ function tabShop(){const s=S;if(!canShop(s))return`<p class="sub">${s.age<17?'�
  if(inv.length)h+=`<div class="eraBox"><b>키우고 굴리는 중</b><span>${esc(inv.join(' · '))}</span></div>`;
  if(s.royal){coinInit(s);const tv=coinVal(s);h+=`<div class="acat"><h4>코인 지갑 <small class="dl">평가액 ${usd(Math.round(tv))} · ${krw(Math.round(tv))}</small></h4><div class="shop">${COINS.map(c=>{const u=(s.coins||{})[c.k]||0,px=s.cpx[c.k],v=Math.round(u*px),b=(s.cbase||{})[c.k]||0,g=v-b;
   return`<div class="item coin"><div><b>${esc(c.ko)}</b><small>1개 ${px>=1?usd(Math.round(px)):'$'+px.toFixed(4)} · 보유 ${fmtCoin(u)}개${u?` · ${usd(v)} <span class="${g>=0?'g':'b'}">(${g>=0?'+':''}${usd(g)})</span>`:''}</small></div><span class="cb"><button class="btn pri" type="button" data-cbuy="${c.k}">10% 사기</button><button class="btn" type="button" data-csell="${c.k}"${u?'':' disabled'}>전부 팔기</button></span><em>해마다 값이 오르내립니다</em></div>`}).join('')}</div></div>`}
- if(D.length)h+=`<div class="acat"><h4>오늘의 장마당 <small class="dl">${s.year}년에만</small></h4><div class="shop">${D.map(it=>shopItemH(s,it,1)).join('')}</div></div>`;
+ if(D.length)h+=`<div class="acat"><h4>${s.royal?'오늘의 관저 목록':'오늘의 장마당'} <small class="dl">${s.year}년에만</small></h4><div class="shop">${D.map(it=>shopItemH(s,it,1)).join('')}</div></div>`;
  for(const c of SHOP_CATS){const C=L.filter(it=>it.cat===c);if(C.length)h+=`<div class="acat"><h4>${c}</h4><div class="shop">${C.map(it=>shopItemH(s,it)).join('')}</div></div>`}
  const SL=sellable(s);if(SL.length)h+=`<div class="acat"><h4>가진 물건 · 되팔기 <small class="dl">값은 사는 사람 마음</small></h4><div class="shop">${SL.map(it=>{const[lo,hi]=sellRange(s,it);return`<div class="item"><div><b>${esc(it.ko)}</b><small>${s.own[it.k]}년에 산 것 · ${usd(lo)}~${usd(hi)}쯤</small></div><button class="btn" type="button" data-sell="${it.k}">팔기</button><em>${krw(hi)}까지</em></div>`}).join('')}</div></div>`;
  return h}
