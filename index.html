@@ -416,6 +416,9 @@ body::before{content:"";position:fixed;top:0;left:0;right:0;height:5px;backgroun
  .sr2 i{grid-column:1/-1;height:3px;border-radius:2px;background:var(--card2);overflow:hidden;display:block;margin-top:3px}.sr2 u{display:block;height:100%}
  .srow .srb{flex:0 0 auto}.srow .srb .pill{padding:6px 10px}
 }
+
+.live.lp{color:var(--ink)}.live.lp b{color:var(--red)}
+.live2{color:var(--good);margin-bottom:4px}
 </style></head><body><section id="home" class="wrap">
  <div class="top"><span class="eyebrow">무료 인생 시뮬레이션 · 북한편 · 1년이 흘러갑니다</span><span class="topr"><button class="pill" type="button" id="installBtn" hidden>앱 설치</button><a class="pill link" href="https://alohang1985.github.io/debut-gak/">데뷔각 하러 가기 →</a><button class="pill" id="themeBtn" type="button" aria-label="밝은 화면과 어두운 화면 바꾸기">◐</button><span class="rating" title="15세 이상 · 수용소 · 죽음 같은 무거운 주제를 다룹니다" aria-label="15세 이상 이용가">15</span></span></div>
  <div class="slogan" aria-hidden="true"><div class="sl-in"><span>★ 고를 수 있는 건 아무것도 없다</span><span>★ 1년이 한 턴, 인생은 단 한 번</span><span>★ 성분은 태어나는 순간 정해진다</span><span>★ 배급표보다 장마당</span><span>★ 2600만 분의 1</span><span>★ 끝까지 살아 낸 사람이 이긴다</span><span>★ 고를 수 있는 건 아무것도 없다</span><span>★ 1년이 한 턴, 인생은 단 한 번</span><span>★ 성분은 태어나는 순간 정해진다</span><span>★ 배급표보다 장마당</span><span>★ 2600만 분의 1</span><span>★ 끝까지 살아 낸 사람이 이긴다</span></div></div>
@@ -425,6 +428,7 @@ body::before{content:"";position:fixed;top:0;left:0;right:0;height:5px;backgroun
    <h1 class="title">2600만 분의 <em>1</em></h1>
    <p class="lede">지금 이 순간에도 북한에서는 한 시간에 마흔 명쯤 아기가 태어납니다. 그중 한 명이 되어 단 한 번뿐인 삶을 끝까지 살아 봅니다. 어디서, 어떤 성분의 집에서 태어날지는 고를 수 없습니다. 그곳의 아이들이 그랬던 것처럼.</p>
    <div class="facts"><div><b id="cBorn">0</b><span>오늘 북한에서 태어난 아기 <em class="lv">LIVE</em></span><i class="nb" aria-hidden="true"><u id="cBar"></u></i><small class="nbt" id="cNext"></small></div><div><b id="cDied">0</b><span>올해 북한에서 세상을 떠난 사람</span></div><div><b>300분의 1</b><span>백두혈통으로 태어날 확률</span></div></div>
+   <p class="live lp" id="livePlayers" hidden></p>
    <p class="live"><i></i>성분 · 사는 곳 · 부모님 · 집안의 비밀까지, 태어나는 순간 정해집니다.</p>
    <div class="gobtns"><button class="btn pri big" type="button" id="goBtn">태어나기</button><button class="btn big royalbtn" type="button" id="royalBtn">👑 백두혈통으로 태어나기</button></div><p class="rhint" id="royalHint"></p>
   </div>
@@ -471,7 +475,7 @@ body::before{content:"";position:fixed;top:0;left:0;right:0;height:5px;backgroun
      <div class="tabh" role="tablist"><button type="button" role="tab" data-tab="focus" aria-selected="true">올해의 초점</button><button type="button" role="tab" data-tab="acts">해 볼 수 있는 일 <span class="badge" id="actBadge"></span></button><button type="button" role="tab" data-tab="shop">돈 쓰기</button><button type="button" role="tab" data-tab="led">올해 살림</button></div>
      <div class="tabb" id="tabBody"></div>
     </div>
-    <div class="panel tlp"><div class="tlh"><h3>인생 기록</h3><small>최근 순</small></div><p class="tlsub" id="tlSub"></p><ol class="tl" id="timeline"></ol><button class="more" type="button" id="moreBtn" hidden>지난 기록 더 보기</button></div>
+    <div class="panel tlp"><div class="tlh"><h3>인생 기록</h3><small>최근 순</small></div><p class="tlsub live2" id="liveLine" hidden></p><p class="tlsub" id="tlSub"></p><ol class="tl" id="timeline"></ol><button class="more" type="button" id="moreBtn" hidden>지난 기록 더 보기</button></div>
    </main>
    <aside class="side2">
     <div class="panel famp" id="famBox"></div>
@@ -3984,6 +3988,24 @@ function maybeEp(){if(EPX||!S||S.end||FLOW.busy||!$('modal').hidden||FLOW.speed>
 document.getElementById('scene')&&document.getElementById('scene').addEventListener('click',()=>{if(EPX)epEnd()});
 
 /* ================================================================
+   2600만 분의 1 — 진짜 실시간 인원 (Cloudflare 서버)
+   익명 세션 id · 단계 · 나이 · 백두혈통 여부 · 결말만 보냅니다. 이름은 보내지 않습니다.
+   ================================================================ */
+const LIVE_URL='https://nk-live.alohang1985.workers.dev';
+const LIVE={data:null,timer:null};
+function liveSid(){let s=LS.get('nk.sid',null);if(!s){s=Math.random().toString(36).slice(2,12)+Date.now().toString(36).slice(-4);LS.set('nk.sid',s)}return s}
+function liveSt(){if(document.getElementById('birth'))return'birth';if(!$('game').hidden)return'life';if(!$('end').hidden)return'end';return'home'}
+function liveSend(ev,extra){const b=Object.assign({s:liveSid(),st:liveSt(),a:S?S.age:0,r:S&&S.royal&&liveSt()!=='home'?1:0},ev?{ev}:{},extra||{});const body=JSON.stringify(b);
+ if(ev==='bye'){try{navigator.sendBeacon&&navigator.sendBeacon(LIVE_URL+'/hb',body)}catch(_){}return}
+ fetch(LIVE_URL+'/hb',{method:'POST',body,keepalive:ev==='end'}).then(r=>r.ok?r.json():null).then(d=>{if(d){LIVE.data=d;renderLive()}}).catch(()=>{})}
+const fmtN=n=>Number(n||0).toLocaleString('ko-KR');
+function renderLive(){const d=LIVE.data;if(!d)return;const hp=$('livePlayers');
+ if(hp){hp.hidden=false;hp.innerHTML=d.living>1?`<i></i>지금 <b>${fmtN(d.living)}명</b>이 이 게임 속 북한에서 각자의 삶을 살고 있어요 · 오늘 ${fmtN(d.today.born)}명이 태어났어요`:d.now>1?`<i></i>지금 ${fmtN(d.now)}명이 들어와 있어요 · 오늘 ${fmtN(d.today.born)}명이 태어났어요`:`<i></i>지금은 조용해요. 오늘 이 게임에서 태어나는 첫 사람이 될 수도 있어요.`}
+ const ll=$('liveLine');if(ll){const others=Math.max(0,d.living-1);ll.hidden=false;ll.textContent=others?`지금 ${fmtN(d.living)}명이 함께 살고 있어요${d.royalNow?` · 그중 백두혈통 ${fmtN(d.royalNow)}명`:''} · 지금까지 ${fmtN(d.tot.born)}명이 태어나 ${fmtN(d.tot.ended)}명이 끝까지 살았어요`:`지금 이 게임 속 북한에서 사는 사람은 당신뿐이에요 · 지금까지 ${fmtN(d.tot.born)}명이 태어났어요`}}
+function liveInit(){liveSend();LIVE.timer=setInterval(()=>{if(!document.hidden)liveSend()},45000);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)liveSend()});addEventListener('pagehide',()=>liveSend('bye'))}
+
+/* ================================================================
    2600만 분의 1 — install as an app (home screen / desktop) & offline cache
    ================================================================ */
 const PWA={evt:null};
@@ -4089,7 +4111,7 @@ function refreshHome(){const dx=LS.get('nk.dex',{});syncRoyalBtn();const found=E
  $('dex').innerHTML=egH+END_CATS.map(c=>{const L=ENDINGS.filter(e=>e.cat===c);const f=L.filter(e=>dx[e.id]).length;return`<div class="dcat"><h4>${esc(c)} <small>${f} / ${L.length}</small></h4><div class="dexg">${L.map(e=>`<div class="dx ${dx[e.id]?e.tone:'off'}"><b>${dx[e.id]?esc(e.t):'？？？'}</b><small>${dx[e.id]?`${dx[e.id].n}번 · 최근 ${esc(dx[e.id].last)}`:'아직 못 본 결말'}</small></div>`).join('')}</div></div>`}).join('');
  const cur=LS.get('nk.cur',null),rb=$('resumeBox');if(cur&&!cur.end){rb.hidden=false;rb.className='resume';rb.innerHTML=`<span><b>${esc(cur.name)}</b>의 삶이 이어지고 있어요 · ${cur.age}세</span><button class="btn pri" type="button" id="rbGo">이어서</button><button class="btn" type="button" id="rbDrop">내려놓기</button>`;
   $('rbGo').onclick=()=>{S=migrate(cur);if(!S.q)S.q=[];if(S.yp==null)S.yp=0;if(!S.own)S.own={};if(S.joy==null)S.joy=55;if(!S.hist)S.hist=[];enterGame()};$('rbDrop').onclick=()=>{LS.del('nk.cur');rb.hidden=true}}else rb.hidden=true}
-function startLife(opt){S=newLife(opt&&(opt.royal||opt.absolute)?opt:undefined);S.q=[];S.yp=0;save();birthSeq(S,enterGame)}
+function startLife(opt){S=newLife(opt&&(opt.royal||opt.absolute)?opt:undefined);S.q=[];S.yp=0;save();birthSeq(S,enterGame);liveSend('born',{r:S.royal?1:0})}
 function enterGame(){show('game');FLOW.busy=false;FLOW.parked=false;$('parked').hidden=true;buildCtrl();renderAll();startLoop();if(S.age===0)toast(`1년 ≈ ${fmtSec(secPerYear())}초 · 속도는 위에서 바꿀 수 있어요`)}
 const fmtSec=v=>v<3?v.toFixed(1):Math.round(v);
 
@@ -4316,7 +4338,7 @@ function southEpilogue(s){const L=[];L.push(`국정원 조사 몇 주, 하나원
  L.push(pick(['말투 때문에 "연변에서 왔냐"는 소리를 자주 들었습니다.','지하철 노선도를 외우는 데 한 달이 걸렸습니다.','밤에도 꺼지지 않는 불빛이 처음엔 무서웠습니다.','마트 계산대 앞에서 한참 서 있었습니다. 고를 게 너무 많았습니다.']));
  if(famOf(s).some(m=>m.left&&m.alive))L.push('첫 월급의 절반을 브로커 편에 북으로 보냈습니다. 받았다는 소식이 오기까지 석 달이 걸렸습니다.');
  return L}
-function finish(){FLOW.busy=false;closeModal();const s=S,E=endingOf(s);const dx=LS.get('nk.dex',{});if(!s.counted){s.counted=1;LS.set('nk.lives',LS.get('nk.lives',0)+1);if(LS.get('nk.lives',0)%2===0)setTimeout(()=>toast('👑 백두혈통 이용권이 한 장 생겼어요. 첫 화면에서 쓸 수 있어요.'),900);dx[E.id]={n:((dx[E.id]||{}).n||0)+1,last:s.name};LS.set('nk.dex',dx)}LS.del('nk.cur');
+function finish(){FLOW.busy=false;closeModal();const s=S,E=endingOf(s);if(!s.liveSent){s.liveSent=1;setTimeout(()=>liveSend('end',{e:E.id,a:s.age}),400)}const dx=LS.get('nk.dex',{});if(!s.counted){s.counted=1;LS.set('nk.lives',LS.get('nk.lives',0)+1);if(LS.get('nk.lives',0)%2===0)setTimeout(()=>toast('👑 백두혈통 이용권이 한 장 생겼어요. 첫 화면에서 쓸 수 있어요.'),900);dx[E.id]={n:((dx[E.id]||{}).n||0)+1,last:s.name};LS.set('nk.dex',dx)}LS.del('nk.cur');
  const why={south:'남쪽에 닿았습니다',exile:'외국으로 떠났습니다',purged:'숙청됐습니다',heir:'후계자가 됐습니다',unify:'통일을 맞았습니다',retired:'스스로 물러났습니다',handover:'권좌를 물려주었습니다',dead:s.flags.diedIn==='jail'||s.flags.diedIn==='camp'?'갇힌 채 생을 마쳤습니다':'생을 마쳤습니다'}[s.end]||'';
  const epi=s.end==='south'?southEpilogue(s):[];const extra=[];if(s.end==='south'){if(s.flags.powAddr)extra.push('할아버지의 고향 마을을 찾아가 그 이름을 불러 봤습니다.');if(s.flags.southAunt)extra.push('남쪽 이모가 공항에 마중 나와 있었습니다.');if(s.flags.eliteDefect)extra.push('평양에 남겨진 가족 소식은 끝내 듣지 못했습니다.')}
  const mom=s.big.slice().sort((a,b)=>Math.abs(b.g)-Math.abs(a.g)).slice(0,7).sort((a,b)=>a.age-b.age);const sp=(s.fam||[]).find(m=>m.sp&&!m.gone);const kn=(s.fam||[]).filter(m=>m.kid&&m.alive).length;
@@ -4343,7 +4365,7 @@ function mobileUI(){
  const tt=$('toTop');tt.onclick=()=>window.scrollTo({top:0,behavior:'smooth'});addEventListener('scroll',()=>{tt.hidden=!(isMob()&&!$('game').hidden&&scrollY>700)},{passive:true});
  const gh=document.querySelector('.ghead');const setH=()=>document.documentElement.style.setProperty('--hh',gh.offsetHeight+'px');if(window.ResizeObserver)new ResizeObserver(setH).observe(gh);setH();
  addEventListener('resize',applyFold);applyFold()}
-function boot(){applyTheme(LS.get('nk.theme',null));initPWA();refreshHome();mapSVG($('homeMap'),null);tickCounters();renderFacts();mobileUI();setInterval(()=>{if(!$('home').hidden)tickCounters()},1000);
+function boot(){applyTheme(LS.get('nk.theme',null));initPWA();refreshHome();mapSVG($('homeMap'),null);tickCounters();renderFacts();mobileUI();liveInit();setInterval(()=>{if(!$('home').hidden)tickCounters()},1000);
  // 숨은 버튼: 맨 아래 안내문 끝의 마침표를 빠르게 세 번 누르면 최고급 백두혈통으로 태어납니다
  {const taps=[];$('secretDot').onclick=e=>{e.preventDefault();const t=Date.now();taps.push(t);while(taps.length&&t-taps[0]>1500)taps.shift();if(taps.length>=3){taps.length=0;startLife({absolute:true})}}}
  $('goBtn').onclick=()=>startLife();$('againBtn').onclick=()=>startLife();$('royalBtn').onclick=useRoyalTicket;$('homeBtn').onclick=()=>{show('home');refreshHome()};$('themeBtn').onclick=toggleTheme;$('themeBtn2').onclick=()=>{toggleTheme();if(S)renderScene()};
