@@ -364,6 +364,26 @@ body::before{content:"";position:fixed;top:0;left:0;right:0;height:5px;backgroun
 .tl li.news .t{color:var(--blue)}
 .eggs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}.eggs span{background:var(--red-soft);border:1px solid var(--red);color:var(--red);border-radius:999px;padding:5px 12px;font-weight:700;font-size:13.5px}.eggs small{font-weight:400;color:var(--ink3);margin-left:4px}
 .dx.egg.good{border-color:var(--gold);background:linear-gradient(160deg,var(--card),color-mix(in srgb,var(--gold) 12%,var(--card)))}.dx.egg.good b{color:var(--gold)}
+
+/* ================= 컴퓨터: 3단 화면 ================= */
+.ggrid{grid-template-columns:300px minmax(0,1fr);grid-template-areas:"l m" "r m";grid-template-rows:auto 1fr}
+.side{grid-area:l}.main{grid-area:m}.side2{grid-area:r;display:flex;flex-direction:column;gap:12px;min-width:0}
+.peers{list-style:none;margin:0;padding:0}.peers li{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--rule)}.peers li:last-child{border-bottom:0}
+.peers b{display:block;font-size:14px}.peers small{display:block;font-size:12px;color:var(--ink3)}.peers span{font-size:12.5px;color:var(--ink2);text-align:right;max-width:55%}.peers li.gone{opacity:.55}
+.side2 .tlh h3{font-size:15px}
+@media (min-width:1240px){
+ .gwrap{max-width:1420px}
+ .ggrid{grid-template-columns:292px minmax(0,1fr) 316px;grid-template-areas:"l m r";grid-template-rows:auto}
+ .side{align-self:stretch}
+ .ghead{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"t c" "p c";column-gap:28px;row-gap:4px;align-items:center;padding:10px max(24px,calc((100vw - 1420px)/2 + 24px))}
+ .gh1{grid-area:t;max-width:none;margin:0;flex-wrap:nowrap}
+ .gsub{max-width:360px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .yprog{grid-area:p;max-width:none;margin:0;width:100%}
+ .ctrl{grid-area:c;max-width:none;margin:0;justify-content:flex-end}
+ .idc{top:92px}
+}
+@media (max-width:900px){.ggrid{grid-template-columns:1fr;grid-template-areas:"m" "l" "r";grid-template-rows:auto}}
+@media (min-width:1240px){.srow{display:none}}
 </style></head><body><section id="home" class="wrap">
  <div class="top"><span class="eyebrow">무료 인생 시뮬레이션 · 북한편 · 1년이 흘러갑니다</span><span class="topr"><button class="pill" type="button" id="installBtn" hidden>앱 설치</button><a class="pill link" href="https://alohang1985.github.io/debut-gak/">데뷔각 하러 가기 →</a><button class="pill" id="themeBtn" type="button" aria-label="밝은 화면과 어두운 화면 바꾸기">◐</button><span class="rating" title="15세 이상 · 수용소 · 죽음 같은 무거운 주제를 다룹니다" aria-label="15세 이상 이용가">15</span></span></div>
  <div class="slogan" aria-hidden="true"><div class="sl-in"><span>★ 고를 수 있는 건 아무것도 없다</span><span>★ 1년이 한 턴, 인생은 단 한 번</span><span>★ 성분은 태어나는 순간 정해진다</span><span>★ 배급표보다 장마당</span><span>★ 2600만 분의 1</span><span>★ 끝까지 살아 낸 사람이 이긴다</span><span>★ 고를 수 있는 건 아무것도 없다</span><span>★ 1년이 한 턴, 인생은 단 한 번</span><span>★ 성분은 태어나는 순간 정해진다</span><span>★ 배급표보다 장마당</span><span>★ 2600만 분의 1</span><span>★ 끝까지 살아 낸 사람이 이긴다</span></div></div>
@@ -407,7 +427,6 @@ body::before{content:"";position:fixed;top:0;left:0;right:0;height:5px;backgroun
     <div class="idc" id="idCard"></div>
     <div class="panel" id="statBox"></div>
     <div class="panel" id="moneyBox"></div>
-    <div class="panel famp" id="famBox"></div>
    </aside>
    <main class="main">
     <div class="panel tip" id="tipBox" hidden></div>
@@ -419,10 +438,14 @@ body::before{content:"";position:fixed;top:0;left:0;right:0;height:5px;backgroun
      <div class="tabb" id="tabBody"></div>
     </div>
     <div class="panel tlp"><div class="tlh"><h3>인생 기록</h3><small>최근 순</small></div><p class="tlsub" id="tlSub"></p><ol class="tl" id="timeline"></ol><button class="more" type="button" id="moreBtn" hidden>지난 기록 더 보기</button></div>
+   </main>
+   <aside class="side2">
+    <div class="panel famp" id="famBox"></div>
+    <div class="panel" id="peerBox"></div>
     <div class="panel"><div class="tlh"><h3>인생 지도</h3><small>한 칸 = 1년 · 진할수록 행복했던 해</small></div><div class="lmap" id="lifeMap"></div><p class="tlsub" id="lmNote"></p></div>
     <div class="panel"><div class="tlh"><h3>생존 곡선</h3><small>같은 해 태어난 사람 중 살아 있는 비율</small></div><svg class="surv" id="surv" viewBox="0 0 300 120" preserveAspectRatio="none" aria-label="생존 곡선"></svg><p class="tlsub" id="survNote"></p></div>
     <div class="panel"><div class="tlh"><h3>북한</h3><small>근삿값</small></div><dl class="facts2" id="nkFacts"></dl></div>
-   </main>
+   </aside>
   </div>
  </div>
  <button class="parked" id="parked" type="button" hidden></button>
@@ -4100,6 +4123,8 @@ function renderFam(){const s=S,L=famRows(s);const with_=L.filter(m=>m.alive&&!m.
 function ctcSt(c){if(c.kind==='grudge')return c.done?['지나간 원한','']:['앙심을 품고 있음','bad'];if(c.strong&&!c.used)return['내 사람 · 위기 때 부를 수 있음','good'];if(c.used)return['한 번 신세를 졌음',''];return['위기 때 부를 수 있음','good']}
 function contactsH(s){const C=(s.contacts||[]).slice().reverse();if(!C.length)return'';return`<h4 class="ctch">인연 <small>살면서 맺은 사람들</small></h4><ul class="ctc">${C.map(c=>{const[t,k]=ctcSt(c);return`<li class="${k}"><b>${esc(c.role)} ${esc(c.n)}</b><small>${c.y}년 · ${t}</small></li>`}).join('')}</ul>`}
 
+function renderPeers(){const s=S,el=$('peerBox');if(!el)return;const P=s.peers||[];if(!P.length){el.hidden=true;return}el.hidden=false;
+ el.innerHTML=`<div class="tlh"><h3>같은 해에 태어난 사람들</h3><small>지금 이 나이에</small></div><ul class="peers">${P.map(p=>`<li${p.alive===false?' class="gone"':''}><div><b>${esc(p.n)}</b><small>${esc(p.ko)}${p.sb==='south'?' · 남쪽':''}${p.sex?` · ${p.sex==='F'?'여':'남'}`:''}</small></div><span>${esc(p.alive===false?'세상을 떠남':p.st||(s.age<7?'어린 시절':s.age<17?'학교에 다님':'소식 모름'))}</span></li>`).join('')}</ul>`}
 /* ---------- 장면 (픽셀) ---------- */
 function pick2(r,a){return a[Math.floor(r()*a.length)]}
 function fig(c,x,base,p,r){const R0=(xx,y,w,h,col)=>{c.fillStyle=col;c.fillRect(xx|0,y|0,w|0,h|0)};const skin=pick2(r,['#f1cfae','#e8c09a','#dcb08a']),hair=p.age>=58?'#c9c2b6':'#2a2420';
@@ -4194,7 +4219,7 @@ function renderSurv(el,note){if(!el)return;const s=S,me=s.sex==='F'?'nkF':'nkM',
  el.innerHTML=`<line x1="0" y1="${H}" x2="${W}" y2="${H}" class="ax"/><line x1="0" y1="${Y(.5)}" x2="${W}" y2="${Y(.5)}" class="mid"/><path d="${path(K)}" class="sk"/><path d="${path(L)}" class="nk"/><circle cx="${X(a)}" cy="${Y(v)}" r="4" class="me"/><text x="${W-2}" y="${Y(.5)-4}" class="lb" text-anchor="end">50%</text>`;
  if(note)note.innerHTML=`<span class="k nk"></span>북한 ${s.sex==='F'?'여성':'남성'} <span class="k sk"></span>한국 ${s.sex==='F'?'여성':'남성'} · 지금 ${a}세: 같은 해 북한에서 태어난 ${s.sex==='F'?'여자':'남자'}아이 중 약 ${Math.round(v*100)}%가 살아 있습니다 (한국은 ${Math.round(K[a]*100)}%).`}
 function renderFacts(){$('nkFacts').innerHTML=`<div><dt>인구</dt><dd>${NK_FACTS.pop}</dd></div><div><dt>한 해 출생아</dt><dd>${NK_FACTS.births}</dd></div><div><dt>기대수명</dt><dd>${NK_FACTS.le}</dd></div><div><dt>5세 미만 사망률</dt><dd>${NK_FACTS.u5}</dd></div><div><dt>1인당 국민소득</dt><dd>${NK_FACTS.gni}</dd></div><div><dt>전력</dt><dd>${NK_FACTS.power}</dd></div><div><dt>한국에 온 탈북민</dt><dd>${NK_FACTS.defect}</dd></div><p class="src">${NK_FACTS.src}</p>`}
-function renderAll(){if(!S)return;renderHead();renderId();renderStats();renderMoney();renderFam();renderScene();renderTabs();renderTL();renderLifeMap($('lifeMap'),$('lmNote'));renderSurv($('surv'),$('survNote'));renderTip();document.body.classList.toggle('royal',!!S.royal)}
+function renderAll(){if(!S)return;renderHead();renderId();renderStats();renderMoney();renderFam();renderScene();renderTabs();renderTL();renderLifeMap($('lifeMap'),$('lmNote'));renderSurv($('surv'),$('survNote'));renderPeers();renderTip();document.body.classList.toggle('royal',!!S.royal)}
 
 function renderTip(){const el=$('tipBox');if(!el)return;if(LS.get('nk.tip',false)){el.hidden=true;return}el.hidden=false;
  el.innerHTML=`<b>처음이라면</b><ol><li><b>시간</b>은 저절로 흐릅니다. 위에서 멈추거나 빠르게 할 수 있어요.</li><li><b>올해의 초점</b>을 고르면 그쪽으로 한 해가 흘러갑니다.</li><li><b>해 볼 수 있는 일</b>에서 직업 · 시험 · 입당 · 청혼에 직접 도전하세요.</li><li><b>결정 카드</b>는 가만두면 무난한 쪽으로 알아서 골라요.</li></ol><button class="btn" type="button" id="tipOk">알겠어요</button>`;
