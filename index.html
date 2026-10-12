@@ -846,6 +846,7 @@ function yearTurn(s){const out={events:[],lines:[]};s.age++;s.year++;const st=st
  s.hist.push({a:s.age,hp:Math.round(s.hp),r:Math.round(s.risk),j:Math.round(s.joy),m:Math.round(s.money),t:stageOf(s)});if(s.hist.length>120)s.hist.shift();
  // 선택 사건
  if(!s.end&&out.events.length<2){const p=s.age<6?(s.age>=2?.5:0):s.age<17?.36:.44;if(chance(p)){const e=pickEvent(s);if(e&&!out.events.includes(e))out.events.push(e)}}
+ if(!s.end&&out.events.length<3&&chance(crisisP(s))){const c=pickCrisis(s);if(c&&!out.events.includes(c))out.events.push(c)}
  return out}
 function joyYear(s){const st=stageOf(s);let b=52;if(s.married)b+=6;b+=Math.min(3,kidsOf(s).length)*3;if(s.money>=1000)b+=5;if(s.money>=10000)b+=5;if(s.power==='on')b+=4;if(s.power==='off')b-=5;
  if(s.led&&s.led.starve)b-=16;if(st==='jail')b-=28;if(st==='camp')b-=40;if(st==='china')b-=4;if(st==='army')b-=6;if(s.royal)b+=10;if(s.own.solar)b+=3;if(s.own.notetel)b+=3;if(s.own.flat)b+=5;if(s.dir==='family')b+=6;if(eraOf(s)&&eraOf(s).hp)b-=6;
@@ -3369,6 +3370,141 @@ EV('grudge_hit',{pool:1,kind:'위기',max:3,w:1.4,stage:['adult'],when:s=>!!grud
  out:{peace:s=>({t:`${s.tmpC.n}${P(s.tmpC.n,'이/가')} 한참 말이 없다가 투서를 거둬들였습니다. "그때 일은 이걸로 끝이오."`,e:{risk:-8}}),still:s=>({t:'사과는 받았지만 투서는 이미 위로 올라간 뒤였습니다.',e:{risk:12}}),
   win:s=>({t:`내 투서가 먼저 효과를 봤습니다. ${s.tmpC.n}${P(s.tmpC.n,'이/가')} 노동단련대로 갔습니다.`,e:{joy:-5,risk:-5}}),mess:s=>({t:'투서가 투서를 불렀습니다. 둘 다 장부에 이름이 올랐습니다.',e:{risk:20}}),
   pass:s=>({t:'투서는 서랍 속에 묻혔습니다.',e:{}}),hurt:s=>({t:'투서가 통했습니다. 직장에서 "사상 검토"를 받았습니다.',e:{risk:18,loyal:-6}})}});
+
+/* ================================================================
+   2600만 분의 1 — 극적인 사건과 위기
+   해마다 일정 확률로 '위기'가 따로 찾아옵니다. 같은 위기도 숨은 사정에 따라 다르게 끝납니다.
+   ================================================================ */
+const CR=(id,o)=>EV(id,Object.assign({pool:1,kind:'위기',max:1,w:1.2,crisis:1},o,o.royal?{royalOK:1,stage:o.stage||['royal'],when:s=>s.royal&&(!o.when||o.when(s))}:{stage:o.stage||['adult']}));
+const kidIn=(s,a,b)=>kidsOf(s).filter(m=>{const g=ageOf(s,m);return g>=a&&g<=b});
+
+/* ================= 일반: 살면서 닥치는 위기 ================= */
+CR('dr_flood',{title:'한밤의 물난리',desc:'새벽 두 시, 강둑이 터졌다는 고함이 들립니다. 마당에 벌써 물이 발목까지 찼습니다. 손에 들 수 있는 건 하나뿐입니다.',hide:{mild:.55,severe:.45},
+ opts:[{t:'쌀자루를 지붕 위로 올린다',go:{mild:{food:1},severe:{food:.5,lost:.5}}},{t:'옆집 할머니부터 업고 나온다',go:{mild:{hero:1},severe:{hero:.7,hurt:.3}}},{t:'초상화부터 품에 안는다',go:{'*':{portrait:1}}}],good:{food:1,lost:-2,hero:2,hurt:0,portrait:0},
+ out:{food:()=>({t:'물이 빠지자 지붕 위 쌀자루만 멀쩡했습니다. 이웃들이 우리 집 앞에 줄을 섰습니다.',e:{hp:2,net:3}}),lost:s=>({t:'쌀자루도, 세간도 다 떠내려갔습니다. 남은 건 젖은 이불 한 채였습니다.',e:{money:-Math.round(s.money*.3),joy:-8}}),
+  hero:()=>({t:'할머니를 업고 언덕까지 뛰었습니다. 그 주에 할머니 아들이 쌀 한 자루를 들고 찾아왔습니다.',e:{net:8,joy:5,hp:-3}}),hurt:()=>({t:'할머니는 살렸지만 물살에 떠밀린 나무에 다리를 다쳤습니다.',e:{net:6,hp:-12}}),
+  portrait:s=>({t:'초상화는 무사했습니다. 다음 날 신문에 이름이 실렸습니다. 우리 집 살림은 다 젖었습니다.',e:{loyal:10,net:4,money:-Math.round(s.money*.25)}})}});
+CR('dr_demolish',{title:'철거 통지',desc:'우리 골목이 "새 거리 건설" 구역에 들어갔습니다. 보름 안에 집을 비우랍니다. 새 아파트를 준다는 말은 있는데, 누가 받는지는 아무도 모릅니다.',hide:{fair:.4,crooked:.6},
+ opts:[{t:'담당 간부에게 봉투를 건넨다',cost:s=>bribeCost(s,150),go:{fair:{flat:.8,shed:.2},crooked:{flat:.5,shed:.5}}},{t:'"새 아파트 입사증부터 달라" 버틴다',go:{fair:{flat:.6,out:.4},crooked:{out:.7,flat:.3}}},{t:'순순히 짐을 싼다',go:{'*':{shed:.6,rural:.4}}}],good:{flat:2,shed:-1,out:-2,rural:-2},
+ out:{flat:s=>(s.house='새 아파트',{t:'새 거리 아파트 9층 열쇠를 받았습니다. 엘리베이터는 멈춰 있었지만, 창문이 남쪽을 향했습니다.',e:{joy:8}}),shed:s=>(s.house='임시 판잣집',{t:'아파트 대신 공사장 옆 판잣집을 받았습니다. "곧 들어갈 수 있다"는 말만 3년째입니다.',e:{joy:-6,hp:-3}}),
+  out:s=>(s.house='친척 집 부엌방',{t:'버티던 날 아침 굴착기가 왔습니다. 짐 보따리를 들고 친척 집 부엌방으로 들어갔습니다.',e:{joy:-10,net:-3}}),rural:s=>(s.place={type:'rural',ko:pick(PLACES.rural.list)},s.house='농촌 단층집',{t:'도시 거주 자격이 없다며 시골로 보내졌습니다.',e:{joy:-8}})}});
+CR('dr_debt',{title:'문을 두드리는 빚쟁이',desc:'돈주 집 사람들이 밤에 찾아왔습니다. 지난번 빌린 돈의 이자가 원금만큼 불었답니다. "사흘 주겠소."',when:s=>s.money<2000,hide:{soft:.5,hard:.5},
+ opts:[{t:'집 안 물건을 내다 판다',go:{'*':{sell:1}}},{t:'다른 돈주에게 빌려 막는다',go:{soft:{roll:.7,spiral:.3},hard:{spiral:.6,roll:.4}}},{t:'밤에 짐을 싸서 다른 동네로 간다',go:{soft:{flee:.7,found:.3},hard:{found:.6,flee:.4}}}],good:{sell:0,roll:1,spiral:-2,flee:0,found:-2},
+ out:{sell:s=>{const ks=Object.keys(s.own||{}).filter(k=>s.own[k]);if(ks.length){const k=pick(ks);delete s.own[k];const it=SHOP.find(x=>x.k===k);return{t:`${it?it.ko:'세간'}${P(it?it.ko:'세간','을/를')} 내다 팔았습니다. 빚은 갚았지만 집이 휑해졌습니다.`,e:{joy:-5}}}return{t:'팔 것이 없어 이불과 그릇까지 내놨습니다. 빚은 겨우 갚았습니다.',e:{joy:-7,hp:-3}}},
+  roll:()=>({t:'다른 돈주 돈으로 막았습니다. 이자는 조금 낮았습니다. 한숨 돌렸습니다.',e:{joy:-2,flag:'debt'}}),spiral:s=>({t:'빚으로 빚을 막았습니다. 장부에 내 이름이 두 군데 적혔습니다. 다음 해 이자가 또 불었습니다.',e:{money:-Math.min(s.money,R(100,300)),joy:-8,flag:'debt'}}),
+  flee:s=>({t:'새벽에 이웃 동네로 옮겼습니다. 빚쟁이는 몇 달 뒤 다른 사람을 쫓고 있었습니다.',e:{net:-5,joy:-3}}),found:s=>({t:'옮긴 동네까지 빚쟁이가 찾아왔습니다. 이자에 "수고비"까지 붙었습니다.',e:{money:-Math.min(s.money,R(150,400)),joy:-8,risk:4}})}});
+CR('dr_note',{title:'익명의 투서',desc:'보안서에 투서가 들어갔답니다. 내가 밤마다 남쪽 드라마를 본다는 내용입니다. 누가 썼는지 짐작 가는 사람이 둘 있습니다.',hide:{weak:.55,strong:.45},
+ opts:[{t:'결백을 주장하고 집을 보여 준다',go:{weak:{clear:.8,found:.2},strong:{found:.6,clear:.4}}},{t:'투서를 쓴 사람을 먼저 찾아낸다',go:{'*':{culprit:.6,wrong:.4}}},{t:'담당 보안원에게 "인사"를 한다',cost:s=>bribeCost(s,80),go:{weak:{buried:1},strong:{buried:.6,found:.4}}}],good:{clear:2,found:-2,culprit:1,wrong:-1,buried:1},
+ out:{clear:()=>({t:'보안원이 집을 뒤졌지만 아무것도 나오지 않았습니다. 투서는 "허위"로 처리됐습니다.',e:{risk:-8,loyal:3}}),found:()=>({t:'장롱 밑 깊숙이 넣어 둔 USB가 나왔습니다. 장부에 이름이 올랐습니다.',e:{risk:22,joy:-6}}),
+  culprit:s=>(addContact(s,'이웃','grudge'),{t:'투서를 쓴 건 매대 자리를 두고 다툰 옆집이었습니다. 마주친 순간 그 사람이 먼저 눈을 피했습니다.',e:{risk:-4,net:-2}}),wrong:()=>({t:'엉뚱한 사람을 의심했습니다. 동네에 내가 사람을 의심한다는 소문만 났습니다.',e:{net:-6,joy:-3}}),
+  buried:()=>({t:'보안원이 봉투를 받고 투서를 서랍에 넣었습니다. "조심하시오."',e:{risk:-6}})}});
+CR('dr_missing',{title:'돌아오지 않는 아이',when:s=>kidIn(s,6,15).length>0,pre:s=>{s.tgt=pick(kidIn(s,6,15)).id},desc:s=>fillT('해가 졌는데 {s} 학교에서 돌아오지 않았습니다. 친구들은 오후에 역 쪽으로 가는 걸 봤답니다.',tgtOf(s)),hide:{station:.4,grandma:.35,street:.25},
+ opts:[{t:'역전으로 찾으러 뛰어간다',go:{station:{found:1},grandma:{late:1},street:{street:.6,found:.4}}},{t:'보안서에 신고한다',go:{station:{police:1},grandma:{police:1},street:{police:.5,street:.5}}},{t:'이웃들과 나눠서 동네를 뒤진다',go:{station:{late:.5,found:.5},grandma:{found:1},street:{late:.6,street:.4}}}],good:{found:2,late:1,police:0,street:-2},
+ out:{found:s=>{const m=tgtOf(s);bond(m,8);return{t:fillT('역 대합실 구석에서 {s} 졸고 있었습니다. 기차를 구경하고 싶었답니다. 업고 오는 길에 둘 다 울었습니다.',m),e:{joy:4}}},late:s=>{const m=tgtOf(s);return{t:fillT('밤새 찾다 새벽에야 소식이 왔습니다. {s} 외할머니 집에 혼자 걸어갔답니다.',m),e:{hp:-3,joy:2}}},
+  police:s=>({t:'보안원이 이름과 생김새를 적어 갔습니다. 다음 날 오후, 아이가 제 발로 돌아왔습니다. 신고 기록은 남았습니다.',e:{risk:3}}),street:s=>{const m=tgtOf(s);bond(m,-8);return{t:fillT('{s} 역전 아이들 무리에 섞여 일주일을 지냈습니다. 데려왔을 때 눈빛이 달라져 있었습니다.',m),e:{joy:-8}}}}});
+CR('dr_fakemed',{title:'가짜 약',when:s=>famAlive(s).some(m=>!m.left&&(m.par||m.sp||m.kid)),pre:s=>{s.tgt=pick(famAlive(s).filter(m=>!m.left&&(m.par||m.sp||m.kid))).id},desc:s=>fillT('장마당에서 비싸게 산 중국 약을 먹고도 {s} 열이 내리지 않습니다. 약 상자를 다시 보니 글씨가 이상합니다.',tgtOf(s)),hide:{mild:.6,bad:.4},
+ opts:[{t:'약장수를 찾아가 따진다',go:{'*':{refund:.5,denied:.5}}},{t:'병원 의사에게 업고 간다',cost:()=>40,go:{mild:{doctor:1},bad:{doctor:.7,long:.3}}},{t:'할머니 민간요법을 믿는다',go:{mild:{herb:.7,long:.3},bad:{long:.7,herb:.3}}}],good:{refund:1,denied:-1,doctor:2,long:-2,herb:1},
+ out:{refund:()=>({t:'약장수가 주위 눈치를 보더니 돈을 돌려줬습니다. "다른 데 가서 말하지 마시오."',e:{money:30}}),denied:()=>({t:'약장수가 "그런 약 판 적 없다"며 등을 돌렸습니다. 장마당 사람들이 구경만 했습니다.',e:{joy:-4}}),
+  doctor:s=>{const m=tgtOf(s);bond(m,6);return{t:fillT('의사가 진짜 약을 어디선가 구해 왔습니다. 사흘 만에 {s} 일어났습니다.',m),e:{joy:5}}},long:s=>{const m=tgtOf(s);bond(m,-3);return{t:fillT('한 달을 앓았습니다. {s} 일어났지만 그해 내내 기운이 없었습니다.',m),e:{joy:-6}}},
+  herb:()=>({t:'할머니가 끓인 약초 물을 사흘 먹이자 열이 내렸습니다. 운이 좋았습니다.',e:{joy:3}})}});
+CR('dr_lodger',{title:'수상한 하숙생',desc:'방 한 칸을 빌려 간 젊은 남자가 자꾸 이것저것 묻습니다. 국경 쪽 길, 이웃들 이름, 우리 집 라디오.',hide:{informer:.45,broker:.35,plain:.2},
+ opts:[{t:'내보낸다',go:{'*':{out:1}}},{t:'모른 척 하숙비만 받는다',go:{informer:{watched:1},broker:{offer:1},plain:{plain:1}}},{t:'보안서에 먼저 알린다',go:{informer:{praised:1},broker:{reported:1},plain:{shame:1}}}],good:{out:0,watched:-2,offer:1,plain:1,praised:1,reported:0,shame:-1},
+ out:{out:()=>({t:'짐을 싸서 나가라고 했습니다. 그 사람이 웃으며 "현명하시네요" 했습니다. 그 말이 오래 걸렸습니다.',e:{risk:-3}}),watched:()=>({t:'몇 달 뒤 그 사람이 보위부 사람이었다는 걸 알았습니다. 우리 집 이야기가 보고서 몇 장이 됐습니다.',e:{risk:18}}),
+  offer:s=>(addContact(s,'브로커','favor'),{t:'떠나기 전날 밤 그 사람이 속삭였습니다. "강 건너는 일이 필요하면 이 번호로." 브로커였습니다.',e:{outside:4}}),plain:()=>({t:'그냥 호기심 많은 시골 청년이었습니다. 하숙비를 꼬박꼬박 냈습니다.',e:{money:R(30,80)}}),
+  praised:()=>({t:'보안서가 오히려 고마워했습니다. 그 사람은 보위부 쪽 사람이었고, 내 신고가 "충실성 시험" 통과로 기록됐습니다.',e:{loyal:6,risk:-8}}),reported:()=>({t:'그 사람이 끌려갔습니다. 국경 쪽 사람들 사이에 내가 신고했다는 말이 돌았습니다.',e:{loyal:4,net:-6}}),
+  shame:()=>({t:'그냥 시골 청년이었습니다. 조사를 받고 풀려난 청년이 짐을 싸면서 나를 쳐다보지 않았습니다.',e:{joy:-4,net:-2}})}});
+CR('dr_cold',{title:'혹한',desc:'영하 25도. 석탄이 바닥났습니다. 장마당 석탄값이 지난달의 두 배입니다. 아이들 입김이 방 안에서도 하얗습니다.',
+ opts:[{t:'가진 돈을 털어 석탄을 산다',go:{'*':{buy:1}}},{t:'가구를 뜯어 땐다',go:{'*':{furn:.7,smoke:.3}}},{t:'이웃 집과 한 방에 모여 지낸다',go:{'*':{share:.7,fight:.3}}}],good:{buy:1,furn:0,smoke:-2,share:1,fight:-1},
+ out:{buy:s=>({t:'석탄 한 수레가 들어왔습니다. 그해 겨울 처음으로 아랫목이 따뜻했습니다.',e:{money:-Math.min(s.money,R(60,160)),hp:4}}),furn:()=>({t:'장롱 문짝부터 뜯어 땠습니다. 봄이 왔을 때 집에 남은 가구는 상 하나였습니다.',e:{joy:-4,hp:1}}),
+  smoke:()=>({t:'젖은 나무를 땐 밤, 방 안에 연기가 찼습니다. 다들 머리가 깨질 듯 아팠습니다.',e:{hp:-10}}),share:()=>({t:'두 집 식구가 한 방에서 겨울을 났습니다. 봄이 오자 두 집이 친척처럼 됐습니다.',e:{net:6,joy:3}}),
+  fight:()=>({t:'한 방에서 지내다 식량 문제로 다툼이 났습니다. 봄이 오자 서로 인사도 안 합니다.',e:{net:-5,joy:-3}})}});
+CR('dr_raidhome',{title:'중앙 검열단의 가택 수색',desc:'"비사회주의 그루빠"가 동네 집집을 뒤진답니다. 오늘 오후 우리 골목입니다. 집에는 외국 물건이 몇 개 있습니다.',when:s=>Object.keys(s.own||{}).length>0||s.outside>=20,hide:{thorough:.5,lazy:.5},
+ opts:[{t:'아궁이와 천장에 숨긴다',go:{thorough:{found:.5,safe:.5},lazy:{safe:1}}},{t:'옆집 할머니 집에 맡긴다',go:{'*':{grandma:.7,both:.3}}},{t:'일부러 몇 개만 내놓는다',go:{thorough:{decoy:.7,found:.3},lazy:{decoy:1}}}],good:{found:-2,safe:2,grandma:1,both:-2,decoy:1},
+ out:{found:s=>({t:'천장에서 남쪽 화장품이 나왔습니다. 물건은 압수되고 이름이 올랐습니다.',e:{risk:18,money:-Math.min(s.money,R(50,200))}}),safe:()=>({t:'검열단이 아궁이 앞에서 담배만 피우고 갔습니다.',e:{risk:-3}}),
+  grandma:s=>(addContact(s,'이웃','favor'),{t:'할머니가 물건을 이불장 깊숙이 넣어 줬습니다. 검열단은 할머니 집 문턱도 넘지 않았습니다.',e:{net:4}}),both:()=>({t:'할머니 집까지 뒤졌습니다. 할머니가 "내 거"라고 우겼습니다. 그 말 때문에 할머니가 대신 불려 갔습니다.',e:{joy:-10,net:-2,risk:6}}),
+  decoy:()=>({t:'중국 비누 몇 개를 내놓자 검열단이 그걸 챙겨 들고 만족해서 돌아갔습니다.',e:{risk:-2,money:-20}})}});
+CR('dr_robbed',{title:'털린 매대',when:s=>s.dir==='trade'||s.own.stall||['e83','gadu','trader'].includes(s.jobK),desc:'아침에 장마당에 나가 보니 매대가 털려 있습니다. 한 달 치 물건이 사라졌습니다. 옆 매대 사람은 아무것도 못 봤답니다.',hide:{kids:.4,rival:.35,guard:.25},
+ opts:[{t:'직접 범인을 쫓는다',go:{kids:{kids:1},rival:{rival:1},guard:{guardx:1}}},{t:'보안원에게 신고한다',go:{kids:{policeK:1},rival:{policeR:1},guard:{nothing:1}}},{t:'털고 다시 시작한다',go:{'*':{restart:1}}}],good:{kids:1,rival:1,guardx:-2,policeK:0,policeR:1,nothing:-1,restart:0},
+ out:{kids:()=>({t:'역전 아이들이었습니다. 물건 절반은 이미 팔렸습니다. 남은 물건을 돌려받고 아이들에게 빵을 사 줬습니다.',e:{net:3,money:-40}}),rival:s=>(addContact(s,'장마당 상인','grudge'),{t:'건너편 매대 사람이 내 물건을 팔고 있었습니다. 따지자 장마당이 시끄러워졌습니다. 물건은 돌려받았습니다.',e:{net:-2,joy:2}}),
+  guardx:()=>({t:'훔친 건 장마당 경비였습니다. 따지러 갔다가 오히려 "자릿세 미납"으로 몰렸습니다.',e:{risk:8,money:-60}}),policeK:()=>({t:'보안원이 역전 아이들을 잡아 갔습니다. 물건은 돌아오지 않았습니다.',e:{joy:-3}}),
+  policeR:()=>({t:'보안원이 건너편 매대를 뒤져 물건을 찾아 줬습니다. 수고비로 절반을 떼어 갔습니다.',e:{money:-30}}),nothing:()=>({t:'신고했지만 보안원은 하품만 했습니다.',e:{joy:-4}}),
+  restart:s=>({t:'외상으로 물건을 떼어 다시 매대를 차렸습니다. 이번엔 자물쇠를 두 개 달았습니다.',e:{money:-Math.min(s.money,R(50,150)),joy:-2}})}});
+CR('dr_letter',{title:'교화소에서 온 쪽지',when:s=>s.age>=25,desc:'교화소에 간 사촌의 쪽지가 몰래 전해졌습니다. "굶어 죽게 생겼다. 옥수수 한 자루만." 면회를 가려면 여행증명서와 뇌물이 필요합니다.',hide:{ok:.6,trap:.4},
+ opts:[{t:'옥수수를 지고 면회를 간다',cost:()=>60,go:{ok:{visit:1},trap:{visit:.6,noted:.4}}},{t:'돈만 전달인에게 보낸다',cost:()=>40,go:{ok:{sent:.6,stolen:.4},trap:{stolen:1}}},{t:'모른 척한다',go:{'*':{ignore:1}}}],good:{visit:2,noted:-1,sent:1,stolen:-1,ignore:-1},
+ out:{visit:()=>({t:'철창 너머 사촌이 옥수수 자루를 끌어안았습니다. 돌아오는 기차에서 한마디도 하지 못했습니다.',e:{joy:2,net:4,outside:3}}),noted:()=>({t:'면회는 했지만 면회자 명단에 내 이름이 올랐습니다. 보위원이 그 명단을 들여다봤습니다.',e:{risk:10}}),
+  sent:()=>({t:'몇 달 뒤 사촌의 짧은 쪽지가 왔습니다. "받았다. 살았다."',e:{joy:4}}),stolen:()=>({t:'전달인이 돈을 들고 사라졌습니다. 사촌은 끝내 아무것도 받지 못했습니다.',e:{joy:-5}}),ignore:()=>({t:'쪽지를 태웠습니다. 그날 밤 잠이 오지 않았습니다.',e:{joy:-6}})}});
+CR('dr_workfire',{title:'공장 화재의 책임',when:s=>['factory','mine','clerk','e83'].includes(s.jobK),desc:'직장 창고에 불이 났습니다. 그날 당직이 나였습니다. 조사관이 "원인"을 찾고 있습니다.',hide:{wiring:.5,someone:.5},
+ opts:[{t:'낡은 전선 탓이라고 보고서를 쓴다',go:{wiring:{clear:1},someone:{clear:.5,doubt:.5}}},{t:'진짜 원인을 끝까지 찾는다',go:{wiring:{wire2:1},someone:{culprit:.7,doubt:.3}}},{t:'지배인에게 책임을 나눠 달라고 한다',cost:s=>bribeCost(s,80),go:{'*':{share:1}}}],good:{clear:1,doubt:-2,wire2:1,culprit:2,share:0},
+ out:{clear:()=>({t:'"노후 전선 합선"으로 결론 났습니다. 전선은 그 뒤로도 바뀌지 않았습니다.',e:{risk:-3}}),doubt:()=>({t:'조사관이 내 보고서를 믿지 않았습니다. 생활총화에서 집중 비판을 받았습니다.',e:{risk:12,loyal:-4}}),
+  wire2:()=>({t:'끝까지 따진 끝에 전선 교체 예산이 중간에 사라졌다는 걸 알아냈습니다. 그 일로 이름이 알려졌습니다.',e:{net:4,loyal:3,risk:4}}),culprit:()=>({t:'창고 물건을 빼돌리던 사람이 흔적을 지우려 불을 낸 거였습니다. 누명을 벗었습니다.',e:{loyal:5,risk:-8,net:3}}),
+  share:()=>({t:'지배인이 봉투를 받고 "공동 책임"으로 정리했습니다. 둘 다 경고 한 장으로 끝났습니다.',e:{risk:-4}})}});
+CR('dr_epidemic',{title:'열병 격리',desc:'우리 인민반에서 열병 환자가 나왔습니다. 골목 전체가 한 달 격리랍니다. 문 앞에 보초가 섭니다. 집에 식량은 열흘 치뿐입니다.',
+ opts:[{t:'몰래 밤에 장마당에 다녀온다',go:{'*':{sneak:.6,caught:.4}}},{t:'이웃과 식량을 나눈다',go:{'*':{share:.8,short:.2}}},{t:'보초에게 담배를 주고 물건을 부탁한다',cost:()=>30,go:{'*':{guard:.7,cheat:.3}}}],good:{sneak:1,caught:-2,share:2,short:-1,guard:1,cheat:-1},
+ out:{sneak:()=>({t:'담을 넘어 장마당에 다녀왔습니다. 그 밤에 사 온 옥수수로 격리를 버텼습니다.',e:{hp:2,risk:4}}),caught:()=>({t:'담을 넘다 보초에게 걸렸습니다. "방역 위반"으로 노동단련대 한 달을 받았습니다.',e:{risk:10,hp:-8}}),
+  share:()=>({t:'골목 사람들이 식량을 한데 모았습니다. 한 달 동안 한솥밥을 먹었습니다.',e:{net:8,hp:-2,joy:3}}),short:()=>({t:'나누다 보니 다들 모자랐습니다. 격리가 풀린 날, 모두 얼굴이 누렇게 떴습니다.',e:{hp:-8,net:3}}),
+  guard:()=>({t:'보초가 담배를 받고 쌀 한 봉지를 들여다 줬습니다.',e:{hp:2}}),cheat:()=>({t:'보초가 담배만 받고 모른 척했습니다.',e:{joy:-3}})}});
+CR('dr_parent',{title:'쓰러진 부모님',when:s=>parentsOf(s).some(m=>ageOf(s,m)>=62),pre:s=>{s.tgt=pick(parentsOf(s).filter(m=>ageOf(s,m)>=62)).id},desc:s=>fillT('{s} 장마당에서 쓰러졌습니다. 누군가 곁에 있어야 합니다. 직장에 빠지면 결근 처리, 장사를 쉬면 벌이가 끊깁니다.',tgtOf(s)),
+ opts:[{t:'직장을 빠지고 곁을 지킨다',go:{'*':{stay:.7,bossmad:.3}}},{t:'형제들에게 번갈아 맡자고 한다',go:{'*':{share:.6,fight:.4}}},{t:'돈을 들여 간병인을 구한다',cost:()=>120,go:{'*':{paid:1}}}],good:{stay:2,bossmad:0,share:1,fight:-1,paid:1},
+ out:{stay:s=>{const m=tgtOf(s);bond(m,12);return{t:fillT('석 달 동안 곁을 지켰습니다. {s} 내 손을 잡고 "고생했다"고 했습니다.',m),e:{joy:4,money:-30}}},bossmad:s=>{const m=tgtOf(s);bond(m,10);return{t:'곁을 지키는 사이 직장에서 결근 처리가 쌓였습니다. 생활총화에서 비판을 받았습니다.',e:{risk:6,joy:2}}},
+  share:()=>({t:'형제들과 번갈아 간병했습니다. 그 겨울 형제들이 오랜만에 한 집에 모였습니다.',e:{net:3,joy:3}}),fight:()=>({t:'누가 더 하느냐로 형제들끼리 언성이 높아졌습니다. 부모님이 그 소리를 다 들었습니다.',e:{joy:-6}}),
+  paid:()=>({t:'이웃 아주머니가 간병을 맡았습니다. 돈은 들었지만 마음은 놓였습니다.',e:{joy:2}})}});
+CR('dr_breakup',{title:'성분 조사',when:s=>!!s.date&&!s.married,desc:s=>`${s.date.name}의 집안에서 우리 집 성분을 뒤졌다고 합니다. 할아버지 대의 기록이 문제랍니다. 그쪽 어머니가 만나지 말라고 했답니다.`,hide:{firm:.5,weak:.5},
+ opts:[{t:'둘이서 그 집 어머니를 찾아간다',go:{firm:{bless:.6,no:.4},weak:{no:.7,bless:.3}}},{t:'몰래 계속 만난다',go:{'*':{secret:.6,caught:.4}}},{t:'놓아준다',go:{'*':{let:1}}}],good:{bless:2,no:-1,secret:1,caught:-1,let:-1},
+ out:{bless:s=>(s.date.bond=clamp(s.date.bond+15,0,100),{t:'그 집 어머니가 한참 나를 보더니 말했습니다. "성분은 바꿀 수 없어도 사람은 볼 수 있지." 허락이 떨어졌습니다.',e:{joy:10}}),no:s=>(s.date.bond=clamp(s.date.bond-10,0,100),{t:'문전박대를 당했습니다. 돌아오는 길에 둘이서 말없이 걸었습니다.',e:{joy:-6}}),
+  secret:s=>(s.date.bond=clamp(s.date.bond+8,0,100),{t:'강둑에서 몰래 만났습니다. 숨어서 만나는 게 오히려 더 애틋했습니다.',e:{joy:5,risk:2}}),caught:s=>(s.date.bond=clamp(s.date.bond-15,0,100),{t:'그 집 오빠에게 들켰습니다. 그쪽 집에서 혼사 이야기를 서두르기 시작했습니다.',e:{joy:-7}}),
+  let:s=>{const n=s.date.name;s.date=null;return{t:`${n}에게 그만 만나자고 했습니다. 마지막 날 강둑에서 아무 말도 하지 않았습니다.`,e:{joy:-10}}}}});
+CR('dr_powerout',{title:'변압기 도난',desc:'우리 동네 변압기가 밤사이 통째로 사라졌습니다. 구리선을 노린 도둑이랍니다. 보안서는 동네 사람들이 돈을 모아 새로 사 오랍니다.',
+ opts:[{t:'앞장서서 돈을 걷는다',go:{'*':{lead:.7,blame:.3}}},{t:'내 몫만 낸다',cost:()=>20,go:{'*':{pay:1}}},{t:'"우리 집은 원래 전기 안 들어온다" 버틴다',go:{'*':{dark:1}}}],good:{lead:2,blame:-1,pay:0,dark:-1},
+ out:{lead:()=>({t:'석 달 만에 새 변압기가 들어왔습니다. 불이 켜지던 밤, 골목 사람들이 우리 집에 술을 들고 왔습니다.',e:{net:8,joy:5,money:-40}}),blame:()=>({t:'돈을 걷다 일부가 모자랐습니다. "앞장선 사람이 먹었다"는 말이 돌았습니다.',e:{net:-6,joy:-4}}),
+  pay:()=>({t:'몫만 냈습니다. 넉 달 만에 불이 들어왔습니다.',e:{}}),dark:()=>({t:'버텼더니 우리 집만 전선을 연결해 주지 않았습니다. 그해 겨울 밤이 길었습니다.',e:{joy:-5,net:-4}})}});
+
+/* ================= 백두혈통: 관저를 흔드는 위기 ================= */
+CR('rd_leak',{royal:1,min:20,title:'외국 신문의 폭로',desc:'외국 유력 신문 1면에 내 해외 계좌와 사치품 목록이 실렸습니다. 사진까지 있습니다. 관저 안에서 누가 흘렸다는 뜻입니다.',hide:{insider:.5,hacked:.5},
+ opts:[{t:'"날조"라고 공식 부인한다',go:{'*':{deny:.6,worse:.4}}},{t:'흘린 사람을 찾아낸다',go:{insider:{found:1},hacked:{nofind:1}}},{t:'아무 일 없다는 듯 해외 일정을 강행한다',go:{'*':{bold:.5,cancel:.5}}}],good:{deny:1,worse:-2,found:1,nofind:-1,bold:1,cancel:-1},
+ out:{deny:()=>({t:'평양 방송이 "제국주의 언론의 날조"라고 반박했습니다. 외국 신문은 그다음 주 다른 기사로 넘어갔습니다.',e:{risk:-3}}),worse:s=>({t:'부인하자 신문이 두 번째 기사를 냈습니다. 이번엔 계좌 번호까지 나왔습니다. 계좌 두 개가 동결됐습니다.',e:{money:-Math.round(s.money*.15),risk:8}}),
+  found:()=>({t:'흘린 사람은 해외 담당 비서였습니다. 그는 조용히 지방 기관으로 발령 났습니다.',e:{risk:-6,net:-2}}),nofind:()=>({t:'아무리 찾아도 관저 안에 흘린 사람은 없었습니다. 누군가 바깥에서 들여다보고 있다는 뜻이었습니다.',e:{risk:6,outside:4}}),
+  bold:()=>({t:'예정대로 해외 일정을 소화했습니다. 기자들의 질문에 웃기만 했습니다. 다음 날 사진이 더 많이 실렸지만, 아무도 그 일을 다시 꺼내지 않았습니다.',e:{outside:5,joy:3}}),cancel:()=>({t:'해외 일정이 갑자기 취소됐습니다. 외국 신문이 "숨었다"고 썼습니다.',e:{joy:-4}})}});
+CR('rd_rumor',{royal:1,min:18,when:s=>!s.flags.leader,title:'후계 소문',desc:'관저 복도에 소문이 돕니다. 아버지가 다른 형제를 더 자주 부른다는 겁니다. 원로들 인사 방향이 미묘하게 바뀌었습니다.',hide:{true:.5,false:.5},
+ opts:[{t:'아버지께 직접 찾아간다',go:{true:{cold:.6,warm:.4},false:{warm:1}}},{t:'원로들을 연회에 초대한다',cost:()=>500000,go:{'*':{feast:.7,flop:.3}}},{t:'소문을 무시하고 일에 몰두한다',go:{true:{fade:.5,lose:.5},false:{fade:1}}}],good:{cold:-1,warm:2,feast:1,flop:-1,fade:1,lose:-2},
+ out:{cold:()=>({t:'아버지는 서류에서 눈을 떼지 않았습니다. "할 일이나 해라." 그 말이 전부였습니다.',e:{joy:-6,risk:5}}),warm:s=>(s.flags.power=(s.flags.power||0)+10,{t:'아버지가 웃으며 소문을 들었다고 했습니다. "그런 말에 흔들리면 못 쓴다." 다음 날 내게 중요한 일이 맡겨졌습니다.',e:{joy:6,loyal:4}}),
+  feast:s=>(s.flags.power=(s.flags.power||0)+6,{t:'원로 열 명 중 일곱이 왔습니다. 연회가 끝날 때쯤 소문의 방향이 바뀌어 있었습니다.',e:{net:8}}),flop:()=>({t:'초대한 원로 중 절반이 "선약"을 핑계로 오지 않았습니다. 빈자리가 소문보다 더 크게 말했습니다.',e:{net:-4,joy:-4}}),
+  fade:()=>({t:'소문은 한 계절 만에 잦아들었습니다.',e:{}}),lose:s=>(s.flags.power=Math.max(0,(s.flags.power||0)-10),{t:'소문을 무시하는 사이, 형제 쪽 사람들이 요직을 하나씩 채웠습니다.',e:{risk:8,net:-4}})}});
+CR('rd_aide',{royal:1,min:22,title:'사라진 측근',desc:'해외 출장 중이던 측근 하나가 연락이 끊겼습니다. 제3국 대사관에 들어갔다는 첩보입니다. 그는 내 계좌와 일정을 다 압니다.',hide:{talk:.5,quiet:.5},
+ opts:[{t:'계좌와 일정을 모두 바꾼다',cost:()=>1500000,go:{'*':{change:1}}},{t:'그쪽 정부에 외교 경로로 송환을 요구한다',go:{talk:{refused:1},quiet:{refused:.6,back:.4}}},{t:'"그런 사람은 원래 없었다"고 기록을 지운다',go:{talk:{expose:1},quiet:{erased:1}}}],good:{change:1,refused:-1,back:1,expose:-2,erased:1},
+ out:{change:()=>({t:'계좌 열두 개를 모두 옮기고 경호 동선을 다 바꿨습니다. 그가 아는 것은 이제 지난 일입니다.',e:{risk:-6}}),refused:()=>({t:'그쪽 정부가 "본인 의사"라며 거절했습니다. 몇 달 뒤 그의 회고록이 출간된다는 소식이 들렸습니다.',e:{risk:6,outside:3}}),
+  back:()=>({t:'그가 마음을 바꿔 스스로 돌아왔습니다. 그 뒤로 그는 지방의 작은 기관에서 조용히 일합니다.',e:{risk:-3}}),expose:()=>({t:'기록을 지운 다음 주, 그가 외국 방송에 나와 관저의 일상을 이야기했습니다.',e:{risk:10,outside:5,joy:-4}}),
+  erased:()=>({t:'그의 이름이 모든 서류에서 사라졌습니다. 그도 바깥에서 조용히 지내는 쪽을 택했습니다.',e:{}})}});
+CR('rd_famine',{royal:1,min:20,title:'숫자 뒤의 굶주림',desc:'북부 세 개 도의 식량 보고서가 올라왔습니다. 숫자가 이상합니다. 담당자가 "실제는 이보다 훨씬 나쁘다"고 귓속말을 합니다.',
+ opts:[{t:'군 비축미를 푼다',go:{'*':{rice:.8,army:.2}}},{t:'국제 원조를 받아들인다',go:{'*':{aid:.7,cond:.3}}},{t:'보고서를 고쳐 쓰게 한다',go:{'*':{hide:1}}}],good:{rice:2,army:0,aid:2,cond:0,hide:-2},
+ out:{rice:s=>(s.flags.royalKind=s.flags.royalKind||s.year,{t:'비축미 트럭이 북쪽으로 올라갔습니다. 그해 봄, 북부의 장마당 쌀값이 절반으로 떨어졌습니다.',e:{joy:6,loyal:3}}),army:()=>({t:'비축미를 풀자 군 원로들이 불만을 터뜨렸습니다. 그래도 쌀은 올라갔습니다.',e:{joy:3,risk:6}}),
+  aid:()=>({t:'국제기구 쌀 포대가 항구에 들어왔습니다. 포대에 찍힌 외국 글자를 사람들이 오래 쳐다봤습니다.',e:{joy:5,outside:6}}),cond:()=>({t:'원조에 "분배 감시" 조건이 붙었습니다. 외국 감시단이 지방을 돌았습니다. 원로들이 싫어했습니다.',e:{outside:8,risk:4}}),
+  hide:()=>({t:'보고서의 숫자가 고쳐졌습니다. 그해 북부에서 들려오는 소식은 없었습니다. 소식이 없다는 게 소식이었습니다.',e:{joy:-8,loyal:4}})}});
+CR('rd_freeze',{royal:1,min:20,title:'계좌 동결',desc:'새 제재가 발표됐습니다. 유럽과 아시아의 가명 계좌 다섯 개가 한꺼번에 동결됐습니다. 관저 살림 넉 달 치입니다.',hide:{partial:.5,total:.5},
+ opts:[{t:'변호사를 사서 소송을 건다',cost:()=>800000,go:{partial:{win:.6,lose:.4},total:{lose:.7,win:.3}}},{t:'남은 계좌를 금괴로 바꿔 둔다',go:{'*':{gold:1}}},{t:'관저 씀씀이를 줄인다',go:{'*':{tight:1}}}],good:{win:2,lose:-1,gold:1,tight:0},
+ out:{win:()=>({t:'계좌 셋이 풀렸습니다. 외국 신문은 "제재의 구멍"이라고 썼습니다.',e:{money:R(3000000,8000000)}}),lose:s=>({t:'소송은 졌고, 변호사 이름까지 기사에 났습니다.',e:{money:-Math.round(s.money*.1),joy:-4}}),
+  gold:()=>({t:'남은 돈을 금괴로 바꿔 관저 지하 금고에 넣었습니다. 금고 열쇠는 나만 가집니다.',e:{risk:-3}}),tight:()=>({t:'연회를 줄이고 요트를 묶어 뒀습니다. 관저 사람들이 처음으로 "절약"이라는 말을 들었습니다.',e:{joy:-3,loyal:2}})}});
+CR('rd_flood',{royal:1,min:18,title:'대홍수',desc:'태풍이 지나간 뒤 북부에서 강이 넘쳤습니다. 마을 열몇 개가 물에 잠겼다는 보고입니다. 외국 구호 단체들이 도움을 제안합니다.',
+ opts:[{t:'직접 현장에 간다',go:{'*':{visit:.7,stuck:.3}}},{t:'국제 구호를 받아들인다',go:{'*':{aid:1}}},{t:'"자력갱생"을 지시하고 보도를 막는다',go:{'*':{self:1}}}],good:{visit:2,stuck:0,aid:2,self:-2},
+ out:{visit:s=>(s.flags.royalKind=s.flags.royalKind||s.year,{t:'진흙탕 속에서 이재민들과 마주 앉았습니다. 그 사진이 나라 전체에 퍼졌습니다.',e:{joy:4,net:6,loyal:4}}),stuck:()=>({t:'현장으로 가던 차가 진흙에 빠졌습니다. 경호원들이 차를 미는 사진이 외국 신문에 실렸습니다.',e:{joy:-2,outside:3}}),
+  aid:()=>({t:'구호 물자를 실은 외국 비행기가 처음으로 북부 공항에 내렸습니다. 이재민 천막에 외국 글자가 찍혔습니다.',e:{outside:8,joy:5}}),self:()=>({t:'보도가 막혔습니다. 이재민들은 그해 겨울을 천막에서 났습니다. 그 소식은 몇 년 뒤에야 밖으로 나왔습니다.',e:{joy:-6,loyal:3}})}});
+CR('rd_kidrun',{royal:1,min:35,when:s=>kidsOf(s).some(m=>ageOf(s,m)>=15&&ageOf(s,m)<=24),pre:s=>{s.tgt=pick(kidsOf(s).filter(m=>ageOf(s,m)>=15&&ageOf(s,m)<=24)).id},title:'유학 간 아이의 전화',desc:s=>fillT('유학 중인 {s} 새벽에 전화를 걸어왔습니다. "돌아가기 싫어요. 여기서 살고 싶어요." 수화기 너머로 낯선 도시의 소음이 들립니다.',tgtOf(s)),
+ opts:[{t:'"네 마음대로 해라"',go:{'*':{free:1}}},{t:'"한 번만 돌아와서 이야기하자"',go:{'*':{back:.5,stay:.5}}},{t:'당장 귀국시키라고 지시한다',go:{'*':{force:.6,lost:.4}}}],good:{free:1,back:1,stay:0,force:-1,lost:-2},
+ out:{free:s=>{const m=tgtOf(s);bond(m,12);return{t:fillT('수화기 너머로 {s} 한참 울었습니다. 몇 해 뒤, 그 도시에서 찍은 가족사진이 외교 행낭에 들어 있었습니다.',m),e:{joy:3,outside:6}}},back:s=>{const m=tgtOf(s);bond(m,4);return{t:fillT('{s} 돌아왔습니다. 밤새 이야기했습니다. 아이는 평양에 남기로 했지만, 방에는 그 도시 사진이 걸렸습니다.',m),e:{joy:4}}},
+  stay:s=>{const m=tgtOf(s);return{t:fillT('{s} 돌아오지 않았습니다. 대신 해마다 생일에 짧은 편지가 옵니다.',m),e:{joy:-3,outside:4}}},force:s=>{const m=tgtOf(s);bond(m,-15);return{t:fillT('{s} 귀국했습니다. 공항에서 나를 보고도 아무 말이 없었습니다.',m),e:{joy:-6}}},
+  lost:s=>{const m=tgtOf(s);m.st='해외에 남음';m.left=1;m.leftY=s.year;bond(m,-20);return{t:fillT('귀국 지시가 떨어진 날, {s} 그 나라 정부에 보호를 요청했습니다. 신문 1면에 아이 얼굴이 실렸습니다.',m),e:{joy:-12,risk:6,outside:6}}}}});
+CR('rd_blackout',{royal:1,min:18,title:'평양 대정전',desc:'국경절 축하 행사 한 시간 전, 평양 전체의 전기가 나갔습니다. 외국 대표단이 이미 도착해 있습니다.',hide:{quick:.5,long:.5},
+ opts:[{t:'행사를 촛불 행사로 바꾼다',go:{quick:{candle:1},long:{candle:1}}},{t:'군 발전기를 모두 끌어온다',go:{quick:{gen:1},long:{gen:.5,fail:.5}}},{t:'행사를 연기한다',go:{'*':{delay:1}}}],good:{candle:2,gen:1,fail:-2,delay:0},
+ out:{candle:()=>({t:'광장에 촛불 수만 개가 켜졌습니다. 외국 대표단이 그 장면을 찍어 갔습니다. 다음 날 외국 신문 사진이 아름다웠습니다.',e:{joy:6,outside:4}}),gen:()=>({t:'발전기 소리 속에서 행사가 시작됐습니다. 군 부대 몇 곳은 그날 밤 깜깜했습니다.',e:{net:3}}),
+  fail:()=>({t:'발전기 절반이 돌지 않았습니다. 어두운 광장이 외국 방송 생중계로 나갔습니다.',e:{joy:-6,outside:3}}),delay:()=>({t:'행사가 하루 미뤄졌습니다. 공식 발표는 "날씨 사정"이었습니다. 하늘은 맑았습니다.',e:{joy:-2}})}});
+CR('rd_spouse',{royal:1,min:28,when:s=>!!spouseOf(s),title:'배우자의 비밀',desc:'배우자가 몇 달째 밤마다 외국 방송을 몰래 듣는다는 보고가 올라왔습니다. 보고서를 올린 건 배우자의 비서입니다.',
+ opts:[{t:'직접 물어본다',go:{'*':{talk:.7,cold:.3}}},{t:'보고서를 태우고 비서를 바꾼다',go:{'*':{burn:1}}},{t:'나도 같이 듣는다',go:{'*':{together:1}}}],good:{talk:2,cold:-1,burn:1,together:2},
+ out:{talk:s=>{bond(spouseOf(s),10);return{t:'배우자가 한참 망설이다 털어놨습니다. "바깥 세상이 궁금했어요." 그 밤 처음으로 서로 솔직했습니다.',e:{joy:6,outside:3}}},cold:s=>{bond(spouseOf(s),-12);return{t:'배우자가 "감시당하는 줄 몰랐다"며 방문을 닫았습니다. 그 뒤로 관저 저녁 식탁이 조용해졌습니다.',e:{joy:-6}}},
+  burn:s=>{bond(spouseOf(s),5);return{t:'보고서를 태우고 비서를 다른 곳으로 보냈습니다. 배우자는 끝내 그 일을 몰랐습니다.',e:{risk:-2}}},together:s=>{bond(spouseOf(s),15);return{t:'다음 날 밤, 둘이 이불 속에서 같은 방송을 들었습니다. 외국 노래가 나오자 배우자가 웃었습니다.',e:{joy:8,outside:6,risk:2}}}}});
+
+/* ---------- 해마다 위기가 따로 찾아옵니다 ---------- */
+function crisisP(s){const st=stageOf(s);if(st!=='adult'&&st!=='royal')return 0;return clamp(.16+s.risk/400+(eraOf(s)?.05:0),0,.35)}
+function pickCrisis(s){const L=Object.values(EVS).filter(e=>e.crisis&&eligible(s,e));if(!L.length)return null;return wpick(L.map(e=>[e.id,dv(s,e.w)||1]))}
+Object.assign(EV_TAGS,{dr_note:'auth',dr_raidhome:'auth',dr_lodger:'auth',dr_workfire:'auth',dr_debt:'deal',dr_robbed:'deal',dr_demolish:'deal',dr_flood:'danger',dr_cold:'danger',dr_epidemic:'danger',dr_fakemed:'fam',dr_missing:'fam',dr_parent:'fam'});
 
 /* ================================================================
    2600만 분의 1 — 결말 (위에서부터 먼저 맞는 것 하나)
