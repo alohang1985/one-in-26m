@@ -1042,7 +1042,7 @@ const dv=(s,f)=>typeof f==='function'?f(s):f;
 function eligible(s,e){if(!e.pool)return false;if(s.royal&&!e.royalOK)return false;if((s.seen[e.id]||0)>=(e.max||1))return false;if(e.min!=null&&s.age<e.min)return false;if(e.maxAge!=null&&s.age>e.maxAge)return false;
  if(e.stage&&!e.stage.includes(stageOf(s)))return false;if(e.tier&&!e.tier.includes(tierOf(s)))return false;if(e.when&&!e.when(s))return false;return true}
 function pickEvent(s){const L=Object.values(EVS).filter(e=>eligible(s,e));if(!L.length)return null;return wpick(L.map(e=>[e.id,(dv(s,e.w)||1)*(e.tier?1.8:1)]))}
-function prepEvent(s,id){const e=EVS[id];if(!e)return null;if(s.royal&&e.pool&&!e.royalOK)return null;if(e.pool&&((e.when&&!e.when(s))||(e.stage&&!e.stage.includes(stageOf(s)))))return null;s.seen[id]=(s.seen[id]||0)+1;if(e.pre)e.pre(s);const hd=dv(s,e.hide);const h=hd?wpick(Object.entries(hd)):'*';
+function prepEvent(s,id){const e=EVS[id];if(!e)return null;if(e.lowOnly&&typeof HIGHP==='function'&&HIGHP(s))return null;if(s.royal&&e.pool&&!e.royalOK)return null;if(e.pool&&((e.when&&!e.when(s))||(e.stage&&!e.stage.includes(stageOf(s)))))return null;s.seen[id]=(s.seen[id]||0)+1;if(e.pre)e.pre(s);const hd=dv(s,e.hide);const h=hd?wpick(Object.entries(hd)):'*';
  return{id,h,kind:e.kind||'갈림길',fact:dv(s,e.fact)||'',title:dv(s,e.title),desc:dv(s,e.desc),opts:e.opts.filter(o=>!o.when||o.when(s)).map(o=>({t:dv(s,o.t),sub:dv(s,o.sub)||'',cost:o.cost?Math.round(dv(s,o.cost)):0,ref:o})).concat(extraOpts(s,id))}}
 function resolveEvent(s,prep,i){const e=EVS[prep.id],o=prep.opts[i];if(o.cost&&o.cost>s.money)return{err:'돈이 모자랍니다.'};if(o.cost)s.money-=o.cost;
  if(o.ref.trait||o.ref.contact)return resolveExtra(s,prep,o);
@@ -3698,6 +3698,40 @@ function storyYear(s,say){if(s.end||s.age<2)return;const st=stageOf(s),C=[];cons
   if(!s.royal&&dm>=Math.max(500,h[0].m))add(2,'장사가 조금씩 자리를 잡아 갑니다. 몇 해 전과는 밥상이 달라졌습니다.');else if(!s.royal&&h[0].m>200&&dm<=-h[0].m*.5)add(2,'몇 해째 살림이 줄어듭니다. 팔 수 있는 건 거의 다 팔았습니다.')}
  const ongoing=Object.entries(s.arcs||{}).filter(([k,a])=>a.st&&a.y>s.year);if(ongoing.length&&chance(.35)){const[k,a]=pick(ongoing);add(1,`〈${ARC_NAMES[k]}〉 이야기가 이어지고 있습니다. 다음 장은 ${a.y}년쯤 찾아옵니다.`)}
  if(!C.length)return;C.sort((a,b)=>b[0]-a[0]);const top=C[0];if(top[0]<3&&!chance(.55))return;say(top[1],'story')}
+
+/* ================================================================
+   2600만 분의 1 — 개연성: 신분에 맞지 않는 일은 일어나지 않습니다
+   인민배우 · 공훈배우 같은 예술인, 높은 간부, 위쪽 세상 사람에게 막일 · 품삯 · 장마당 잡일 · 해외 노동 파견은 오지 않습니다.
+   대신 그 신분에 맞는 일이 찾아옵니다.
+   ================================================================ */
+const isStar=s=>(s.art||0)>=2;const isBoss=s=>!!s.party&&(s.rank||0)>=3;
+const HIGHP=s=>!s.royal&&(isStar(s)||isBoss(s)||tierOf(s)==='elite');
+const LOW_EV=['mobil','abroadwork','factorystop','driverjob','m_stall','b_spring','b_debt','b_mine','b_cow','b_porter','b_relief','b_plotbust','gadu','sm_a','usb_a','kot_a','farm_a','truck_a','gold2_a','siberia_a','rest_a','twin_a','gamble_a','bundle_a','relay_a','quake_a','chef_a','dr_debt','dr_robbed','dr_cold','dr_powerout','dr_workfire','errandbust','tourist','kotjebi'];
+const LOW_ACT=['j_abroad','j_driver','j_police','j_teacher','j_clerk','j_e83','j_whole','c_move','o_dolgyeok','o_feast','o_squid','o_songi','o_goldpan','o_exchange','o_lotto','o_repair','o_stallbid','o_tutor','o_contest','o_stage','o_cnvisit','o_trip'];
+for(const id of LOW_EV){const e=EVS[id];if(!e)continue;const w0=e.when;e.when=s=>!HIGHP(s)&&(!w0||w0(s));if(!e.pool)e.lowOnly=1}
+for(const k of LOW_ACT){const a=ACTS.find(x=>x.k===k);if(!a)continue;const sh=a.show;a.show=s=>!HIGHP(s)&&sh(s)}
+/* 예술인에게만 오는 기회 */
+OP({k:'s_tour',ko:'해외 순회공연',d:'예술단과 함께 외국 무대에 · 감시원이 따라붙습니다',when:isStar,p:()=>.6,
+ w:[['석 달 동안 세 나라를 돌았습니다. 커튼콜 박수가 길었습니다. 호텔 창밖 불빛을 밤새 봤습니다.',{outside:12,joy:8,money:()=>R(300,900)}],['외국 관객이 무대 뒤로 꽃다발을 보냈습니다. 감시원이 꽃 속 카드를 먼저 읽었습니다.',{outside:10,joy:5,risk:3}]],
+ l:[['출국 사흘 전 순회공연이 취소됐습니다. "사정상"이었습니다.',{joy:-4}],['명단에서 내 이름만 빠졌습니다. 이유는 끝내 듣지 못했습니다.',{joy:-6}]]});
+OP({k:'s_tv',ko:'조선중앙TV 특집 출연',d:'온 나라가 보는 무대',when:isStar,p:()=>.7,
+ w:[['특집 방송이 나간 다음 날, 장마당 사람들이 나를 알아봤습니다.',{net:6,joy:5,loyal:3}],['방송국 국장이 내 노래를 명절 특집 마지막 곡으로 올렸습니다.',{net:5,loyal:4}]],
+ l:[['녹화 도중 가사를 틀렸습니다. 그 장면은 잘려 나갔지만 국장의 표정은 남았습니다.',{joy:-3}],['출연이 다른 배우로 바뀌었습니다. 그 배우의 아버지는 중앙당 사람입니다.',{joy:-4}]]});
+OP({k:'s_1ho',ko:'1호 행사 공연',d:'최고 무대 · 실수는 용서받지 못합니다',when:s=>(s.art||0)>=3,p:()=>.65,
+ w:[['공연이 끝나고 특별한 박수가 있었다는 말이 전해졌습니다. 다음 날 선물 상자가 집으로 왔습니다.',{loyal:8,net:6,money:()=>R(500,1500)}],['맨 앞줄에서 노래했습니다. 손이 떨렸지만 목소리는 떨리지 않았습니다.',{loyal:6,joy:6}]],
+ l:[['리허설에서 조명이 꺼졌습니다. 책임자가 바뀌었고, 나는 뒷줄로 갔습니다.',{joy:-5,risk:4}],['공연 직전 감기에 목이 잠겼습니다. 대역이 무대에 섰습니다.',{joy:-6}]]});
+OP({k:'s_pupil',ko:'후배 단원 지도',d:'내 노래를 물려줄 아이',when:s=>isStar(s)&&s.age>=35,p:()=>.75,
+ w:[['가르친 아이가 처음으로 큰 무대에 섰습니다. 객석 맨 뒤에서 몰래 봤습니다.',{joy:8,net:3}],['제자가 내가 부르던 노래를 나보다 잘 불렀습니다. 서운하지 않았습니다.',{joy:6}]],
+ l:[['제자가 다른 선생에게 옮겨 갔습니다. 그 선생은 단장과 가까운 사람입니다.',{joy:-3}]]});
+/* 간부에게만 오는 일 */
+OP({k:'b_inspect',ko:'지방 검열 지휘',d:'검열단을 이끌고 지방으로 · 봉투가 오갑니다',when:isBoss,p:()=>.65,
+ w:[['검열을 원칙대로 마쳤습니다. 지방 간부들이 나를 두려워하기 시작했습니다.',{loyal:6,net:-2,risk:-3}],['검열 끝에 지방 간부들이 연회를 열었습니다. 봉투는 받지 않았습니다. 그 일이 위에 좋게 보고됐습니다.',{loyal:6,net:4}]],
+ l:[['검열 보고서가 위에서 반려됐습니다. "너무 무르다."',{risk:6,joy:-3}],['검열 중에 내 고향 사람이 걸렸습니다. 모른 척할 수 없었습니다.',{joy:-6,net:-4}]]});
+OP({k:'b_guests',ko:'외국 대표단 접대',d:'통역 · 연회 · 말 한마디가 보고서가 됩니다',when:isBoss,p:()=>.6,
+ w:[['대표단장이 떠나며 내 손을 오래 잡았습니다. 외교 경로로 감사 편지가 왔습니다.',{outside:8,net:5}],['연회에서 대표단과 농담을 주고받았습니다. 동석한 보위부 사람도 웃었습니다.',{outside:6,joy:4}]],
+ l:[['대표단 하나가 거리에서 마음대로 사진을 찍었습니다. 책임이 내게 돌아왔습니다.',{risk:8}],['통역 실수로 연회 분위기가 얼어붙었습니다.',{joy:-4}]]});
+for(const o of OPS)if(LOW_ACT.includes(o.k)){const w0=o.when;o.when=s=>!HIGHP(s)&&(!w0||w0(s))}
+for(const k of['plot','herb','hire']){const d=DIRS.adult[k];if(d){const w0=d.when;d.when=s=>!HIGHP(s)&&(!w0||w0(s))}}
 
 /* ================================================================
    2600만 분의 1 — 결말 (위에서부터 먼저 맞는 것 하나)
