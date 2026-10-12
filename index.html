@@ -440,6 +440,8 @@ body::before{content:"";position:fixed;top:0;left:0;right:0;height:5px;backgroun
 @keyframes dltup{0%{opacity:0;transform:translateY(6px)}15%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0;transform:translateY(-8px)}}
 .mbig b.flash{animation:mflash 1s ease-out}.mbig b.flash.up{--fc:var(--good)}.mbig b.flash.dn{--fc:var(--bad)}@keyframes mflash{0%{color:var(--fc)}100%{}}
 @media (prefers-reduced-motion:reduce){.gage.pop,.dlt,.mbig b.flash{animation:none}.dlt{display:none}}
+
+.tln.story{color:var(--ink2)}.tln.story::before{content:'↳ ';color:var(--gold);font-weight:700}
 </style></head><body><section id="home" class="wrap">
  <div class="top"><span class="eyebrow">무료 인생 시뮬레이션 · 북한편 · 1년이 흘러갑니다</span><span class="topr"><button class="pill" type="button" id="installBtn" hidden>앱 설치</button><a class="pill link" href="https://alohang1985.github.io/debut-gak/">데뷔각 하러 가기 →</a><button class="pill" id="themeBtn" type="button" aria-label="밝은 화면과 어두운 화면 바꾸기">◐</button><span class="rating" title="15세 이상 · 수용소 · 죽음 같은 무거운 주제를 다룹니다" aria-label="15세 이상 이용가">15</span></span></div>
  <div class="slogan" aria-hidden="true"><div class="sl-in"><span>★ 고를 수 있는 건 아무것도 없다</span><span>★ 1년이 한 턴, 인생은 단 한 번</span><span>★ 성분은 태어나는 순간 정해진다</span><span>★ 배급표보다 장마당</span><span>★ 2600만 분의 1</span><span>★ 끝까지 살아 낸 사람이 이긴다</span><span>★ 고를 수 있는 건 아무것도 없다</span><span>★ 1년이 한 턴, 인생은 단 한 번</span><span>★ 성분은 태어나는 순간 정해진다</span><span>★ 배급표보다 장마당</span><span>★ 2600만 분의 1</span><span>★ 끝까지 살아 낸 사람이 이긴다</span></div></div>
@@ -935,7 +937,7 @@ function yearTurn(s){const out={events:[],lines:[]};s.age++;s.year++;const st=st
  // 시나리오: 때가 된 다음 장
  if(!s.end&&s.arcs)for(const[id,a]of Object.entries(s.arcs)){if(!a.st||a.y>s.year)continue;const ev=EVS[id+'_'+a.st];if(!ev){a.st=null;continue}if(ev.stage&&!ev.stage.includes(stageOf(s))){a.y=s.year+1;continue}if(out.events.length<3&&!out.events.includes(ev.id)){out.events.push(ev.id);a.st=null}}
  if(!s.end&&s.age%5===0&&s.age<=60)peerNote(s,say);
- traitYear(s);autoYear(s,say);newsYear(s,say);eggYear(s,say);
+ traitYear(s);autoYear(s,say);newsYear(s,say);eggYear(s,say);storyYear(s,say);
  s.hist.push({a:s.age,hp:Math.round(s.hp),r:Math.round(s.risk),j:Math.round(s.joy),m:Math.round(s.money),t:stageOf(s)});if(s.hist.length>120)s.hist.shift();
  // 선택 사건
  if(!s.end&&out.events.length<2){const p=s.age<6?(s.age>=2?.5:0):s.age<17?.36:.44;if(chance(p)){const e=pickEvent(s);if(e&&!out.events.includes(e))out.events.push(e)}}
@@ -3672,6 +3674,32 @@ const EGGS=[
 function eggYear(s,say){if(s.end)return;s.eggs=s.eggs||{};for(const e of EGGS){if(s.eggs[e.k])continue;let ok=false;try{ok=e.c(s)}catch(_){ok=false}if(!ok)continue;s.eggs[e.k]=s.year;const t=e.fx?e.fx(s):e.d;say(`희귀 기록 · ${e.ko} — ${t}`,'mile');big(s,`희귀 기록: ${e.ko}`,3);s.flags.eggNew=e.k}}
 
 /* ================================================================
+   2600만 분의 1 — 이야기 잇기
+   해마다 지난 일과 이어지는 한 줄: 기념일 · 아이의 성장 · 기일 · 이어지는 흐름 · 진행 중인 이야기
+   ================================================================ */
+function storyYear(s,say){if(s.end||s.age<2)return;const st=stageOf(s),C=[];const add=(p,t)=>C.push([p,t]);
+ for(const m of kidsOf(s)){const a=ageOf(s,m),n=m.name.slice(1),ni=n+P(n,'이/가');
+  if(a===1)add(5,`${n}의 첫돌입니다. ${pick(['돌상 위에 연필과 돈을 나란히 올려 두었습니다.','이웃들이 국수 한 그릇씩 먹고 갔습니다.','정전된 방에서 촛불을 켜고 돌을 쇘습니다.'])}`);
+  if(a===3)add(2,`${ni} 제법 말을 합니다. ${pick(['"아빠", "엄마" 다음으로 배운 말이 "배고파"였습니다.','하루 종일 "왜?"라고 묻습니다.'])}`);
+  if(a===7&&!s.royal)add(4,`${ni} 소학교에 들어갔습니다. 첫날 책가방을 메고 몇 번이나 뒤돌아봤습니다.`);
+  if(a===11&&!s.royal)add(3,`${ni} 붉은 넥타이를 맸습니다. 그날 저녁 넥타이를 풀지 않고 잤습니다.`);
+  if(a===17&&!s.royal)add(3,`${ni} 고급중학교를 마쳤습니다. 어느새 나보다 키가 컸습니다.`)}
+ for(const b of s.big||[]){const y=s.age-b.age;if(![1,5,10,20,30,40].includes(y))continue;
+  if(/(과|와) 결혼$/.test(b.t)&&s.married)add(4,`결혼한 지 ${y}년이 됐습니다. ${y===1?pick(['첫해를 다툼 없이 넘긴 게 신기했습니다.','둘이서 국수 한 그릇으로 첫 기념일을 보냈습니다.']):y>=20?'이제는 말하지 않아도 서로 무슨 생각을 하는지 압니다.':pick(['그날 찍은 사진 한 장이 아직 벽에 걸려 있습니다.','결혼식 날 이야기가 나오면 둘 다 웃습니다.'])}`);
+  if(/잃음$/.test(b.t)){const who=b.t.replace(/(을|를) 잃음$/,'');add(4,`${who}의 ${y===1?'첫 기일':y+'주기'}입니다. ${pick(['상 위에 좋아하던 음식을 올렸습니다.','산소에 다녀왔습니다. 풀이 무성했습니다.','아무도 그 이야기를 꺼내지 않았지만, 다들 알고 있었습니다.'])}`)}
+  if(b.t==='입당'&&s.party)add(2,`당원증을 받은 지 ${y}년. ${y>=10?'그 무게에 이제 익숙해졌습니다.':'아직도 가슴 주머니가 무겁습니다.'}`);
+  if(/끌려감$/.test(b.t)&&!['jail','camp'].includes(st)&&y>=5)add(3,`${y}년 전 끌려가던 날을 아직도 꿈에서 봅니다.`);
+  if(b.t==='두만강을 건넘')add(4,`강을 건넌 지 ${y}년이 됐습니다. 북에 두고 온 얼굴들이 먼저 떠오릅니다.`);
+  if(b.t==='최고지도자 취임')add(3,`권좌에 오른 지 ${y}년. ${y>=10?'이제 회의장에서 누구도 내 눈을 똑바로 보지 않습니다.':'아직도 집무실 의자가 낯섭니다.'}`)}
+ if(s.led&&s.led.starve){if(s.flags.lastStarve===s.year-1)add(3,pick(['작년에 이어 올해도 배를 곯았습니다.','두 해째 이어지는 보릿고개입니다. 아이들 키가 자라지 않습니다.','또 한 해 굶주렸습니다. 이제 배고픔이 일상이 됐습니다.']));s.flags.lastStarve=s.year}
+ else if(s.flags.lastStarve===s.year-1)add(3,'지난해의 굶주림이 끝났습니다. 오랜만에 밥상에 쌀알이 보였습니다.');
+ const h=(s.hist||[]).slice(-4);if(h.length===4&&['adult','royal','school'].includes(st)){const dh=h[3].hp-h[0].hp,dm=h[3].m-h[0].m;
+  if(dh<=-15)add(2,'몇 해째 몸이 예전 같지 않습니다. 계단 오르는 게 숨찹니다.');else if(dh>=12)add(1,'몇 해 사이 몸이 눈에 띄게 좋아졌습니다.');
+  if(!s.royal&&dm>=Math.max(500,h[0].m))add(2,'장사가 조금씩 자리를 잡아 갑니다. 몇 해 전과는 밥상이 달라졌습니다.');else if(!s.royal&&h[0].m>200&&dm<=-h[0].m*.5)add(2,'몇 해째 살림이 줄어듭니다. 팔 수 있는 건 거의 다 팔았습니다.')}
+ const ongoing=Object.entries(s.arcs||{}).filter(([k,a])=>a.st&&a.y>s.year);if(ongoing.length&&chance(.35)){const[k,a]=pick(ongoing);add(1,`〈${ARC_NAMES[k]}〉 이야기가 이어지고 있습니다. 다음 장은 ${a.y}년쯤 찾아옵니다.`)}
+ if(!C.length)return;C.sort((a,b)=>b[0]-a[0]);const top=C[0];if(top[0]<3&&!chance(.55))return;say(top[1],'story')}
+
+/* ================================================================
    2600만 분의 1 — 결말 (위에서부터 먼저 맞는 것 하나)
    정답은 없습니다. 살아온 길에 따라 112가지로 갈립니다.
    ================================================================ */
@@ -4133,7 +4161,7 @@ function refreshHome(){const dx=LS.get('nk.dex',{});syncRoyalBtn();const found=E
  const cur=LS.get('nk.cur',null),rb=$('resumeBox');if(cur&&!cur.end){rb.hidden=false;rb.className='resume';rb.innerHTML=`<span><b>${esc(cur.name)}</b>의 삶이 이어지고 있어요 · ${cur.age}세</span><button class="btn pri" type="button" id="rbGo">이어서</button><button class="btn" type="button" id="rbDrop">내려놓기</button>`;
   $('rbGo').onclick=()=>{S=migrate(cur);if(!S.q)S.q=[];if(S.yp==null)S.yp=0;if(!S.own)S.own={};if(S.joy==null)S.joy=55;if(!S.hist)S.hist=[];enterGame()};$('rbDrop').onclick=()=>{LS.del('nk.cur');rb.hidden=true}}else rb.hidden=true}
 function startLife(opt){S=newLife(opt&&(opt.royal||opt.absolute)?opt:undefined);S.q=[];S.yp=0;save();birthSeq(S,enterGame);liveSend('born',{r:S.royal?1:0})}
-function enterGame(){TL_N=6;TL_F='all';show('game');FLOW.busy=false;FLOW.parked=false;$('parked').hidden=true;buildCtrl();renderAll();startLoop();if(S.age===0)toast(`1년 ≈ ${fmtSec(secPerYear())}초 · 속도는 위에서 바꿀 수 있어요`)}
+function enterGame(){TL_N=3;TL_F='all';show('game');FLOW.busy=false;FLOW.parked=false;$('parked').hidden=true;buildCtrl();renderAll();startLoop();if(S.age===0)toast(`1년 ≈ ${fmtSec(secPerYear())}초 · 속도는 위에서 바꿀 수 있어요`)}
 const fmtSec=v=>v<3?v.toFixed(1):Math.round(v);
 
 /* ---------- 출생: 장소 → 성분 → 출생 신고 ---------- */
@@ -4284,8 +4312,8 @@ function renderTabs(){for(const b of document.querySelectorAll('.tabh button'))b
  $('tabBody').innerHTML=TAB==='acts'?tabActs():TAB==='shop'?tabShop():TAB==='led'?tabLed():tabFocus()}
 
 /* ---------- 인생 기록 · 지도 · 자료 ---------- */
-let TL_ALL=false,TL_N=6,TL_F='all';
-const TL_KEY=['mile','good','bad','news','peer','ep'];
+let TL_ALL=false,TL_N=3,TL_F='all';
+const TL_KEY=['mile','good','bad','news','peer','ep','story'];
 function tlLine(l,open){if(l.c==='peer'&&Array.isArray(l.x))return`<div class="tln peer"><b>같은 해에 태어난 사람들</b><span class="pl">${l.x.map(p=>`<span><b>${esc(p.n)}</b> ${esc(p.ko)} · ${esc(p.st)}</span>`).join('')}</span></div>`;
  const f=l.x&&l.x.fact;return`<div class="tln ${l.c}">${esc(l.t)}${f?`<details class="src"${open?' open':''}><summary>자료</summary>${esc(f)}</details>`:''}</div>`}
 function tlItem(l){return`<li class="yr ${l.c}"><span class="a">${l.age}세</span><div class="ys">${tlLine(l,false)}</div></li>`}
@@ -4421,7 +4449,7 @@ function boot(){applyTheme(LS.get('nk.theme',null));initPWA();refreshHome();mapS
   if(cbu||cse){if(FLOW.busy||!$('modal').hidden)return;const r=cbu?coinBuy(S,cbu.dataset.cbuy,.1):coinSell(S,cse.dataset.csell);if(r.err){toast(r.err);return}FLOW.busy=true;modal('코인','odd',cbu?'코인 사기':'코인 팔기','');$('mBody').innerHTML='';showResult(r.t,r.ch,0,afterEvent);return}
   if(bu){if(FLOW.busy||!$('modal').hidden)return;const r=buy(S,bu.dataset.buy);if(r.err){toast(r.err);return}FLOW.busy=true;modal('장마당','odd',r.title,'');$('mBody').innerHTML='';showResult(r.t||'샀습니다.',r.ch,0,afterEvent,r.tw)}
   const se=e.target.closest('[data-sell]');if(se){if(FLOW.busy||!$('modal').hidden)return;const r=sellItem(S,se.dataset.sell);if(r.err){toast(r.err);return}FLOW.busy=true;modal('장마당','odd','되팔기','');$('mBody').innerHTML='';showResult(r.t,r.ch,1,afterEvent)}};
- $('moreBtn').onclick=()=>{TL_N+=10;renderTL()};$('tlF').onclick=e=>{const b=e.target.closest('[data-tlf]');if(!b)return;TL_F=b.dataset.tlf;TL_N=6;renderTL()};
+ $('moreBtn').onclick=()=>{TL_N+=10;renderTL()};$('tlF').onclick=e=>{const b=e.target.closest('[data-tlf]');if(!b)return;TL_F=b.dataset.tlf;TL_N=3;renderTL()};
  addEventListener('keydown',e=>{if($('modal').hidden)return;if(/^[1-4]$/.test(e.key)){const b=$('mBody').querySelectorAll('.opt')[+e.key-1];if(b&&!b.disabled){e.preventDefault();b.click()}}})}
 boot();
 
